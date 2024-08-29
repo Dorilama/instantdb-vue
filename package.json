@@ -31,10 +31,5 @@
   },
   "peerDependencies": {
     "vue": "^3.0.0-0"
-  },
-  "peerDependenciesMeta": {
-    "vue": {
-      "optional": true
-    }
   }
 }
