@@ -26,9 +26,11 @@ import {
 //   useMemo,
 //   useState,
 // } from "react";
-import { useQuery, useQueryReturn } from "./useQuery";
-import { MaybeRef, ShallowRef } from "vue";
+import { useQuery, UseQueryReturn } from "./useQuery";
+import { MaybeRef, onScopeDispose, ref, shallowRef, ShallowRef } from "vue";
 // import { useTimeout } from "./useTimeout";
+
+type UseAuthReturn = { [K in keyof AuthState]: ShallowRef<AuthState[K]> };
 
 // export type PresenceHandle<
 //   PresenceShape,
@@ -382,7 +384,7 @@ export class InstantVue<Schema = {}, RoomSchema extends RoomSchemaShape = {}> {
    */
   useQuery = <Q extends Query>(
     query: MaybeRef<Exactly<Query, Q> | null>
-  ): useQueryReturn<Q, Schema> => {
+  ): UseQueryReturn<Q, Schema> => {
     return useQuery(this._core, query).state;
   };
 
@@ -409,21 +411,24 @@ export class InstantVue<Schema = {}, RoomSchema extends RoomSchemaShape = {}> {
    *  }
    *
    */
-  // useAuth = (): AuthState => {
-  //   // (XXX): Don't set `isLoading` true if we already have data, would
-  //   // be better to immediately show loaded data
-  //   const [state, setState] = useState({
-  //     isLoading: true,
-  //     user: undefined,
-  //     error: undefined,
-  //   });
-  //   useEffect(() => {
-  //     const unsub = this._core._reactor.subscribeAuth((resp: any) => {
-  //       setState({ isLoading: false, ...resp });
-  //     });
-  //     return unsub;
-  //   }, []);
+  useAuth = (): UseAuthReturn => {
+    // (XXX): Don't set `isLoading` true if we already have data, would
+    // be better to immediately show loaded data
+    const state: UseAuthReturn = {
+      isLoading: ref(true),
+      user: shallowRef(undefined),
+      error: shallowRef(undefined),
+    };
+    const unsubscribe = this._core._reactor.subscribeAuth((resp: any) => {
+      state.isLoading.value = false;
+      state.user.value = resp.user;
+      state.error.value = resp.error;
+    });
 
-  //   return state;
-  // };
+    onScopeDispose(() => {
+      unsubscribe();
+    });
+
+    return state;
+  };
 }

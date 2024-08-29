@@ -21,7 +21,7 @@ import {
   ref,
 } from "vue";
 
-export type useQueryReturn<Q, Schema> = {
+export type UseQueryReturn<Q, Schema> = {
   [K in keyof LifecycleSubscriptionState<Q, Schema>]: ShallowRef<
     LifecycleSubscriptionState<Q, Schema>[K]
   >;
@@ -32,7 +32,7 @@ const noop = () => {};
 export function useQuery<Q extends Query, Schema>(
   _core: InstantClient<Schema>,
   _query: MaybeRef<Exactly<Query, Q> | null>
-): { state: useQueryReturn<Q, Schema>; query: any } {
+): { state: UseQueryReturn<Q, Schema>; query: any } {
   const query = computed(() => {
     return _query ? coerceQuery(toValue(_query)) : null;
   });
@@ -40,7 +40,7 @@ export function useQuery<Q extends Query, Schema>(
     return weakHash(query.value);
   });
 
-  const state: useQueryReturn<Q, Schema> = {
+  const state: UseQueryReturn<Q, Schema> = {
     isLoading: ref(true),
     data: shallowRef(undefined),
     pageInfo: shallowRef(undefined),

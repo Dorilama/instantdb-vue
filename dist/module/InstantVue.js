@@ -10,7 +10,7 @@ import { init as initCore, } from "@instantdb/core";
 //   useState,
 // } from "react";
 import { useQuery } from "./useQuery";
-// import { useTimeout } from "./useTimeout";
+import { onScopeDispose, ref, shallowRef } from "vue";
 // export type PresenceHandle<
 //   PresenceShape,
 //   Keys extends keyof PresenceShape
@@ -316,6 +316,47 @@ export class InstantVue {
          */
         this.useQuery = (query) => {
             return useQuery(this._core, query).state;
+        };
+        /**
+         * Listen for the logged in state. This is useful
+         * for deciding when to show a login screen.
+         *
+         * Check out the docs for an example `Login` component too!
+         *
+         * @see https://instantdb.com/docs/auth
+         * @example
+         *  function App() {
+         *    const { isLoading, user, error } = db.useAuth()
+         *    if (isLoading) {
+         *      return <div>Loading...</div>
+         *    }
+         *    if (error) {
+         *      return <div>Uh oh! {error.message}</div>
+         *    }
+         *    if (user) {
+         *      return <Main user={user} />
+         *    }
+         *    return <Login />
+         *  }
+         *
+         */
+        this.useAuth = () => {
+            // (XXX): Don't set `isLoading` true if we already have data, would
+            // be better to immediately show loaded data
+            const state = {
+                isLoading: ref(true),
+                user: shallowRef(undefined),
+                error: shallowRef(undefined),
+            };
+            const unsubscribe = this._core._reactor.subscribeAuth((resp) => {
+                state.isLoading.value = false;
+                state.user.value = resp.user;
+                state.error.value = resp.error;
+            });
+            onScopeDispose(() => {
+                unsubscribe();
+            });
+            return state;
         };
         this._core = initCore(config, 
         // @ts-expect-error because TS can't resolve subclass statics

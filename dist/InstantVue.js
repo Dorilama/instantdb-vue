@@ -13,7 +13,7 @@ const core_1 = require("@instantdb/core");
 //   useState,
 // } from "react";
 const useQuery_1 = require("./useQuery");
-// import { useTimeout } from "./useTimeout";
+const vue_1 = require("vue");
 // export type PresenceHandle<
 //   PresenceShape,
 //   Keys extends keyof PresenceShape
@@ -319,6 +319,47 @@ class InstantVue {
          */
         this.useQuery = (query) => {
             return (0, useQuery_1.useQuery)(this._core, query).state;
+        };
+        /**
+         * Listen for the logged in state. This is useful
+         * for deciding when to show a login screen.
+         *
+         * Check out the docs for an example `Login` component too!
+         *
+         * @see https://instantdb.com/docs/auth
+         * @example
+         *  function App() {
+         *    const { isLoading, user, error } = db.useAuth()
+         *    if (isLoading) {
+         *      return <div>Loading...</div>
+         *    }
+         *    if (error) {
+         *      return <div>Uh oh! {error.message}</div>
+         *    }
+         *    if (user) {
+         *      return <Main user={user} />
+         *    }
+         *    return <Login />
+         *  }
+         *
+         */
+        this.useAuth = () => {
+            // (XXX): Don't set `isLoading` true if we already have data, would
+            // be better to immediately show loaded data
+            const state = {
+                isLoading: (0, vue_1.ref)(true),
+                user: (0, vue_1.shallowRef)(undefined),
+                error: (0, vue_1.shallowRef)(undefined),
+            };
+            const unsubscribe = this._core._reactor.subscribeAuth((resp) => {
+                state.isLoading.value = false;
+                state.user.value = resp.user;
+                state.error.value = resp.error;
+            });
+            (0, vue_1.onScopeDispose)(() => {
+                unsubscribe();
+            });
+            return state;
         };
         this._core = (0, core_1.init)(config, 
         // @ts-expect-error because TS can't resolve subclass statics
