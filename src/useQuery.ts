@@ -47,30 +47,22 @@ export function useQuery<Q extends Query, Schema>(
     error: shallowRef(undefined),
   };
 
-  let unsubscribe = noop;
-
-  const stopWatch = watch(
+  const stop = watch(
     queryHash,
-    () => {
-      unsubscribe();
+    (_, __, onCleanup) => {
       if (!query.value) {
-        unsubscribe = noop;
         return;
       }
-      unsubscribe = _core.subscribeQuery<Q>(query.value, (result) => {
+      const unsubscribe = _core.subscribeQuery<Q>(query.value, (result) => {
         state.isLoading.value = !Boolean(result);
         state.data.value = result.data;
         state.pageInfo.value = result.pageInfo;
         state.error.value = result.error;
       });
+      onCleanup(unsubscribe);
     },
     { immediate: true }
   );
-
-  function stop() {
-    stopWatch();
-    unsubscribe();
-  }
 
   onScopeDispose(() => {
     stop();

@@ -159,25 +159,28 @@ export class InstantReactRoom<
    * }
    *
    */
-  usePublishTopic = <Topic extends keyof RoomSchema[RoomType]["topics"]>(
-    topic: Topic
-  ): ((data: RoomSchema[RoomType]["topics"][Topic]) => void) => {
-    useEffect(() => this._core._reactor.joinRoom(this.id), [this.id]);
+  // usePublishTopic = <Topic extends keyof RoomSchema[RoomType]["topics"]>(
+  //   topic: MaybeRef<Topic>
+  // ): ((data: RoomSchema[RoomType]["topics"][Topic]) => void) => {
+  //   const topicType = toValue(topic)
+  //   this._core._reactor.joinRoom(this.id)
 
-    const publishTopic = useCallback(
-      (data) => {
-        this._core._reactor.publishTopic({
-          roomType: this.type,
-          roomId: this.id,
-          topic,
-          data,
-        });
-      },
-      [this.id, topic]
-    );
+  //   useEffect(() => this._core._reactor.joinRoom(this.id), [this.id]);
 
-    return publishTopic;
-  };
+  //   const publishTopic = useCallback(
+  //     (data) => {
+  //       this._core._reactor.publishTopic({
+  //         roomType: this.type,
+  //         roomId: this.id,
+  //         topic,
+  //         data,
+  //       });
+  //     },
+  //     [this.id, topic]
+  //   );
+
+  //   return publishTopic;
+  // };
 
   /**
    * Listen for peer's presence data in a room, and publish the current user's presence.
@@ -193,40 +196,40 @@ export class InstantReactRoom<
    *    // ...
    *  }
    */
-  usePresence = <Keys extends keyof RoomSchema[RoomType]["presence"]>(
-    opts: PresenceOpts<RoomSchema[RoomType]["presence"], Keys> = {}
-  ): PresenceHandle<RoomSchema[RoomType]["presence"], Keys> => {
-    const [state, setState] = useState<
-      PresenceResponse<RoomSchema[RoomType]["presence"], Keys>
-    >(() => {
-      return (
-        this._core._reactor.getPresence(this.type, this.id, opts) ?? {
-          peers: {},
-          isLoading: true,
-        }
-      );
-    });
+  // usePresence = <Keys extends keyof RoomSchema[RoomType]["presence"]>(
+  //   opts: PresenceOpts<RoomSchema[RoomType]["presence"], Keys> = {}
+  // ): PresenceHandle<RoomSchema[RoomType]["presence"], Keys> => {
+  //   const [state, setState] = useState<
+  //     PresenceResponse<RoomSchema[RoomType]["presence"], Keys>
+  //   >(() => {
+  //     return (
+  //       this._core._reactor.getPresence(this.type, this.id, opts) ?? {
+  //         peers: {},
+  //         isLoading: true,
+  //       }
+  //     );
+  //   });
 
-    useEffect(() => {
-      const unsub = this._core._reactor.subscribePresence(
-        this.type,
-        this.id,
-        opts,
-        (data) => {
-          setState(data);
-        }
-      );
+  //   useEffect(() => {
+  //     const unsub = this._core._reactor.subscribePresence(
+  //       this.type,
+  //       this.id,
+  //       opts,
+  //       (data) => {
+  //         setState(data);
+  //       }
+  //     );
 
-      return unsub;
-    }, [this.id, opts.user, opts.peers?.join(), opts.keys?.join()]);
+  //     return unsub;
+  //   }, [this.id, opts.user, opts.peers?.join(), opts.keys?.join()]);
 
-    return {
-      ...state,
-      publishPresence: (data) => {
-        this._core._reactor.publishPresence(this.type, this.id, data);
-      },
-    };
-  };
+  //   return {
+  //     ...state,
+  //     publishPresence: (data) => {
+  //       this._core._reactor.publishPresence(this.type, this.id, data);
+  //     },
+  //   };
+  // };
 
   /**
    * Publishes presence data to a room
@@ -239,14 +242,14 @@ export class InstantReactRoom<
    *    // ...
    *  }
    */
-  useSyncPresence = (
-    data: Partial<RoomSchema[RoomType]["presence"]>,
-    deps?: any[]
-  ): void => {
-    useEffect(() => {
-      return this._core._reactor.publishPresence(this.type, this.id, data);
-    }, [this.type, this.id, deps ?? JSON.stringify(data)]);
-  };
+  // useSyncPresence = (
+  //   data: Partial<RoomSchema[RoomType]["presence"]>,
+  //   deps?: any[]
+  // ): void => {
+  //   useEffect(() => {
+  //     return this._core._reactor.publishPresence(this.type, this.id, data);
+  //   }, [this.type, this.id, deps ?? JSON.stringify(data)]);
+  // };
 
   /**
    * Manage typing indicator state
@@ -263,63 +266,63 @@ export class InstantReactRoom<
    *    return <input {...inputProps} />;
    *  }
    */
-  useTypingIndicator = (
-    inputName: string,
-    opts: TypingIndicatorOpts = {}
-  ): TypingIndicatorHandle<RoomSchema[RoomType]["presence"]> => {
-    const timeout = useTimeout();
+  // useTypingIndicator = (
+  //   inputName: string,
+  //   opts: TypingIndicatorOpts = {}
+  // ): TypingIndicatorHandle<RoomSchema[RoomType]["presence"]> => {
+  //   const timeout = useTimeout();
 
-    const onservedPresence = this.usePresence({
-      keys: [inputName],
-    });
+  //   const onservedPresence = this.usePresence({
+  //     keys: [inputName],
+  //   });
 
-    const active = useMemo(() => {
-      const presenceSnapshot = this._core._reactor.getPresence(
-        this.type,
-        this.id
-      );
+  //   const active = useMemo(() => {
+  //     const presenceSnapshot = this._core._reactor.getPresence(
+  //       this.type,
+  //       this.id
+  //     );
 
-      return opts?.writeOnly
-        ? []
-        : Object.values(presenceSnapshot?.peers ?? {}).filter(
-            (p) => p[inputName] === true
-          );
-    }, [opts?.writeOnly, onservedPresence]);
+  //     return opts?.writeOnly
+  //       ? []
+  //       : Object.values(presenceSnapshot?.peers ?? {}).filter(
+  //           (p) => p[inputName] === true
+  //         );
+  //   }, [opts?.writeOnly, onservedPresence]);
 
-    const setActive = (isActive: boolean) => {
-      this._core._reactor.publishPresence(this.type, this.id, {
-        [inputName]: isActive,
-      } as unknown as Partial<RoomSchema[RoomType]>);
+  //   const setActive = (isActive: boolean) => {
+  //     this._core._reactor.publishPresence(this.type, this.id, {
+  //       [inputName]: isActive,
+  //     } as unknown as Partial<RoomSchema[RoomType]>);
 
-      if (!isActive) return;
+  //     if (!isActive) return;
 
-      if (opts?.timeout === null || opts?.timeout === 0) return;
+  //     if (opts?.timeout === null || opts?.timeout === 0) return;
 
-      timeout.set(opts?.timeout ?? defaultActivityStopTimeout, () => {
-        this._core._reactor.publishPresence(this.type, this.id, {
-          [inputName]: null,
-        } as Partial<RoomSchema[RoomType]>);
-      });
-    };
+  //     timeout.set(opts?.timeout ?? defaultActivityStopTimeout, () => {
+  //       this._core._reactor.publishPresence(this.type, this.id, {
+  //         [inputName]: null,
+  //       } as Partial<RoomSchema[RoomType]>);
+  //     });
+  //   };
 
-    return {
-      active,
-      setActive: (a: boolean) => {
-        setActive(a);
-      },
-      inputProps: {
-        onKeyDown: (e: KeyboardEvent) => {
-          const isEnter = opts?.stopOnEnter && e.key === "Enter";
-          const isActive = !isEnter;
+  //   return {
+  //     active,
+  //     setActive: (a: boolean) => {
+  //       setActive(a);
+  //     },
+  //     inputProps: {
+  //       onKeyDown: (e: KeyboardEvent) => {
+  //         const isEnter = opts?.stopOnEnter && e.key === "Enter";
+  //         const isActive = !isEnter;
 
-          setActive(isActive);
-        },
-        onBlur: () => {
-          setActive(false);
-        },
-      },
-    };
-  };
+  //         setActive(isActive);
+  //       },
+  //       onBlur: () => {
+  //         setActive(false);
+  //       },
+  //     },
+  //   };
+  // };
 }
 
 export class InstantVue<Schema = {}, RoomSchema extends RoomSchemaShape = {}> {
