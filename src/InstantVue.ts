@@ -27,7 +27,15 @@ import {
 //   useState,
 // } from "react";
 import { useQuery, UseQueryReturn } from "./useQuery";
-import { MaybeRef, onScopeDispose, ref, shallowRef, ShallowRef } from "vue";
+import {
+  MaybeRef,
+  onScopeDispose,
+  ref,
+  shallowRef,
+  ShallowRef,
+  toValue,
+  watchEffect,
+} from "vue";
 // import { useTimeout } from "./useTimeout";
 
 type UseAuthReturn = { [K in keyof AuthState]: ShallowRef<AuthState[K]> };
@@ -55,236 +63,264 @@ type UseAuthReturn = { [K in keyof AuthState]: ShallowRef<AuthState[K]> };
 //   };
 // };
 
+type Arrayable<T> = T[] | T;
+
 // export const defaultActivityStopTimeout = 1_000;
 
-// export class InstantReactRoom<
-//   Schema,
-//   RoomSchema extends RoomSchemaShape,
-//   RoomType extends keyof RoomSchema
-// > {
-//   _core: InstantClient<Schema, RoomSchema>;
-//   type: RoomType;
-//   id: string;
+export class InstantReactRoom<
+  Schema,
+  RoomSchema extends RoomSchemaShape,
+  RoomType extends keyof RoomSchema
+> {
+  _core: InstantClient<Schema, RoomSchema>;
+  type: RoomType;
+  id: string;
 
-//   constructor(
-//     _core: InstantClient<Schema, RoomSchema>,
-//     type: RoomType,
-//     id: string
-//   ) {
-//     this._core = _core;
-//     this.type = type;
-//     this.id = id;
-//   }
+  constructor(
+    _core: InstantClient<Schema, RoomSchema>,
+    type: RoomType,
+    id: string
+  ) {
+    this._core = _core;
+    this.type = type;
+    this.id = id;
+  }
 
-//   /**
-//    * Listen for broadcasted events given a room and topic.
-//    *
-//    * @see https://instantdb.com/docs/presence-and-topics
-//    * @example
-//    *  function App({ roomId }) {
-//    *    db.room(roomType, roomId).useTopicEffect("chat", (message, peer) => {
-//    *      console.log("New message", message, 'from', peer.name);
-//    *    });
-//    *
-//    *    // ...
-//    *  }
-//    */
-//   useTopicEffect = <TopicType extends keyof RoomSchema[RoomType]["topics"]>(
-//     topic: TopicType,
-//     onEvent: (
-//       event: RoomSchema[RoomType]["topics"][TopicType],
-//       peer: RoomSchema[RoomType]["presence"]
-//     ) => any
-//   ): void => {
-//     useEffect(() => {
-//       const unsub = this._core._reactor.subscribeTopic(
-//         this.id,
-//         topic,
-//         (event, peer) => {
-//           onEvent(event, peer);
-//         }
-//       );
+  /**
+   * Listen for broadcasted events given a room and topic.
+   *
+   * @see https://instantdb.com/docs/presence-and-topics
+   * @example
+   *  function App({ roomId }) {
+   *    db.room(roomType, roomId).useTopicEffect("chat", (message, peer) => {
+   *      console.log("New message", message, 'from', peer.name);
+   *    });
+   *
+   *    // ...
+   *  }
+   */
+  useTopicEffect = <TopicType extends keyof RoomSchema[RoomType]["topics"]>(
+    topic: MaybeRef<Arrayable<TopicType>>,
+    onEvent: Arrayable<
+      (
+        event: RoomSchema[RoomType]["topics"][TopicType],
+        peer: RoomSchema[RoomType]["presence"]
+      ) => any
+    >
+  ): (() => void) => {
+    const cleanup: (() => void)[] = [];
+    function unsubscribe() {
+      cleanup.forEach((fn) => fn());
+      cleanup.length = 0;
+    }
+    const stopWatch = watchEffect(() => {
+      unsubscribe();
+      const _topic = toValue(topic);
+      const topicArray = Array.isArray(_topic) ? _topic : [_topic];
+      const callbacks = Array.isArray(onEvent) ? onEvent : [onEvent];
+      cleanup.push(
+        ...topicArray.map((topicType) => {
+          return this._core._reactor.subscribeTopic(
+            this.id,
+            topicType,
+            (event, peer) => {
+              callbacks.forEach((cb) => {
+                cb(event, peer);
+              });
+            }
+          );
+        })
+      );
+    });
 
-//       return unsub;
-//     }, [this.id, topic]);
-//   };
+    function stop() {
+      stopWatch();
+      unsubscribe();
+    }
 
-//   /**
-//    * Broadcast an event to a room.
-//    *
-//    * @see https://instantdb.com/docs/presence-and-topics
-//    * @example
-//    * function App({ roomId }) {
-//    *   const publishTopic = db.room(roomType, roomId).usePublishTopic("clicks");
-//    *
-//    *   return (
-//    *     <button onClick={() => publishTopic({ ts: Date.now() })}>Click me</button>
-//    *   );
-//    * }
-//    *
-//    */
-//   usePublishTopic = <Topic extends keyof RoomSchema[RoomType]["topics"]>(
-//     topic: Topic
-//   ): ((data: RoomSchema[RoomType]["topics"][Topic]) => void) => {
-//     useEffect(() => this._core._reactor.joinRoom(this.id), [this.id]);
+    onScopeDispose(() => {
+      stop();
+    });
 
-//     const publishTopic = useCallback(
-//       (data) => {
-//         this._core._reactor.publishTopic({
-//           roomType: this.type,
-//           roomId: this.id,
-//           topic,
-//           data,
-//         });
-//       },
-//       [this.id, topic]
-//     );
+    return stop;
+  };
 
-//     return publishTopic;
-//   };
+  /**
+   * Broadcast an event to a room.
+   *
+   * @see https://instantdb.com/docs/presence-and-topics
+   * @example
+   * function App({ roomId }) {
+   *   const publishTopic = db.room(roomType, roomId).usePublishTopic("clicks");
+   *
+   *   return (
+   *     <button onClick={() => publishTopic({ ts: Date.now() })}>Click me</button>
+   *   );
+   * }
+   *
+   */
+  usePublishTopic = <Topic extends keyof RoomSchema[RoomType]["topics"]>(
+    topic: Topic
+  ): ((data: RoomSchema[RoomType]["topics"][Topic]) => void) => {
+    useEffect(() => this._core._reactor.joinRoom(this.id), [this.id]);
 
-//   /**
-//    * Listen for peer's presence data in a room, and publish the current user's presence.
-//    *
-//    * @see https://instantdb.com/docs/presence-and-topics
-//    * @example
-//    *  function App({ roomId }) {
-//    *    const {
-//    *      peers,
-//    *      publishPresence
-//    *    } = db.room(roomType, roomId).usePresence({ keys: ["name", "avatar"] });
-//    *
-//    *    // ...
-//    *  }
-//    */
-//   usePresence = <Keys extends keyof RoomSchema[RoomType]["presence"]>(
-//     opts: PresenceOpts<RoomSchema[RoomType]["presence"], Keys> = {}
-//   ): PresenceHandle<RoomSchema[RoomType]["presence"], Keys> => {
-//     const [state, setState] = useState<
-//       PresenceResponse<RoomSchema[RoomType]["presence"], Keys>
-//     >(() => {
-//       return (
-//         this._core._reactor.getPresence(this.type, this.id, opts) ?? {
-//           peers: {},
-//           isLoading: true,
-//         }
-//       );
-//     });
+    const publishTopic = useCallback(
+      (data) => {
+        this._core._reactor.publishTopic({
+          roomType: this.type,
+          roomId: this.id,
+          topic,
+          data,
+        });
+      },
+      [this.id, topic]
+    );
 
-//     useEffect(() => {
-//       const unsub = this._core._reactor.subscribePresence(
-//         this.type,
-//         this.id,
-//         opts,
-//         (data) => {
-//           setState(data);
-//         }
-//       );
+    return publishTopic;
+  };
 
-//       return unsub;
-//     }, [this.id, opts.user, opts.peers?.join(), opts.keys?.join()]);
+  /**
+   * Listen for peer's presence data in a room, and publish the current user's presence.
+   *
+   * @see https://instantdb.com/docs/presence-and-topics
+   * @example
+   *  function App({ roomId }) {
+   *    const {
+   *      peers,
+   *      publishPresence
+   *    } = db.room(roomType, roomId).usePresence({ keys: ["name", "avatar"] });
+   *
+   *    // ...
+   *  }
+   */
+  usePresence = <Keys extends keyof RoomSchema[RoomType]["presence"]>(
+    opts: PresenceOpts<RoomSchema[RoomType]["presence"], Keys> = {}
+  ): PresenceHandle<RoomSchema[RoomType]["presence"], Keys> => {
+    const [state, setState] = useState<
+      PresenceResponse<RoomSchema[RoomType]["presence"], Keys>
+    >(() => {
+      return (
+        this._core._reactor.getPresence(this.type, this.id, opts) ?? {
+          peers: {},
+          isLoading: true,
+        }
+      );
+    });
 
-//     return {
-//       ...state,
-//       publishPresence: (data) => {
-//         this._core._reactor.publishPresence(this.type, this.id, data);
-//       },
-//     };
-//   };
+    useEffect(() => {
+      const unsub = this._core._reactor.subscribePresence(
+        this.type,
+        this.id,
+        opts,
+        (data) => {
+          setState(data);
+        }
+      );
 
-//   /**
-//    * Publishes presence data to a room
-//    *
-//    * @see https://instantdb.com/docs/presence-and-topics
-//    * @example
-//    *  function App({ roomId }) {
-//    *    db.room(roomType, roomId).useSyncPresence({ name, avatar, color });
-//    *
-//    *    // ...
-//    *  }
-//    */
-//   useSyncPresence = (
-//     data: Partial<RoomSchema[RoomType]["presence"]>,
-//     deps?: any[]
-//   ): void => {
-//     useEffect(() => {
-//       return this._core._reactor.publishPresence(this.type, this.id, data);
-//     }, [this.type, this.id, deps ?? JSON.stringify(data)]);
-//   };
+      return unsub;
+    }, [this.id, opts.user, opts.peers?.join(), opts.keys?.join()]);
 
-//   /**
-//    * Manage typing indicator state
-//    *
-//    * @see https://instantdb.com/docs/presence-and-topics
-//    * @example
-//    *  function App({ roomId }) {
-//    *    const {
-//    *      active,
-//    *      setActive,
-//    *      inputProps,
-//    *    } = db.room(roomType, roomId).useTypingIndicator("chat-input", opts);
-//    *
-//    *    return <input {...inputProps} />;
-//    *  }
-//    */
-//   useTypingIndicator = (
-//     inputName: string,
-//     opts: TypingIndicatorOpts = {}
-//   ): TypingIndicatorHandle<RoomSchema[RoomType]["presence"]> => {
-//     const timeout = useTimeout();
+    return {
+      ...state,
+      publishPresence: (data) => {
+        this._core._reactor.publishPresence(this.type, this.id, data);
+      },
+    };
+  };
 
-//     const onservedPresence = this.usePresence({
-//       keys: [inputName],
-//     });
+  /**
+   * Publishes presence data to a room
+   *
+   * @see https://instantdb.com/docs/presence-and-topics
+   * @example
+   *  function App({ roomId }) {
+   *    db.room(roomType, roomId).useSyncPresence({ name, avatar, color });
+   *
+   *    // ...
+   *  }
+   */
+  useSyncPresence = (
+    data: Partial<RoomSchema[RoomType]["presence"]>,
+    deps?: any[]
+  ): void => {
+    useEffect(() => {
+      return this._core._reactor.publishPresence(this.type, this.id, data);
+    }, [this.type, this.id, deps ?? JSON.stringify(data)]);
+  };
 
-//     const active = useMemo(() => {
-//       const presenceSnapshot = this._core._reactor.getPresence(
-//         this.type,
-//         this.id
-//       );
+  /**
+   * Manage typing indicator state
+   *
+   * @see https://instantdb.com/docs/presence-and-topics
+   * @example
+   *  function App({ roomId }) {
+   *    const {
+   *      active,
+   *      setActive,
+   *      inputProps,
+   *    } = db.room(roomType, roomId).useTypingIndicator("chat-input", opts);
+   *
+   *    return <input {...inputProps} />;
+   *  }
+   */
+  useTypingIndicator = (
+    inputName: string,
+    opts: TypingIndicatorOpts = {}
+  ): TypingIndicatorHandle<RoomSchema[RoomType]["presence"]> => {
+    const timeout = useTimeout();
 
-//       return opts?.writeOnly
-//         ? []
-//         : Object.values(presenceSnapshot?.peers ?? {}).filter(
-//             (p) => p[inputName] === true
-//           );
-//     }, [opts?.writeOnly, onservedPresence]);
+    const onservedPresence = this.usePresence({
+      keys: [inputName],
+    });
 
-//     const setActive = (isActive: boolean) => {
-//       this._core._reactor.publishPresence(this.type, this.id, {
-//         [inputName]: isActive,
-//       } as unknown as Partial<RoomSchema[RoomType]>);
+    const active = useMemo(() => {
+      const presenceSnapshot = this._core._reactor.getPresence(
+        this.type,
+        this.id
+      );
 
-//       if (!isActive) return;
+      return opts?.writeOnly
+        ? []
+        : Object.values(presenceSnapshot?.peers ?? {}).filter(
+            (p) => p[inputName] === true
+          );
+    }, [opts?.writeOnly, onservedPresence]);
 
-//       if (opts?.timeout === null || opts?.timeout === 0) return;
+    const setActive = (isActive: boolean) => {
+      this._core._reactor.publishPresence(this.type, this.id, {
+        [inputName]: isActive,
+      } as unknown as Partial<RoomSchema[RoomType]>);
 
-//       timeout.set(opts?.timeout ?? defaultActivityStopTimeout, () => {
-//         this._core._reactor.publishPresence(this.type, this.id, {
-//           [inputName]: null,
-//         } as Partial<RoomSchema[RoomType]>);
-//       });
-//     };
+      if (!isActive) return;
 
-//     return {
-//       active,
-//       setActive: (a: boolean) => {
-//         setActive(a);
-//       },
-//       inputProps: {
-//         onKeyDown: (e: KeyboardEvent) => {
-//           const isEnter = opts?.stopOnEnter && e.key === "Enter";
-//           const isActive = !isEnter;
+      if (opts?.timeout === null || opts?.timeout === 0) return;
 
-//           setActive(isActive);
-//         },
-//         onBlur: () => {
-//           setActive(false);
-//         },
-//       },
-//     };
-//   };
-// }
+      timeout.set(opts?.timeout ?? defaultActivityStopTimeout, () => {
+        this._core._reactor.publishPresence(this.type, this.id, {
+          [inputName]: null,
+        } as Partial<RoomSchema[RoomType]>);
+      });
+    };
+
+    return {
+      active,
+      setActive: (a: boolean) => {
+        setActive(a);
+      },
+      inputProps: {
+        onKeyDown: (e: KeyboardEvent) => {
+          const isEnter = opts?.stopOnEnter && e.key === "Enter";
+          const isActive = !isEnter;
+
+          setActive(isActive);
+        },
+        onBlur: () => {
+          setActive(false);
+        },
+      },
+    };
+  };
+}
 
 export class InstantVue<Schema = {}, RoomSchema extends RoomSchemaShape = {}> {
   public auth: Auth;

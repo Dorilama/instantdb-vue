@@ -32,7 +32,7 @@ const noop = () => {};
 export function useQuery<Q extends Query, Schema>(
   _core: InstantClient<Schema>,
   _query: MaybeRef<Exactly<Query, Q> | null>
-): { state: UseQueryReturn<Q, Schema>; query: any } {
+): { state: UseQueryReturn<Q, Schema>; query: any; stop: () => void } {
   const query = computed(() => {
     return _query ? coerceQuery(toValue(_query)) : null;
   });
@@ -49,7 +49,7 @@ export function useQuery<Q extends Query, Schema>(
 
   let unsubscribe = noop;
 
-  watch(
+  const stopWatch = watch(
     queryHash,
     () => {
       unsubscribe();
@@ -67,9 +67,14 @@ export function useQuery<Q extends Query, Schema>(
     { immediate: true }
   );
 
-  onScopeDispose(() => {
+  function stop() {
+    stopWatch();
     unsubscribe();
+  }
+
+  onScopeDispose(() => {
+    stop();
   });
 
-  return { state, query };
+  return { state, query, stop };
 }
