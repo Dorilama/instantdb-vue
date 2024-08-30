@@ -30,6 +30,7 @@ import { useQuery, UseQueryReturn } from "./useQuery";
 import {
   MaybeRef,
   onScopeDispose,
+  Ref,
   ref,
   shallowRef,
   ShallowRef,
@@ -74,7 +75,7 @@ export class InstantReactRoom<
 > {
   _core: InstantClient<Schema, RoomSchema>;
   type: RoomType;
-  id: string;
+  id: Ref<string>;
 
   constructor(
     _core: InstantClient<Schema, RoomSchema>,
@@ -83,7 +84,7 @@ export class InstantReactRoom<
   ) {
     this._core = _core;
     this.type = type;
-    this.id = id;
+    this.id = ref(id);
   }
 
   /**
@@ -113,15 +114,14 @@ export class InstantReactRoom<
       cleanup.forEach((fn) => fn());
       cleanup.length = 0;
     }
-    const stopWatch = watchEffect(() => {
-      unsubscribe();
+    const stop = watchEffect((onCleanup) => {
       const _topic = toValue(topic);
       const topicArray = Array.isArray(_topic) ? _topic : [_topic];
       const callbacks = Array.isArray(onEvent) ? onEvent : [onEvent];
       cleanup.push(
         ...topicArray.map((topicType) => {
           return this._core._reactor.subscribeTopic(
-            this.id,
+            this.id.value,
             topicType,
             (event, peer) => {
               callbacks.forEach((cb) => {
@@ -131,12 +131,8 @@ export class InstantReactRoom<
           );
         })
       );
+      onCleanup(unsubscribe);
     });
-
-    function stop() {
-      stopWatch();
-      unsubscribe();
-    }
 
     onScopeDispose(() => {
       stop();
@@ -159,28 +155,34 @@ export class InstantReactRoom<
    * }
    *
    */
-  // usePublishTopic = <Topic extends keyof RoomSchema[RoomType]["topics"]>(
-  //   topic: MaybeRef<Topic>
-  // ): ((data: RoomSchema[RoomType]["topics"][Topic]) => void) => {
-  //   const topicType = toValue(topic)
-  //   this._core._reactor.joinRoom(this.id)
+  usePublishTopic = <Topic extends keyof RoomSchema[RoomType]["topics"]>(
+    topic: MaybeRef<Topic>
+  ): ((data: RoomSchema[RoomType]["topics"][Topic]) => void) => {
+    const stopRoomWatch = watchEffect((onCleanup) => {
+      const cleanup = this._core._reactor.joinRoom(this.id.value);
+      onCleanup(cleanup);
+    });
 
-  //   useEffect(() => this._core._reactor.joinRoom(this.id), [this.id]);
+    let publishTopic = (data: RoomSchema[RoomType]["topics"][Topic]) => {};
 
-  //   const publishTopic = useCallback(
-  //     (data) => {
-  //       this._core._reactor.publishTopic({
-  //         roomType: this.type,
-  //         roomId: this.id,
-  //         topic,
-  //         data,
-  //       });
-  //     },
-  //     [this.id, topic]
-  //   );
+    const stopTopicWatch = watchEffect(() => {
+      publishTopic = (data: RoomSchema[RoomType]["topics"][Topic]) => {
+        this._core._reactor.publishTopic({
+          roomType: this.type,
+          roomId: this.id.value,
+          topic: toValue(topic),
+          data,
+        });
+      };
+    });
 
-  //   return publishTopic;
-  // };
+    onScopeDispose(() => {
+      stopRoomWatch();
+      stopTopicWatch();
+    });
+
+    return publishTopic;
+  };
 
   /**
    * Listen for peer's presence data in a room, and publish the current user's presence.
