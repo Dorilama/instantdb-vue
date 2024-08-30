@@ -16,13 +16,22 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import { tx, id } from "@dorilama/instantdb-vue";
-import { db, Todo } from "../db";
+import { db, RoomSchema, Schema, Todo } from "../db";
+import { InstantVueRoom } from "../../../../dist/module/InstantVue";
 
-const props = defineProps<{ todos: Todo[] }>();
+const props = defineProps<{
+  todos: Todo[];
+  room: InstantVueRoom<Schema, RoomSchema, "chat">;
+}>();
 
 const model = ref("");
 
+const publishTopic = props.room.usePublishTopic("notification");
+
 function addTodo(text: string) {
+  if (!text) {
+    return;
+  }
   db.transact(
     tx.todos[id()].update({
       text,
@@ -30,6 +39,9 @@ function addTodo(text: string) {
       createdAt: Date.now(),
     })
   );
+  publishTopic({
+    text,
+  });
 }
 
 function toggleAll(todos: Todo[] = props.todos) {

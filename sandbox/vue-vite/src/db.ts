@@ -15,4 +15,13 @@ export type Schema = {
   todos: Todo;
 };
 
-export const db = init<Schema>({ appId: APP_ID });
+export type RoomSchema = {
+  chat: {
+    presence: { name: string };
+    topics: {
+      notification: { text: string };
+    };
+  };
+};
+
+export const db = init<Schema, RoomSchema>({ appId: APP_ID });

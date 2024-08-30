@@ -35,18 +35,21 @@ import {
   shallowRef,
   ShallowRef,
   toValue,
+  watch,
   watchEffect,
 } from "vue";
 // import { useTimeout } from "./useTimeout";
 
 type UseAuthReturn = { [K in keyof AuthState]: ShallowRef<AuthState[K]> };
 
-// export type PresenceHandle<
-//   PresenceShape,
-//   Keys extends keyof PresenceShape
-// > = PresenceResponse<PresenceShape, Keys> & {
-//   publishPresence: (data: Partial<PresenceShape>) => void;
-// };
+export type PresenceHandle<
+  PresenceShape,
+  Keys extends keyof PresenceShape,
+  State = PresenceResponse<PresenceShape, Keys>
+> = { [K in keyof State]: ShallowRef<State[K]> } & {
+  publishPresence: (data: Partial<PresenceShape>) => void;
+  stop: () => void;
+};
 
 // export type TypingIndicatorOpts = {
 //   timeout?: number | null;
@@ -68,7 +71,7 @@ type Arrayable<T> = T[] | T;
 
 // export const defaultActivityStopTimeout = 1_000;
 
-export class InstantReactRoom<
+export class InstantVueRoom<
   Schema,
   RoomSchema extends RoomSchemaShape,
   RoomType extends keyof RoomSchema
@@ -198,40 +201,72 @@ export class InstantReactRoom<
    *    // ...
    *  }
    */
-  // usePresence = <Keys extends keyof RoomSchema[RoomType]["presence"]>(
-  //   opts: PresenceOpts<RoomSchema[RoomType]["presence"], Keys> = {}
-  // ): PresenceHandle<RoomSchema[RoomType]["presence"], Keys> => {
-  //   const [state, setState] = useState<
-  //     PresenceResponse<RoomSchema[RoomType]["presence"], Keys>
-  //   >(() => {
-  //     return (
-  //       this._core._reactor.getPresence(this.type, this.id, opts) ?? {
-  //         peers: {},
-  //         isLoading: true,
-  //       }
-  //     );
-  //   });
+  usePresence = <Keys extends keyof RoomSchema[RoomType]["presence"]>(
+    opts: MaybeRef<PresenceOpts<RoomSchema[RoomType]["presence"], Keys>> = {}
+  ): PresenceHandle<RoomSchema[RoomType]["presence"], Keys> => {
+    const getInitialState = (
+      id: string
+    ): PresenceResponse<RoomSchema[RoomType]["presence"], Keys> => {
+      const presence = this._core._reactor.getPresence(
+        this.type,
+        id,
+        toValue(opts)
+      );
+      return {
+        peers: {},
+        isLoading: true,
+        user: undefined,
+        error: undefined,
+        ...presence,
+      };
+    };
 
-  //   useEffect(() => {
-  //     const unsub = this._core._reactor.subscribePresence(
-  //       this.type,
-  //       this.id,
-  //       opts,
-  //       (data) => {
-  //         setState(data);
-  //       }
-  //     );
+    const initialState = getInitialState(this.id.value);
 
-  //     return unsub;
-  //   }, [this.id, opts.user, opts.peers?.join(), opts.keys?.join()]);
+    const state = {
+      peers: shallowRef(initialState.peers),
+      isLoading: ref(initialState.isLoading),
+      user: shallowRef(initialState.user),
+      error: shallowRef(initialState.error),
+    };
 
-  //   return {
-  //     ...state,
-  //     publishPresence: (data) => {
-  //       this._core._reactor.publishPresence(this.type, this.id, data);
-  //     },
-  //   };
-  // };
+    const stopWatchId = watch(this.id, (id) => {
+      Object.entries(getInitialState(id)).forEach(([key, value]) => {
+        state[key].value = value;
+      });
+    });
+
+    const stopEffect = watchEffect((onCleanup) => {
+      const unsubscribe = this._core._reactor.subscribePresence(
+        this.type,
+        this.id.value,
+        toValue(opts),
+        (data) => {
+          Object.entries(data).forEach(([key, value]) => {
+            state[key].value = value;
+          });
+        }
+      );
+      onCleanup(unsubscribe);
+    });
+
+    function stop() {
+      stopWatchId();
+      stopEffect();
+    }
+
+    onScopeDispose(() => {
+      stop();
+    });
+
+    return {
+      ...state,
+      publishPresence: (data) => {
+        this._core._reactor.publishPresence(this.type, this.id.value, data);
+      },
+      stop,
+    };
+  };
 
   /**
    * Publishes presence data to a room
@@ -376,16 +411,16 @@ export class InstantVue<Schema = {}, RoomSchema extends RoomSchemaShape = {}> {
    *   useTypingIndicator,
    * } = db.room(roomType, roomId);
    */
-  // room<RoomType extends keyof RoomSchema>(
-  //   type: RoomType = "_defaultRoomType" as RoomType,
-  //   id: string = "_defaultRoomId"
-  // ) {
-  //   return new InstantReactRoom<Schema, RoomSchema, RoomType>(
-  //     this._core,
-  //     type,
-  //     id
-  //   );
-  // }
+  room<RoomType extends keyof RoomSchema>(
+    type: RoomType = "_defaultRoomType" as RoomType,
+    id: string = "_defaultRoomId"
+  ) {
+    return new InstantVueRoom<Schema, RoomSchema, RoomType>(
+      this._core,
+      type,
+      id
+    );
+  }
 
   /**
    * Use this to write data! You can create, update, delete, and link objects

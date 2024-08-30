@@ -3,8 +3,29 @@ import { db } from "./db";
 import TodoForm from "./components/TodoForm.vue";
 import TodoList from "./components/TodoList.vue";
 import ActionBar from "./components/ActionBar.vue";
+import { watchEffect } from "vue";
 
 const { isLoading, data, error } = db.useQuery({ todos: {} });
+const room = db.room("chat", "main");
+const randomId = Math.random().toString(36).slice(2, 6);
+const user = {
+  name: `User#${randomId}`,
+};
+const {
+  user: myPresence,
+  peers,
+  publishPresence,
+  isLoading: isLoadingPresence,
+} = room.usePresence();
+watchEffect(() => {
+  if (isLoadingPresence.value) {
+    return;
+  }
+  publishPresence(user);
+});
+room.useTopicEffect("notification", (event, peer) => {
+  console.log(`${peer.name} just created a todo: ${event.text}`);
+});
 </script>
 
 <template>
@@ -12,12 +33,15 @@ const { isLoading, data, error } = db.useQuery({ todos: {} });
   <div v-else>
     <div class="container">
       <div class="header">Todo</div>
-      <TodoForm :todos="data?.todos || []" />
+      <TodoForm :todos="data?.todos || []" :room="room" />
       <TodoList :todos="data?.todos || []" />
       <ActionBar :todos="data?.todos || []" />
-    </div>
-    <div v-if="error">
-      <p>Error: {{ error.message || "unknown error" }}</p>
+      <div v-if="error">
+        <p>Error: {{ error.message || "unknown error" }}</p>
+      </div>
+      <ul v-if="Object.values(peers).length">
+        <li v-for="peer of peers" :key="peer.name">{{ peer.name }}</li>
+      </ul>
     </div>
   </div>
 </template>
