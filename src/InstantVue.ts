@@ -244,14 +244,23 @@ export class InstantReactRoom<
    *    // ...
    *  }
    */
-  // useSyncPresence = (
-  //   data: Partial<RoomSchema[RoomType]["presence"]>,
-  //   deps?: any[]
-  // ): void => {
-  //   useEffect(() => {
-  //     return this._core._reactor.publishPresence(this.type, this.id, data);
-  //   }, [this.type, this.id, deps ?? JSON.stringify(data)]);
-  // };
+  useSyncPresence = (
+    data: MaybeRef<Partial<RoomSchema[RoomType]["presence"]>>,
+    deps?: MaybeRef<any[]>
+  ): void => {
+    const stop = watchEffect(() => {
+      this._core._reactor.publishPresence(
+        this.type,
+        this.id.value,
+        toValue(data)
+      );
+      deps ?? JSON.stringify(toValue(data));
+    });
+
+    onScopeDispose(() => {
+      stop();
+    });
+  };
 
   /**
    * Manage typing indicator state
