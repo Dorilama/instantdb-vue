@@ -396,19 +396,16 @@ export class InstantVue<Schema = {}, RoomSchema extends RoomSchemaShape = {}> {
    *
    * @see https://instantdb.com/docs/auth
    * @example
-   *  function App() {
+   *  <script setup>
    *    const { isLoading, user, error } = db.useAuth()
-   *    if (isLoading) {
-   *      return <div>Loading...</div>
-   *    }
-   *    if (error) {
-   *      return <div>Uh oh! {error.message}</div>
-   *    }
-   *    if (user) {
-   *      return <Main user={user} />
-   *    }
-   *    return <Login />
-   *  }
+   *  </script>
+   *
+   *  <template>
+   *    <div v-if="isLoading">Loading...</div>
+   *    <div v-else-if="error">Uh oh! {error.message}</div>
+   *    <Main v-else-if="user" user={user} />
+   *    <Login v-else/>
+   *  </template>
    *
    */
   useAuth = (): UseAuthReturn => {
