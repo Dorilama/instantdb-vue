@@ -28,6 +28,7 @@ import {
 // } from "react";
 import { useQuery, UseQueryReturn } from "./useQuery";
 import {
+  computed,
   MaybeRef,
   onScopeDispose,
   Ref,
@@ -38,7 +39,7 @@ import {
   watch,
   watchEffect,
 } from "vue";
-// import { useTimeout } from "./useTimeout";
+import { useTimeout } from "./useTimeout";
 
 type UseAuthReturn = { [K in keyof AuthState]: ShallowRef<AuthState[K]> };
 
@@ -51,25 +52,26 @@ export type PresenceHandle<
   stop: () => void;
 };
 
-// export type TypingIndicatorOpts = {
-//   timeout?: number | null;
-//   stopOnEnter?: boolean;
-//   // Perf opt - `active` will always be an empty array
-//   writeOnly?: boolean;
-// };
+export type TypingIndicatorOpts = {
+  timeout?: number | null;
+  stopOnEnter?: boolean;
+  // Perf opt - `active` will always be an empty array
+  writeOnly?: boolean;
+};
 
-// export type TypingIndicatorHandle<PresenceShape> = {
-//   active: PresenceShape[];
-//   setActive(active: boolean): void;
-//   inputProps: {
-//     onKeyDown: (e: KeyboardEvent) => void;
-//     onBlur: () => void;
-//   };
-// };
+export type TypingIndicatorHandle<PresenceShape> = {
+  active: Ref<PresenceShape[]>;
+  setActive(active: boolean): void;
+  inputProps: {
+    onKeyDown: (e: KeyboardEvent) => void;
+    onBlur: () => void;
+  };
+  stop: () => void;
+};
 
 type Arrayable<T> = T[] | T;
 
-// export const defaultActivityStopTimeout = 1_000;
+export const defaultActivityStopTimeout = 1_000;
 
 export class InstantVueRoom<
   Schema,
@@ -119,12 +121,13 @@ export class InstantVueRoom<
     }
     const stop = watchEffect((onCleanup) => {
       const _topic = toValue(topic);
+      const id = this.id.value;
       const topicArray = Array.isArray(_topic) ? _topic : [_topic];
       const callbacks = Array.isArray(onEvent) ? onEvent : [onEvent];
       cleanup.push(
         ...topicArray.map((topicType) => {
           return this._core._reactor.subscribeTopic(
-            this.id.value,
+            id,
             topicType,
             (event, peer) => {
               callbacks.forEach((cb) => {
@@ -162,18 +165,21 @@ export class InstantVueRoom<
     topic: MaybeRef<Topic>
   ): ((data: RoomSchema[RoomType]["topics"][Topic]) => void) => {
     const stopRoomWatch = watchEffect((onCleanup) => {
-      const cleanup = this._core._reactor.joinRoom(this.id.value);
+      const id = this.id.value;
+      const cleanup = this._core._reactor.joinRoom(id);
       onCleanup(cleanup);
     });
 
     let publishTopic = (data: RoomSchema[RoomType]["topics"][Topic]) => {};
 
     const stopTopicWatch = watchEffect(() => {
+      const id = this.id.value;
+      const _topic = toValue(topic);
       publishTopic = (data: RoomSchema[RoomType]["topics"][Topic]) => {
         this._core._reactor.publishTopic({
           roomType: this.type,
-          roomId: this.id.value,
-          topic: toValue(topic),
+          roomId: id,
+          topic: _topic,
           data,
         });
       };
@@ -237,10 +243,12 @@ export class InstantVueRoom<
     });
 
     const stopEffect = watchEffect((onCleanup) => {
+      const id = this.id.value;
+      const _opts = toValue(opts);
       const unsubscribe = this._core._reactor.subscribePresence(
         this.type,
-        this.id.value,
-        toValue(opts),
+        id,
+        _opts,
         (data) => {
           Object.entries(data).forEach(([key, value]) => {
             state[key].value = value;
@@ -284,12 +292,10 @@ export class InstantVueRoom<
     deps?: MaybeRef<any[]>
   ): void => {
     const stop = watchEffect(() => {
-      this._core._reactor.publishPresence(
-        this.type,
-        this.id.value,
-        toValue(data)
-      );
-      deps ?? JSON.stringify(toValue(data));
+      const id = this.id.value;
+      const _data = toValue(data);
+      this._core._reactor.publishPresence(this.type, id, _data);
+      toValue(deps);
     });
 
     onScopeDispose(() => {
@@ -312,63 +318,90 @@ export class InstantVueRoom<
    *    return <input {...inputProps} />;
    *  }
    */
-  // useTypingIndicator = (
-  //   inputName: string,
-  //   opts: TypingIndicatorOpts = {}
-  // ): TypingIndicatorHandle<RoomSchema[RoomType]["presence"]> => {
-  //   const timeout = useTimeout();
+  useTypingIndicator = (
+    inputName: MaybeRef<string>,
+    opts: MaybeRef<TypingIndicatorOpts> = {}
+  ): TypingIndicatorHandle<RoomSchema[RoomType]["presence"]> => {
+    const timeout = useTimeout();
 
-  //   const onservedPresence = this.usePresence({
-  //     keys: [inputName],
-  //   });
+    const onservedPresence = computed(() => {
+      return this.usePresence({
+        keys: [toValue(inputName)],
+      });
+    });
 
-  //   const active = useMemo(() => {
-  //     const presenceSnapshot = this._core._reactor.getPresence(
-  //       this.type,
-  //       this.id
-  //     );
+    const active = computed(() => {
+      const presenceSnapshot = this._core._reactor.getPresence(
+        this.type,
+        this.id.value
+      );
+      onservedPresence.value;
 
-  //     return opts?.writeOnly
-  //       ? []
-  //       : Object.values(presenceSnapshot?.peers ?? {}).filter(
-  //           (p) => p[inputName] === true
-  //         );
-  //   }, [opts?.writeOnly, onservedPresence]);
+      return toValue(opts)?.writeOnly
+        ? []
+        : Object.values(presenceSnapshot?.peers ?? {}).filter(
+            (p) => p[toValue(inputName)] === true
+          );
+    });
 
-  //   const setActive = (isActive: boolean) => {
-  //     this._core._reactor.publishPresence(this.type, this.id, {
-  //       [inputName]: isActive,
-  //     } as unknown as Partial<RoomSchema[RoomType]>);
+    let setActive = (isActive: boolean) => {};
 
-  //     if (!isActive) return;
+    const stopWatchActive = watchEffect(() => {
+      setActive = (isActive: boolean) => {
+        const _inputName = toValue(toValue(inputName));
+        const id = this.id.value;
+        this._core._reactor.publishPresence(this.type, id, {
+          [_inputName]: isActive,
+        } as unknown as Partial<RoomSchema[RoomType]>);
 
-  //     if (opts?.timeout === null || opts?.timeout === 0) return;
+        if (!isActive) return;
 
-  //     timeout.set(opts?.timeout ?? defaultActivityStopTimeout, () => {
-  //       this._core._reactor.publishPresence(this.type, this.id, {
-  //         [inputName]: null,
-  //       } as Partial<RoomSchema[RoomType]>);
-  //     });
-  //   };
+        const _opts = toValue(opts);
 
-  //   return {
-  //     active,
-  //     setActive: (a: boolean) => {
-  //       setActive(a);
-  //     },
-  //     inputProps: {
-  //       onKeyDown: (e: KeyboardEvent) => {
-  //         const isEnter = opts?.stopOnEnter && e.key === "Enter";
-  //         const isActive = !isEnter;
+        if (_opts?.timeout === null || _opts?.timeout === 0) return;
 
-  //         setActive(isActive);
-  //       },
-  //       onBlur: () => {
-  //         setActive(false);
-  //       },
-  //     },
-  //   };
-  // };
+        timeout.set(_opts?.timeout ?? defaultActivityStopTimeout, () => {
+          this._core._reactor.publishPresence(this.type, id, {
+            [_inputName]: null,
+          } as Partial<RoomSchema[RoomType]>);
+        });
+      };
+    });
+
+    let onKeyDown = (e: KeyboardEvent) => {};
+
+    const stopWatchKey = watchEffect(() => {
+      const _opts = toValue(opts);
+      onKeyDown = (e: KeyboardEvent) => {
+        const isEnter = _opts?.stopOnEnter && e.key === "Enter";
+        const isActive = !isEnter;
+
+        setActive(isActive);
+      };
+    });
+
+    function stop() {
+      timeout.clear();
+      stopWatchActive();
+      stopWatchKey();
+    }
+
+    onScopeDispose(() => {
+      stop();
+    });
+
+    return {
+      active,
+      setActive,
+      inputProps: {
+        onKeyDown,
+        onBlur: () => {
+          setActive(false);
+        },
+      },
+      stop,
+    };
+  };
 }
 
 export class InstantVue<Schema = {}, RoomSchema extends RoomSchemaShape = {}> {
