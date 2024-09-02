@@ -5,6 +5,8 @@ import TodoList from "./components/TodoList.vue";
 import ActionBar from "./components/ActionBar.vue";
 import { watchEffect } from "vue";
 
+import { Cursors } from "@dorilama/instantdb-vue";
+
 const { isLoading, data, error } = db.useQuery({ todos: {} });
 const room = db.room("chat", "main");
 const randomId = Math.random().toString(36).slice(2, 6);

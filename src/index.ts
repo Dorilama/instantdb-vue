@@ -19,7 +19,7 @@ import {
 
 import { InstantVue } from "./InstantVue";
 import { init } from "./init";
-// import { Cursors } from "./Cursors";
+import Cursors from "./Cursors.vue";
 
 export {
   id,
@@ -27,7 +27,7 @@ export {
   lookup,
   init,
   InstantVue,
-  // Cursors,
+  Cursors,
 
   // types
   Config,
