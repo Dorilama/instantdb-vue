@@ -6,20 +6,26 @@
   <component
     :is="props.as"
     :style="['position: relative', props.style]"
+    :class="props.className"
     @mousemove="onMouseMove"
     @mouseout="onMouseOut"
   >
     <div
       :key="spaceId"
-      class="abs inert default-z"
-      :style="[props.zIndex !== undefined && `z-index: ${props.zIndex};`]"
+      :style="{
+        ...absStyles,
+        ...inertStyles,
+        zIndex: props.zIndex !== undefined ? props.zIndex : defaultZ,
+      }"
     >
       <div
         v-for="[id, presence] of Object.entries(cursorsPresence.peers)"
         :key="id"
-        class="abs cursor"
         :style="{
+          ...absStyles,
           transform: `translate(${presence[spaceId].xPercent}%, ${presence[spaceId].yPercent}%)`,
+          transformOrigin: '0 0',
+          transition: 'transform 100ms',
         }"
       >
         <slot
@@ -88,6 +94,22 @@ const props = defineProps<{
 
 const size = 35;
 
+const absStyles: CSS.Properties = {
+  position: "absolute",
+  top: 0,
+  left: 0,
+  bottom: 0,
+  right: 0,
+};
+
+const inertStyles: CSS.Properties = {
+  overflow: "hidden",
+  pointerEvents: "none",
+  userSelect: "none",
+};
+
+const defaultZ = 99999;
+
 const { room, spaceId: _spaceId, propagate, userCursorColor } = props;
 
 const spaceId = computed(
@@ -141,24 +163,4 @@ function onMouseOut(e: MouseEvent) {
 }
 </script>
 
-<style scoped>
-.abs {
-  position: "absolute";
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-}
-.inert {
-  overflow: "hidden";
-  pointer-events: "none";
-  user-select: "none";
-}
-.default-z {
-  z-index: 99999;
-}
-.cursor {
-  transform-origin: 0 0;
-  transition: transform 100ms;
-}
-</style>
+<style scoped></style>
