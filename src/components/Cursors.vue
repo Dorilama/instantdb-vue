@@ -57,16 +57,19 @@ import type { RoomSchemaShape } from "@instantdb/core";
 import type { CursorSchema } from ".";
 import Cursor from "./Cursor.vue";
 
-const props = defineProps<{
-  spaceId?: string;
-  room: InstantVueRoom<any, RoomSchema, RoomType>;
-  style?: CSS.Properties<string | number>;
-  userCursorColor?: string;
-  as?: any;
-  className?: string;
-  propagate?: boolean;
-  zIndex?: number;
-}>();
+const props = withDefaults(
+  defineProps<{
+    spaceId?: string;
+    room: InstantVueRoom<any, RoomSchema, RoomType>;
+    style?: CSS.Properties<string | number>;
+    userCursorColor?: string;
+    as?: any;
+    className?: string;
+    propagate?: boolean;
+    zIndex?: number;
+  }>(),
+  { as: "div" }
+);
 
 const absStyles: CSS.Properties = {
   position: "absolute",

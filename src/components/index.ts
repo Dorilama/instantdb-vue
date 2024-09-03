@@ -1,6 +1,6 @@
 import Cursors from "./Cursors.vue";
 
-export interface CursorSchema {
+interface CursorSchema {
   x: number;
   y: number;
   xPercent: number;
@@ -9,3 +9,4 @@ export interface CursorSchema {
 }
 
 export { Cursors };
+export type { CursorSchema };

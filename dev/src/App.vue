@@ -32,7 +32,7 @@ room.useTopicEffect("notification", (event, peer) => {
 </script>
 
 <template>
-  <Cursors as="article" :room="room">
+  <Cursors :room="room">
     <div v-if="isLoading"><p>Data is loading...</p></div>
     <div v-else>
       <div class="container">

@@ -15,6 +15,16 @@ import type {
 
 import { InstantVue } from "./InstantVue";
 import { init } from "./init";
+import type { CursorSchema } from "./components";
 
 export { id, tx, lookup, init, InstantVue };
-export type { Config, Query, QueryResponse, InstantObject, User, AuthState, i };
+export type {
+  Config,
+  Query,
+  QueryResponse,
+  InstantObject,
+  User,
+  AuthState,
+  i,
+  CursorSchema,
+};

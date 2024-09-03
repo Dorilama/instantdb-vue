@@ -19,11 +19,6 @@ export type RoomSchema = {
   chat: {
     presence: {
       name: string;
-      x: number;
-      y: number;
-      xPercent: number;
-      yPercent: number;
-      color: string;
     };
     topics: {
       notification: { text: string };
