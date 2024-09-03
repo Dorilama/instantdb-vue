@@ -1,2 +1,2 @@
-import Cursors from "./Cursors.vue";
+import Cursors from "./Cursors";
 export { Cursors };
