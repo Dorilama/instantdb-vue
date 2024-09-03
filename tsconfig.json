@@ -1,20 +1,3 @@
 {
-  "include": ["src"],
-  "exclude": ["node_modules", "dist"],
-  "compilerOptions": {
-    "jsx": "preserve",
-    "declaration": true,
-    "declarationMap": true,
-    "module": "commonjs",
-    "outDir": "dist",
-    "rootDir": "src",
-    "sourceMap": true,
-    "target": "es2015",
-    "esModuleInterop": true,
-    "moduleResolution": "node",
-    "forceConsistentCasingInFileNames": true,
-    "stripInternal": true,
-    "allowSyntheticDefaultImports": true,
-    "allowJs": true
-  }
+  "extends": "@vue/tsconfig/tsconfig.dom.json"
 }

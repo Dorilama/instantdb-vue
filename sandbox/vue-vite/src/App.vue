@@ -5,7 +5,7 @@ import TodoList from "./components/TodoList.vue";
 import ActionBar from "./components/ActionBar.vue";
 import { watchEffect } from "vue";
 
-import { Cursors } from "@dorilama/instantdb-vue";
+import { Cursors } from "@dorilama/instantdb-vue/components";
 
 const { isLoading, data, error } = db.useQuery({ todos: {} });
 const room = db.room("chat", "main");
@@ -19,6 +19,7 @@ const {
   publishPresence,
   isLoading: isLoadingPresence,
 } = room.usePresence();
+
 watchEffect(() => {
   if (isLoadingPresence.value) {
     return;
@@ -31,6 +32,7 @@ room.useTopicEffect("notification", (event, peer) => {
 </script>
 
 <template>
+  <Cursors :room="room" />
   <div v-if="isLoading"><p>Data is loading...</p></div>
   <div v-else>
     <div class="container">

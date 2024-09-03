@@ -33,38 +33,7 @@
           :color="presence[spaceId].color"
           :presence="fullPresence.peers[id]"
         >
-          <svg
-            :style="{ width: size, height: size }"
-            :viewBox="`0 0 ${size} ${size}`"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <g
-              fill="rgba(0,0,0,.2)"
-              transform="matrix(1, 0, 0, 1, -11.999999046325684, -8.406899452209473)"
-            >
-              <path d="m12 24.4219v-16.015l11.591 11.619h-6.781l-.411.124z" />
-              <path
-                d="m21.0845 25.0962-3.605 1.535-4.682-11.089 3.686-1.553z"
-              />
-            </g>
-            <g
-              fill="white"
-              transform="matrix(1, 0, 0, 1, -11.999999046325684, -8.406899452209473)"
-            >
-              <path d="m12 24.4219v-16.015l11.591 11.619h-6.781l-.411.124z" />
-              <path
-                d="m21.0845 25.0962-3.605 1.535-4.682-11.089 3.686-1.553z"
-              />
-            </g>
-            <g
-              :fill="presence[spaceId].color || 'black'"
-              transform="matrix(1, 0, 0, 1, -11.999999046325684, -8.406899452209473)"
-            >
-              <path d="m19.751 24.4155-1.844.774-3.1-7.374 1.841-.775z" />
-              <path d="m13 10.814v11.188l2.969-2.866.428-.139h4.768z" />
-            </g>
-          </svg>
+          <Cursor v-bind="presence[spaceId]" />
         </slot>
       </div>
     </div>
@@ -74,12 +43,13 @@
 <script
   setup
   lang="ts"
-  generic=" RoomSchema extends RoomSchemaShape, RoomType extends keyof RoomSchema"
+  generic="RoomSchema extends RoomSchemaShape, RoomType extends keyof RoomSchema"
 >
-import * as CSS from "csstype";
+import type * as CSS from "csstype";
 import { computed, shallowRef, watch } from "vue";
-import { InstantVueRoom } from "./InstantVue";
-import { RoomSchemaShape } from "@instantdb/core";
+import { InstantVueRoom } from "../InstantVue";
+import type { RoomSchemaShape } from "@instantdb/core";
+import Cursor from "./Cursor.vue";
 
 const props = defineProps<{
   spaceId?: string;
@@ -91,8 +61,6 @@ const props = defineProps<{
   propagate?: boolean;
   zIndex?: number;
 }>();
-
-const size = 35;
 
 const absStyles: CSS.Properties = {
   position: "absolute",
@@ -121,6 +89,7 @@ const usePresenceOptions = computed(() => {
     keys: [spaceId.value],
   };
 });
+//@ts-ignore TODO! see InstantVue
 const cursorsPresence = room.usePresence(usePresenceOptions);
 
 function getFullPresence() {

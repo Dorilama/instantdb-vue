@@ -2,11 +2,7 @@
 // adapted from [@instantdb/react](https://github.com/instantdb/instant/blob/main/client/packages/react/README.md)
 // see instantdb-license.md for license
 
-import {
-  // types
-  Config,
-  RoomSchemaShape,
-} from "@instantdb/core";
+import type { Config, RoomSchemaShape } from "@instantdb/core";
 import { InstantVue } from "./InstantVue";
 
 /**

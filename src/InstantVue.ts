@@ -2,10 +2,8 @@
 // adapted from [@instantdb/react](https://github.com/instantdb/instant/blob/main/client/packages/react/README.md)
 // see instantdb-license.md for license
 
-import {
-  init as initCore,
-
-  // types
+import { init as initCore } from "@instantdb/core";
+import type {
   Config,
   Query,
   Exactly,
@@ -19,26 +17,18 @@ import {
   RoomSchemaShape,
   Storage,
 } from "@instantdb/core";
-// import {
-//   KeyboardEvent,
-//   useCallback,
-//   useEffect,
-//   useMemo,
-//   useState,
-// } from "react";
-import { useQuery, UseQueryReturn } from "./useQuery";
+import { useQuery } from "./useQuery";
+import type { UseQueryReturn } from "./useQuery";
 import {
   computed,
-  MaybeRef,
   onScopeDispose,
-  Ref,
   ref,
   shallowRef,
-  ShallowRef,
   toValue,
   watch,
   watchEffect,
 } from "vue";
+import type { MaybeRef, Ref, ShallowRef } from "vue";
 import { useTimeout } from "./useTimeout";
 
 type UseAuthReturn = { [K in keyof AuthState]: ShallowRef<AuthState[K]> };
@@ -129,7 +119,10 @@ export class InstantVueRoom<
           return this._core._reactor.subscribeTopic(
             id,
             topicType,
-            (event, peer) => {
+            (
+              event: RoomSchema[RoomType]["topics"][TopicType],
+              peer: RoomSchema[RoomType]["presence"]
+            ) => {
               callbacks.forEach((cb) => {
                 cb(event, peer);
               });
@@ -217,13 +210,16 @@ export class InstantVueRoom<
         this.type,
         id,
         toValue(opts)
-      );
-      return {
+      ) ?? {
         peers: {},
         isLoading: true,
-        user: undefined,
-        error: undefined,
-        ...presence,
+      };
+
+      return {
+        peers: presence.peers,
+        isLoading: !!presence.isLoading,
+        user: presence.user,
+        error: presence.error,
       };
     };
 
@@ -238,7 +234,9 @@ export class InstantVueRoom<
 
     const stopWatchId = watch(this.id, (id) => {
       Object.entries(getInitialState(id)).forEach(([key, value]) => {
-        state[key].value = value;
+        state[
+          key as keyof PresenceResponse<RoomSchema[RoomType]["presence"], Keys>
+        ].value = value;
       });
     });
 
@@ -251,7 +249,12 @@ export class InstantVueRoom<
         _opts,
         (data) => {
           Object.entries(data).forEach(([key, value]) => {
-            state[key].value = value;
+            state[
+              key as keyof PresenceResponse<
+                RoomSchema[RoomType]["presence"],
+                Keys
+              >
+            ].value = value;
           });
         }
       );
@@ -324,9 +327,12 @@ export class InstantVueRoom<
   ): TypingIndicatorHandle<RoomSchema[RoomType]["presence"]> => {
     const timeout = useTimeout();
 
+    const _inputName = toValue(inputName);
+
     const onservedPresence = computed(() => {
       return this.usePresence({
-        keys: [toValue(inputName)],
+        //@ts-ignore TODO! same error in InstantReact
+        keys: [_inputName],
       });
     });
 
@@ -340,7 +346,8 @@ export class InstantVueRoom<
       return toValue(opts)?.writeOnly
         ? []
         : Object.values(presenceSnapshot?.peers ?? {}).filter(
-            (p) => p[toValue(inputName)] === true
+            //@ts-ignore TODO! same error in InstantReact
+            (p) => p[_inputName] === true
           );
     });
 
@@ -503,6 +510,7 @@ export class InstantVue<Schema = {}, RoomSchema extends RoomSchemaShape = {}> {
   useQuery = <Q extends Query>(
     query: MaybeRef<Exactly<Query, Q> | null>
   ): UseQueryReturn<Q, Schema> => {
+    //@ts-ignore TODO! same error in InstantReact
     return useQuery(this._core, query).state;
   };
 

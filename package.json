@@ -4,30 +4,49 @@
   "description": "Instant DB for Vue",
   "author": "dorilama",
   "license": "ISC",
-  "main": "dist/index.js",
-  "module": "dist/module/index.js",
-  "types": "dist/module/index.d.ts",
-  "unpkg": "dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./components": {
+      "types": "./dist/components/index.d.ts",
+      "import": "./dist/components/index.mjs",
+      "require": "./dist/components/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "*",
+        "dist/*",
+        "dist/*.d.ts",
+        "dist/*/index.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "components.d.ts",
+    "dist"
+  ],
   "scripts": {
-    "test": "vitest",
-    "build": "rm -rf dist; npm run build:main && npm run build:module",
-    "dev:main": "npx vue-tsc -p tsconfig.json -w --skipLibCheck",
-    "dev:module": "npx vue-tsc -p tsconfig.module.json -w --skipLibCheck",
-    "dev": "run-p dev:main dev:module",
-    "build:main": "tsc -p tsconfig.json",
-    "build:module": "tsc -p tsconfig.module.json",
+    "build": "unbuild",
     "publish-package": "npm publish --access public"
   },
   "dependencies": {
-    "@instantdb/core": "^0.12.13"
+    "@instantdb/core": "^0.12.13",
+    "@types/node": "^22.5.2",
+    "@vue/tsconfig": "^0.5.1",
+    "mkdist": "^1.5.5",
+    "unbuild": "^2.0.0",
+    "vite": "^5.4.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.17.9",
-    "@babel/preset-env": "^7.16.11",
-    "@types/react": ">=16",
-    "npm-run-all": "^4.1.5",
-    "typescript": "^5.5.4",
-    "vitest": "^0.21.0"
+    "typescript": "^5.5.4"
   },
   "peerDependencies": {
     "vue": "^3.0.0-0"

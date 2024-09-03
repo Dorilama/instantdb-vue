@@ -5,15 +5,20 @@
 import { onScopeDispose } from "vue";
 
 export function useTimeout() {
-  let timeout = null;
+  let timeout: ReturnType<typeof setTimeout> | null = null;
 
   function set(delay: number, fn: () => void) {
-    clearTimeout(timeout);
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+
     timeout = setTimeout(fn, delay);
   }
 
   function clear() {
-    clearTimeout(timeout);
+    if (timeout) {
+      clearTimeout(timeout);
+    }
   }
 
   onScopeDispose(() => {

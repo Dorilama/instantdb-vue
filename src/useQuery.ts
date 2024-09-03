@@ -2,24 +2,15 @@
 // adapted from [@instantdb/react](https://github.com/instantdb/instant/blob/main/client/packages/react/README.md)
 // see instantdb-license.md for license
 
-import {
-  weakHash,
-  coerceQuery,
+import { weakHash, coerceQuery } from "@instantdb/core";
+import type {
   Query,
   Exactly,
   InstantClient,
   LifecycleSubscriptionState,
 } from "@instantdb/core";
-import {
-  shallowRef,
-  computed,
-  toValue,
-  watch,
-  onScopeDispose,
-  ShallowRef,
-  MaybeRef,
-  ref,
-} from "vue";
+import { shallowRef, computed, toValue, watch, onScopeDispose, ref } from "vue";
+import type { ShallowRef, MaybeRef } from "vue";
 
 export type UseQueryReturn<Q, Schema> = {
   [K in keyof LifecycleSubscriptionState<Q, Schema>]: ShallowRef<

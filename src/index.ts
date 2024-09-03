@@ -2,12 +2,8 @@
 // adapted from [@instantdb/react](https://github.com/instantdb/instant/blob/main/client/packages/react/README.md)
 // see instantdb-license.md for license
 
-import {
-  id,
-  tx,
-  lookup,
-
-  // types
+import { id, tx, lookup } from "@instantdb/core";
+import type {
   QueryResponse,
   InstantObject,
   User,
@@ -19,22 +15,6 @@ import {
 
 import { InstantVue } from "./InstantVue";
 import { init } from "./init";
-import Cursors from "./Cursors.vue";
 
-export {
-  id,
-  tx,
-  lookup,
-  init,
-  InstantVue,
-  Cursors,
-
-  // types
-  Config,
-  Query,
-  QueryResponse,
-  InstantObject,
-  User,
-  AuthState,
-  i,
-};
+export { id, tx, lookup, init, InstantVue };
+export type { Config, Query, QueryResponse, InstantObject, User, AuthState, i };
