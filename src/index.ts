@@ -14,17 +14,7 @@ import type {
 } from "@instantdb/core";
 
 import { InstantVue } from "./InstantVue";
-import { InstantVueRoom } from "./InstantVue";
 import { init } from "./init";
 
 export { id, tx, lookup, init, InstantVue };
-export type {
-  Config,
-  Query,
-  QueryResponse,
-  InstantObject,
-  User,
-  AuthState,
-  i,
-  InstantVueRoom,
-};
+export type { Config, Query, QueryResponse, InstantObject, User, AuthState, i };

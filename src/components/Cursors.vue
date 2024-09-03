@@ -2,14 +2,13 @@
 [@instantdb/react](https://github.com/instantdb/instant/blob/main/client/packages/react/README.md)
 // see instantdb-license.md for license
 <template>
-  <slot></slot>
   <component
     :is="props.as"
     :style="['position: relative', props.style]"
     :class="props.className"
     @mousemove="onMouseMove"
     @mouseout="onMouseOut"
-  >
+    ><slot></slot>
     <div
       :key="spaceId"
       :style="{
@@ -18,24 +17,30 @@
         zIndex: props.zIndex !== undefined ? props.zIndex : defaultZ,
       }"
     >
-      <div
-        v-for="[id, presence, cursor] of peers"
+      <template
+        v-for="[id, presence] of Object.entries(cursorsPresence.peers.value)"
         :key="id"
-        :style="{
-          ...absStyles,
-          transform: `translate(${cursor.xPercent}%, ${cursor.yPercent}%)`,
-          transformOrigin: '0 0',
-          transition: 'transform 100ms',
-        }"
       >
-        <slot
-          name="cursor"
-          :color="cursor.color"
-          :presence="fullPresence.peers[id]"
+        <div
+          v-if="getCursor(presence)"
+          :style="{
+            ...absStyles,
+            transform: `translate(${getCursor(presence).xPercent}%, ${
+              getCursor(presence).yPercent
+            }%)`,
+            transformOrigin: '0 0',
+            transition: 'transform 100ms',
+          }"
         >
-          <Cursor v-bind:color="cursor.color" />
-        </slot>
-      </div>
+          <slot
+            name="cursor"
+            :color="getCursor(presence).color"
+            :presence="fullPresence.peers.value[id]"
+          >
+            <Cursor v-bind:color="getCursor(presence).color" />
+          </slot>
+        </div>
+      </template>
     </div>
   </component>
 </template>
@@ -46,9 +51,10 @@
   generic="RoomSchema extends RoomSchemaShape, RoomType extends keyof RoomSchema"
 >
 import type * as CSS from "csstype";
-import { computed, shallowRef, watch, watchEffect } from "vue";
+import { computed } from "vue";
 import { InstantVueRoom } from "../InstantVue";
 import type { RoomSchemaShape } from "@instantdb/core";
+import type { CursorSchema } from ".";
 import Cursor from "./Cursor.vue";
 
 const props = defineProps<{
@@ -96,39 +102,20 @@ const usePresenceOptions = computed(() => {
 
 const cursorsPresence = room.usePresence(usePresenceOptions);
 
-const peers = computed(() => {
-  return Object.entries(cursorsPresence.peers.value)
-    .map(([id, presence]) => {
-      const cursor = presence[spaceId.value];
-      console.log(id, presence, cursor);
-      if (cursor) {
-        return [id, presence, cursor];
-      }
-    })
-    .filter(Boolean);
-});
+const fullPresence = room.usePresence();
 
-watchEffect(() => {
-  console.log("@@@@", peers.value);
-});
-
-function getFullPresence() {
-  return room._core._reactor.getPresence(room.type, room.id.value);
+function getCursor(presence: (typeof cursorsPresence.peers.value)[string]) {
+  return presence[spaceId.value] as Pick<
+    RoomSchema[RoomType]["presence"],
+    keyof RoomSchema[RoomType]["presence"]
+  > &
+    CursorSchema;
 }
-const fullPresence = shallowRef(getFullPresence());
-watch(
-  () => props.room.id,
-  () => {
-    fullPresence.value = getFullPresence();
-  }
-);
 
 function onMouseMove(e: MouseEvent) {
-  console.log("move", e);
   if (!propagate) {
     e.stopPropagation();
   }
-  console.log(e);
   e.currentTarget;
   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
   const x = e.clientX;

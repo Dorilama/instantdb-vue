@@ -43,9 +43,11 @@ room.useTopicEffect("notification", (event, peer) => {
         <div v-if="error">
           <p>Error: {{ error.message || "unknown error" }}</p>
         </div>
+        <p>Room: {{ room.id }}</p>
         <ul v-if="Object.values(peers).length">
           <li v-for="peer of peers" :key="peer.name">{{ peer.name }}</li>
         </ul>
+        <p v-else>nobody here</p>
       </div>
     </div></Cursors
   >
