@@ -11,7 +11,8 @@
 
 <script lang="ts" setup>
 import { tx } from "@dorilama/instantdb-vue";
-import { db, Todo } from "../db";
+import { db } from "../db";
+import type { Todo } from "../db";
 
 const props = defineProps<{ todos: Todo[] }>();
 

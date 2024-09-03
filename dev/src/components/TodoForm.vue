@@ -16,8 +16,9 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import { tx, id } from "@dorilama/instantdb-vue";
-import { db, RoomSchema, Schema, Todo } from "../db";
-import { InstantVueRoom } from "../../../../dist/module/InstantVue";
+import type { InstantVueRoom } from "@dorilama/instantdb-vue";
+import { db } from "../db";
+import type { RoomSchema, Schema, Todo } from "../db";
 
 const props = defineProps<{
   todos: Todo[];

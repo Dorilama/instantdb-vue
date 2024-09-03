@@ -32,22 +32,23 @@ room.useTopicEffect("notification", (event, peer) => {
 </script>
 
 <template>
-  <Cursors :room="room" />
-  <div v-if="isLoading"><p>Data is loading...</p></div>
-  <div v-else>
-    <div class="container">
-      <div class="header">Todo</div>
-      <TodoForm :todos="data?.todos || []" :room="room" />
-      <TodoList :todos="data?.todos || []" />
-      <ActionBar :todos="data?.todos || []" />
-      <div v-if="error">
-        <p>Error: {{ error.message || "unknown error" }}</p>
+  <Cursors as="article" :room="room">
+    <div v-if="isLoading"><p>Data is loading...</p></div>
+    <div v-else>
+      <div class="container">
+        <div class="header">Todo</div>
+        <TodoForm :todos="data?.todos || []" :room="room" />
+        <TodoList :todos="data?.todos || []" />
+        <ActionBar :todos="data?.todos || []" />
+        <div v-if="error">
+          <p>Error: {{ error.message || "unknown error" }}</p>
+        </div>
+        <ul v-if="Object.values(peers).length">
+          <li v-for="peer of peers" :key="peer.name">{{ peer.name }}</li>
+        </ul>
       </div>
-      <ul v-if="Object.values(peers).length">
-        <li v-for="peer of peers" :key="peer.name">{{ peer.name }}</li>
-      </ul>
-    </div>
-  </div>
+    </div></Cursors
+  >
 </template>
 
 <style scoped>

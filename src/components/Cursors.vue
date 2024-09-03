@@ -19,21 +19,21 @@
       }"
     >
       <div
-        v-for="[id, presence] of Object.entries(cursorsPresence.peers)"
+        v-for="[id, presence, cursor] of peers"
         :key="id"
         :style="{
           ...absStyles,
-          transform: `translate(${presence[spaceId].xPercent}%, ${presence[spaceId].yPercent}%)`,
+          transform: `translate(${cursor.xPercent}%, ${cursor.yPercent}%)`,
           transformOrigin: '0 0',
           transition: 'transform 100ms',
         }"
       >
         <slot
           name="cursor"
-          :color="presence[spaceId].color"
+          :color="cursor.color"
           :presence="fullPresence.peers[id]"
         >
-          <Cursor v-bind="presence[spaceId]" />
+          <Cursor v-bind:color="cursor.color" />
         </slot>
       </div>
     </div>
@@ -46,7 +46,7 @@
   generic="RoomSchema extends RoomSchemaShape, RoomType extends keyof RoomSchema"
 >
 import type * as CSS from "csstype";
-import { computed, shallowRef, watch } from "vue";
+import { computed, shallowRef, watch, watchEffect } from "vue";
 import { InstantVueRoom } from "../InstantVue";
 import type { RoomSchemaShape } from "@instantdb/core";
 import Cursor from "./Cursor.vue";
@@ -81,7 +81,11 @@ const defaultZ = 99999;
 const { room, spaceId: _spaceId, propagate, userCursorColor } = props;
 
 const spaceId = computed(
-  () => _spaceId || `cursors-space-default--${String(room.type)}-${room.id}`
+  () =>
+    (_spaceId ||
+      `cursors-space-default--${String(room.type)}-${
+        room.id.value
+      }`) as keyof RoomSchema[RoomType]["presence"]
 );
 
 const usePresenceOptions = computed(() => {
@@ -89,8 +93,24 @@ const usePresenceOptions = computed(() => {
     keys: [spaceId.value],
   };
 });
-//@ts-ignore TODO! see InstantVue
+
 const cursorsPresence = room.usePresence(usePresenceOptions);
+
+const peers = computed(() => {
+  return Object.entries(cursorsPresence.peers.value)
+    .map(([id, presence]) => {
+      const cursor = presence[spaceId.value];
+      console.log(id, presence, cursor);
+      if (cursor) {
+        return [id, presence, cursor];
+      }
+    })
+    .filter(Boolean);
+});
+
+watchEffect(() => {
+  console.log("@@@@", peers.value);
+});
 
 function getFullPresence() {
   return room._core._reactor.getPresence(room.type, room.id.value);
@@ -104,6 +124,7 @@ watch(
 );
 
 function onMouseMove(e: MouseEvent) {
+  console.log("move", e);
   if (!propagate) {
     e.stopPropagation();
   }

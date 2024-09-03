@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@dorilama/instantdb-vue": ["../src"]
+    },
+    "types": ["vite/client"]
+  },
+  "include": ["./**/*"]
+}
