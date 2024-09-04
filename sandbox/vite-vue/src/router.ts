@@ -22,6 +22,5 @@ export const router = createRouter({
       return { top: 0 };
     }
   },
-  linkActiveClass: "text-teal-600",
-  linkExactActiveClass: "text-teal-700",
+  linkActiveClass: "active",
 });
