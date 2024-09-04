@@ -10,17 +10,10 @@
 </template>
 
 <script lang="ts" setup>
-import { tx } from "@dorilama/instantdb-vue";
-import { db } from "../db";
-import type { Todo } from "../db";
+import { deleteCompleted } from "@/db/todo";
+import type { Todo } from "@/db";
 
 const props = defineProps<{ todos: Todo[] }>();
-
-function deleteCompleted(todos: Todo[]) {
-  const completed = todos.filter((todo) => todo.done);
-  const txs = completed.map((todo) => tx.todos[todo.id].delete());
-  db.transact(txs);
-}
 </script>
 
 <style scoped>

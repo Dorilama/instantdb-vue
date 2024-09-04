@@ -1,6 +1,6 @@
 <template>
   <div class="form">
-    <div class="toggle-all" @click="toggleAll()">⌄</div>
+    <div class="toggle-all" @click="toggleAll(props.todos)">⌄</div>
     <form @submit="onSubmit">
       <input
         class="input"
@@ -15,40 +15,14 @@
 
 <script lang="ts" setup>
 import { ref } from "vue";
-import { tx, id } from "@dorilama/instantdb-vue";
-import type { InstantVueRoom } from "@dorilama/instantdb-vue";
-import { db } from "../db";
-import type { RoomSchema, Schema, Todo } from "../db";
+import { addTodo, toggleAll } from "@/db/todo";
+import type { Todo } from "@/db";
 
 const props = defineProps<{
   todos: Todo[];
-  room: InstantVueRoom<Schema, RoomSchema, "chat">;
 }>();
 
 const model = ref("");
-
-const publishTopic = props.room.usePublishTopic("notification");
-
-function addTodo(text: string) {
-  if (!text) {
-    return;
-  }
-  db.transact(
-    tx.todos[id()].update({
-      text,
-      done: false,
-      createdAt: Date.now(),
-    })
-  );
-  publishTopic({
-    text,
-  });
-}
-
-function toggleAll(todos: Todo[] = props.todos) {
-  const newVal = !todos.every((todo) => todo.done);
-  db.transact(todos.map((todo) => tx.todos[todo.id].update({ done: newVal })));
-}
 
 function onSubmit(e: Event) {
   e.preventDefault();

@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { watchEffect } from "vue";
 import { db } from "./db";
+import Header from "./components/Header.vue";
 import TodoForm from "./components/TodoForm.vue";
 import TodoList from "./components/TodoList.vue";
 import ActionBar from "./components/ActionBar.vue";
-import { watchEffect } from "vue";
 
 import { Cursors } from "@dorilama/instantdb-vue/components";
 
@@ -32,6 +33,7 @@ room.useTopicEffect("notification", (event, peer) => {
 </script>
 
 <template>
+  <Header></Header>
   <Cursors :room="room">
     <div v-if="isLoading"><p>Data is loading...</p></div>
     <div v-else>

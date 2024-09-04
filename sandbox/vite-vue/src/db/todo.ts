@@ -1,0 +1,38 @@
+import { tx, id } from "@dorilama/instantdb-vue";
+import type { Todo } from "@/db";
+import { db } from "@/db";
+
+export function addTodo(text: string) {
+  if (!text) {
+    return;
+  }
+  db.transact(
+    tx.todos[id()].update({
+      text,
+      done: false,
+      createdAt: Date.now(),
+    })
+  );
+}
+
+export function toggleAll(todos: Todo[] = []) {
+  if (!todos.length) {
+    return;
+  }
+  const newVal = !todos.every((todo) => todo.done);
+  db.transact(todos.map((todo) => tx.todos[todo.id].update({ done: newVal })));
+}
+
+export function deleteCompleted(todos: Todo[]) {
+  const completed = todos.filter((todo) => todo.done);
+  const txs = completed.map((todo) => tx.todos[todo.id].delete());
+  db.transact(txs);
+}
+
+export function toggleDone(todo: Todo) {
+  db.transact(tx.todos[todo.id].update({ done: !todo.done }));
+}
+
+export function deleteTodo(todo: Todo) {
+  db.transact(tx.todos[todo.id].delete());
+}

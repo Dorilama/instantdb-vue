@@ -20,19 +20,10 @@
 </template>
 
 <script lang="ts" setup>
-import { tx } from "@dorilama/instantdb-vue";
-import { db } from "../db";
-import type { Todo } from "../db";
+import { toggleDone, deleteTodo } from "@/db/todo";
+import type { Todo } from "@/db";
 
 const props = defineProps<{ todos: Todo[] }>();
-
-function toggleDone(todo: Todo) {
-  db.transact(tx.todos[todo.id].update({ done: !todo.done }));
-}
-
-function deleteTodo(todo: Todo) {
-  db.transact(tx.todos[todo.id].delete());
-}
 </script>
 
 <style scoped>
