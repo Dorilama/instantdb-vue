@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --dvh-full: 100dvh;
+}
+
+#app {
+  min-height: var(--dvh-full, 100vh);
+}

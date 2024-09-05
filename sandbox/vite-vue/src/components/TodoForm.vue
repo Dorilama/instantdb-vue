@@ -1,9 +1,22 @@
 <template>
-  <div class="form">
-    <div class="toggle-all" @click="toggleAll(props.todos)">⌄</div>
-    <form @submit="onSubmit">
+  <div class="join">
+    <button
+      class="join-item btn btn-square btn-ghost text-2xl rounded-bl-none"
+      @click="toggleAll(props.todos)"
+      aria-label="toggle all"
+    >
+      <span
+        aria-hidden="true"
+        :class="
+          willCheck
+            ? 'icon-[mdi--checkbox-multiple-marked]'
+            : 'icon-[mdi--checkbox-multiple-blank-outline]'
+        "
+      ></span>
+    </button>
+    <form @submit="onSubmit" class="join-item w-full border-l">
       <input
-        class="input"
+        class="join-item input input-ghost w-full"
         autoFocus
         placeholder="What needs to be done?"
         type="text"
@@ -14,8 +27,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
-import { addTodo, toggleAll } from "@/db/todo";
+import { computed, ref } from "vue";
+import { addTodo, toggleAll, willCheckAll } from "@/db/todo";
 import type { Todo } from "@/db";
 
 const props = defineProps<{
@@ -29,6 +42,10 @@ function onSubmit(e: Event) {
   addTodo(model.value);
   model.value = "";
 }
+
+const willCheck = computed(() => {
+  return willCheckAll(props.todos);
+});
 </script>
 
 <style scoped>
@@ -47,7 +64,7 @@ function onSubmit(e: Event) {
   width: 15px;
   margin-right: 12px;
 }
-.input {
+.inputz {
   background-color: transparent;
   font-family: code, monospace;
   width: 287px;

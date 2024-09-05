@@ -1,11 +1,14 @@
 <template>
-  <div class="action-bar">
-    <div>
+  <div
+    class="flex justify-between items-center gap-8 p-2"
+    :class="[!todos.length && 'border-t']"
+  >
+    <p class="text-sm">
       Remaining todos: {{ props.todos.filter((todo) => !todo.done).length }}
-    </div>
-    <div style="cursor: pointer" @click="deleteCompleted(props.todos)">
+    </p>
+    <button class="btn btn-ghost btn-xs" @click="deleteCompleted(props.todos)">
       Delete Completed
-    </div>
+    </button>
   </div>
 </template>
 
@@ -17,7 +20,7 @@ const props = defineProps<{ todos: Todo[] }>();
 </script>
 
 <style scoped>
-.action-bar {
+.action-barz {
   display: flex;
   justify-content: space-between;
   width: 328px;
@@ -25,7 +28,7 @@ const props = defineProps<{ todos: Todo[] }>();
   border: 1px solid lightgray;
   font-size: 10px;
 }
-.footer {
+.footerz {
   margin-top: 20px;
   font-size: 10px;
 }

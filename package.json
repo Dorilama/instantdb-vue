@@ -35,9 +35,7 @@
   ],
   "scripts": {
     "build": "unbuild",
-    "dev": "vite serve dev",
-    "dev:build": "vite build dev",
-    "dev:preview": "vite preview dev",
+    "dev": "cd ./sandbox/vite-vue && npm run dev",
     "publish-package": "npm publish --access public",
     "prepublishOnly": "npm run build"
   },

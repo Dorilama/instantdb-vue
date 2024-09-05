@@ -16,11 +16,12 @@ export function addTodo(text: string) {
 }
 
 export function toggleAll(todos: Todo[] = []) {
-  if (!todos.length) {
-    return;
-  }
-  const newVal = !todos.every((todo) => todo.done);
+  const newVal = todos.some((todo) => !todo.done);
   db.transact(todos.map((todo) => tx.todos[todo.id].update({ done: newVal })));
+}
+
+export function willCheckAll(todos: Todo[] = []) {
+  return todos.some((todo) => !todo.done);
 }
 
 export function deleteCompleted(todos: Todo[]) {

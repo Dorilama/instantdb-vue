@@ -1,22 +1,38 @@
 <template>
-  <div class="todo-list">
-    <div v-for="todo in props.todos" :key="todo.id" class="todo">
-      <input
-        type="checkbox"
+  <table class="table border-t">
+    <tbody>
+      <tr
+        v-for="todo in props.todos"
         :key="todo.id"
-        class="checkbox"
-        :checked="todo.done"
-        @change="toggleDone(todo)"
-      />
-      <div class="todo-text">
-        <span
-          :style="{ textDecoration: todo.done ? 'line-through' : 'none' }"
-          >{{ todo.text }}</span
-        >
-      </div>
-      <span class="delete" @click="deleteTodo(todo)">𝘟</span>
-    </div>
-  </div>
+        class="flex justify-between"
+      >
+        <td class="flex-none flex items-center">
+          <input
+            type="checkbox"
+            :key="todo.id"
+            class="checkbox checkbox-sm"
+            :checked="todo.done"
+            @change="toggleDone(todo)"
+          />
+        </td>
+
+        <td class="flex-auto flex items-center">
+          <span :class="todo.done ? 'line-through' : 'no-underline'">{{
+            todo.text
+          }}</span>
+        </td>
+        <td>
+          <button
+            class="btn btn-ghost btn-square btn-sm text-xl"
+            aria-label="delete"
+            @click="deleteTodo(todo)"
+          >
+            <span aria-hidden="true" class="icon-[mdi--bin-outline]"></span>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </template>
 
 <script lang="ts" setup>
@@ -31,7 +47,7 @@ const props = defineProps<{ todos: Todo[] }>();
   box-sizing: inherit;
   width: 350px;
 }
-.checkbox {
+.checkboxz {
   font-size: 30px;
   margin-left: 5px;
   margin-right: 20px;
