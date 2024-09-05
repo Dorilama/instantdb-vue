@@ -15,7 +15,7 @@
   </header>
 </template>
 <script setup lang="ts">
-import { useRouter, useRoute, RouterLink } from "vue-router";
+import { useRouter, RouterLink } from "vue-router";
 const router = useRouter();
 const routes = router.getRoutes();
 </script>

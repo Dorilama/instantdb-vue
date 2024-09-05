@@ -16,8 +16,7 @@
     </button>
     <form @submit="onSubmit" class="join-item w-full border-l">
       <input
-        class="join-item input input-ghost w-full"
-        autoFocus
+        class="join-item input input-ghost w-full rounded-br-none"
         placeholder="What needs to be done?"
         type="text"
         v-model="model"

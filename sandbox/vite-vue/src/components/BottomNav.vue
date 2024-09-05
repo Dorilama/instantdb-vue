@@ -16,7 +16,9 @@
           <ul class="menu bg-base-100 rounded-box p-2">
             <template v-for="r of routes" :key="r.path"
               ><li>
-                <RouterLink :to="r.path">{{ r.meta.label }}</RouterLink>
+                <RouterLink :to="r.path" @click="control?.close()">{{
+                  r.meta.label
+                }}</RouterLink>
               </li></template
             >
           </ul>
@@ -32,11 +34,15 @@
         </form>
       </dialog>
     </div>
+
+    <button><span class="btm-nav-label">Signin</span></button>
   </div>
 </template>
 <script setup lang="ts">
 import { useTemplateRef } from "vue";
-import { useRouter, useRoute, RouterLink } from "vue-router";
+import { useRouter, RouterLink } from "vue-router";
+import { db } from "@/db";
+
 const router = useRouter();
 const routes = router.getRoutes();
 const home = routes.find((r) => r.path == "/");

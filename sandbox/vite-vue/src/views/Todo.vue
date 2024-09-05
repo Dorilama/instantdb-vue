@@ -6,25 +6,36 @@
       <TodoForm :todos="data?.todos || []" :room="chatRoomoom" />
       <TodoList :todos="data?.todos || []" />
       <ActionBar :todos="data?.todos || []" />
-    </div>
-    <!-- <div class="container">
-      <div class="header">Todo</div>
-      <TodoForm :todos="data?.todos || []" :room="chatRoomoom" />
-      <TodoList :todos="data?.todos || []" />
-      <ActionBar :todos="data?.todos || []" />
-      <div v-if="error">
-        <p>Error: {{ error.message || "unknown error" }}</p>
+      <div
+        v-if="error"
+        ref="alert-error"
+        role="alert"
+        class="alert alert-error rounded-lg rounded-tl-none rounded-tr-none"
+      >
+        <span
+          aria-hidden="true"
+          class="icon-[mdi--error-outline] text-2xl"
+        ></span>
+
+        <span>Error! {{ error.message || "unknown error." }}</span>
       </div>
-    </div> -->
+    </div>
   </div>
 </template>
 <script setup lang="ts">
+import { useTemplateRef, watchEffect } from "vue";
 import { db, chatRoomoom } from "@/db";
 import TodoForm from "@/components/TodoForm.vue";
 import TodoList from "@/components/TodoList.vue";
 import ActionBar from "@/components/TodoFooter.vue";
 
 const { isLoading, data, error } = db.useQuery({ todos: {} });
+const alertError = useTemplateRef("alert-error");
+watchEffect(() => {
+  if (error.value && alertError.value) {
+    alertError.value?.scrollIntoView();
+  }
+});
 </script>
 
 <style scoped></style>
