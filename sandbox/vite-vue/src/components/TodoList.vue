@@ -42,31 +42,4 @@ import type { Todo } from "@/db";
 const props = defineProps<{ todos: Todo[] }>();
 </script>
 
-<style scoped>
-.todo-list {
-  box-sizing: inherit;
-  width: 350px;
-}
-.checkboxz {
-  font-size: 30px;
-  margin-left: 5px;
-  margin-right: 20px;
-  cursor: pointer;
-}
-.todo {
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  border: 1px solid lightgray;
-  border-bottom-width: 0px;
-}
-.todo-text {
-  flex-grow: 1;
-  overflow: hidden;
-}
-.delete {
-  width: 25px;
-  cursor: pointer;
-  color: lightgray;
-}
-</style>
+<style scoped></style>

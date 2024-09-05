@@ -27,21 +27,4 @@ import ActionBar from "@/components/TodoFooter.vue";
 const { isLoading, data, error } = db.useQuery({ todos: {} });
 </script>
 
-<style scoped>
-.container {
-  box-sizing: border-box;
-  background-color: #fafafa;
-  font-family: code, monospace;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-}
-.header {
-  letter-spacing: 2px;
-  font-size: 50px;
-  color: lightgray;
-  margin-bottom: 10px;
-}
-</style>
+<style scoped></style>

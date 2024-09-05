@@ -48,27 +48,4 @@ const willCheck = computed(() => {
 });
 </script>
 
-<style scoped>
-.form {
-  box-sizing: inherit;
-  display: flex;
-  border: 1px solid lightgray;
-  border-bottom-width: 0px;
-  width: 350px;
-}
-.toggle-all {
-  font-size: 30px;
-  cursor: pointer;
-  margin-left: 11px;
-  margin-top: -6px;
-  width: 15px;
-  margin-right: 12px;
-}
-.inputz {
-  background-color: transparent;
-  font-family: code, monospace;
-  width: 287px;
-  padding: 10px;
-  font-style: italic;
-}
-</style>
+<style scoped></style>
