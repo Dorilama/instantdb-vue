@@ -1,15 +1,21 @@
-import { createMemoryHistory, createRouter } from "vue-router";
+import { createWebHistory, createRouter } from "vue-router";
 
 const routes = [
   {
     path: "/",
     component: () => import("@/views/Todo.vue"),
-    meta: { label: "Todo" },
+    meta: { label: "Todo", isNav: true },
   },
+  {
+    path: "/signin",
+    component: () => import("@/views/Signin.vue"),
+    meta: { label: "Sign in" },
+  },
+  { path: "/signup", redirect: "/signin" },
 ];
 
 export const router = createRouter({
-  history: createMemoryHistory(),
+  history: createWebHistory(),
   routes,
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {

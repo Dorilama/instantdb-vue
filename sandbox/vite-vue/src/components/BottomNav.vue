@@ -35,7 +35,13 @@
       </dialog>
     </div>
 
-    <button><span class="btm-nav-label">Signin</span></button>
+    <button v-if="isLoading" class="rounded-none skeleton" disabled></button>
+    <button v-else-if="user" class="rounded-none" @click="db.auth.signOut()">
+      <span class="btm-nav-label">Sign out</span>
+    </button>
+    <RouterLink to="/signin" v-else class="rounded-none font-bold">
+      <span class="btm-nav-label">Sign in</span>
+    </RouterLink>
   </div>
 </template>
 <script setup lang="ts">
@@ -44,7 +50,9 @@ import { useRouter, RouterLink } from "vue-router";
 import { db } from "@/db";
 
 const router = useRouter();
-const routes = router.getRoutes();
+const routes = router.getRoutes().filter((r) => r.meta.isNav === true);
 const home = routes.find((r) => r.path == "/");
 const control = useTemplateRef<HTMLDialogElement>("bottom-navigation-control");
+
+const { isLoading, user, error } = db.useAuth();
 </script>

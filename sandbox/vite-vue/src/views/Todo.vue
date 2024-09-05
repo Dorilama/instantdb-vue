@@ -1,10 +1,12 @@
 <template>
-  <div v-if="isLoading"><p>Data is loading...</p></div>
-  <div v-else class="flex flex-col items-center pt-4 pb-8 px-2 gap-4">
+  <div class="flex flex-col items-center pt-4 pb-8 px-2 gap-4">
     <h1 class="text-4xl">Todo</h1>
     <div class="card card-bordered rounded-lg bg-base-100 sm:min-w-96">
       <TodoForm :todos="data?.todos || []" :room="chatRoomoom" />
-      <TodoList :todos="data?.todos || []" />
+      <TodoList
+        :class="[isLoading && 'skeleton min-h-10']"
+        :todos="data?.todos || []"
+      />
       <ActionBar :todos="data?.todos || []" />
       <div
         v-if="error"

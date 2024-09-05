@@ -9,13 +9,25 @@
         </li>
       </ul>
     </div>
-    <!-- <div class="navbar-end">
-      <a class="btn">Button</a>
-    </div> -->
+    <div class="navbar-end">
+      <button v-if="isLoading" class="btn skeleton" disabled>
+        <span class="opacity-0" aria-hidden="true">Sign in</span>
+      </button>
+      <button v-else-if="user" class="btn" @click="db.auth.signOut()">
+        <span class="btm-nav-label">Sign out</span>
+      </button>
+      <RouterLink to="/signin" v-else class="btn font-bold">
+        <span class="btm-nav-label">Sign in</span>
+      </RouterLink>
+    </div>
   </header>
 </template>
 <script setup lang="ts">
 import { useRouter, RouterLink } from "vue-router";
+import { db } from "@/db";
+
 const router = useRouter();
-const routes = router.getRoutes();
+const routes = router.getRoutes().filter((r) => r.meta.isNav === true);
+
+const { isLoading, user, error } = db.useAuth();
 </script>

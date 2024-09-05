@@ -1,5 +1,5 @@
 <template>
-  <table class="table border-t">
+  <table class="table border-t rounded-none">
     <tbody>
       <tr
         v-for="todo in props.todos"
