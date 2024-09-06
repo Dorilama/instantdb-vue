@@ -2,11 +2,28 @@
   <header class="navbar hidden lg:flex border-b">
     <div class="navbar-start">
       <ul class="menu menu-horizontal px-1">
-        <li v-for="r of routes" :key="r.path">
-          <RouterLink :to="r.path">
-            {{ r.meta.label || "" }}
-          </RouterLink>
+        <li>
+          <RouterLink :to="home.path" class="indicator">
+            {{ home.meta.label || "Home"
+            }}<span
+              v-if="count.byPath[home.path]"
+              class="badge badge-accent indicator-item"
+              >{{ count.byPath[home.path] }}</span
+            ></RouterLink
+          >
         </li>
+        <template v-for="r of routes" :key="r.path">
+          <li v-if="r !== home">
+            <RouterLink :to="r.path" class="indicator">
+              {{ r.meta.label ?? r.path
+              }}<span
+                v-if="count.byPath[r.path]"
+                class="badge badge-accent indicator-item"
+                >{{ count.byPath[r.path] }}</span
+              ></RouterLink
+            >
+          </li>
+        </template>
       </ul>
     </div>
     <div class="navbar-end gap-4">
@@ -14,7 +31,7 @@
         <span class="opacity-0" aria-hidden="true">Sign in</span>
       </button>
       <template v-else-if="user">
-        <span class="badge" :style="{ borderColor: fixedRandomColor }">{{
+        <span class="badge" :style="{ borderColor: myPresence?.color }">{{
           user.email
         }}</span>
         <button class="btn" @click="db.auth.signOut()">
@@ -28,12 +45,11 @@
   </header>
 </template>
 <script setup lang="ts">
-import { useRouter, RouterLink } from "vue-router";
+import { RouterLink } from "vue-router";
 import { db } from "@/db";
-import { fixedRandomColor } from "@/db/composables";
+import { usePeerStats } from "@/db/composables";
 
-const router = useRouter();
-const routes = router.getRoutes().filter((r) => r.meta.isNav === true);
+const { user: myPresence, home, routes, count } = usePeerStats();
 
 const { isLoading, user, error } = db.useAuth();
 </script>

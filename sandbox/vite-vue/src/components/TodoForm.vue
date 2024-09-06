@@ -14,7 +14,10 @@
         "
       ></span>
     </button>
-    <form @submit="onSubmit" class="join-item w-full border-l">
+    <form
+      @submit="onSubmit"
+      class="form-control join-item w-full border-l border-base-200"
+    >
       <input
         class="join-item input input-ghost w-full rounded-br-none"
         placeholder="What needs to be done?"

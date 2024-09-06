@@ -20,7 +20,7 @@ export type RoomSchema = {
     presence: {
       userId: string;
       color: string;
-      page: string;
+      path: string;
     };
     topics: {
       notification: { text: string };
