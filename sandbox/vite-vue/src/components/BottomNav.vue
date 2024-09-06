@@ -36,8 +36,17 @@
     </div>
 
     <button v-if="isLoading" class="rounded-none skeleton" disabled></button>
-    <button v-else-if="user" class="rounded-none" @click="db.auth.signOut()">
-      <span class="btm-nav-label">Sign out</span>
+    <button
+      v-else-if="user"
+      class="rounded-none w-1/3 sm:w-auto"
+      @click="db.auth.signOut()"
+    >
+      <span class="btm-nav-label flex flex-col items-center w-full">
+        <span class="badge w-full sm:w-fit"
+          ><span class="overflow-hidden">{{ user.email }}</span></span
+        >
+        <span>Sign out</span></span
+      >
     </button>
     <RouterLink to="/signin" v-else class="rounded-none font-bold">
       <span class="btm-nav-label">Sign in</span>

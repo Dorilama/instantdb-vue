@@ -3,7 +3,7 @@
     class="flex justify-between items-center gap-8 p-2"
     :class="[(todos.length == 0 || todos.length > 1) && 'border-t']"
   >
-    <p class="text-sm">
+    <p class="text-sm leading-8">
       Remaining todos:
       <span class="font-mono border rounded-md p-1">
         <span v-if="remainingTodo < 100" class="countdown"
