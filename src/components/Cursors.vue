@@ -50,7 +50,7 @@
   generic="RoomSchema extends RoomSchemaShape, RoomType extends keyof RoomSchema"
 >
 import type * as CSS from "csstype";
-import { computed, onBeforeUnmount, watch, watchEffect } from "vue";
+import { computed, onBeforeUnmount, ref, watch, watchEffect } from "vue";
 import { InstantVueRoom } from "../InstantVue";
 import type { RoomSchemaShape } from "@instantdb/core";
 import type { CursorSchema } from ".";
@@ -105,6 +105,14 @@ const usePresenceOptions = computed(() => {
 
 const cursorsPresence = room.usePresence(usePresenceOptions);
 
+const isLoadingFirst = ref(true);
+watchEffect(() => {
+  if (!isLoadingFirst.value) {
+    return;
+  }
+  isLoadingFirst.value = cursorsPresence.isLoading.value;
+});
+
 watchEffect(() => {
   if (cursorsPresence.error?.value) {
     emit("error", cursorsPresence.error.value);
@@ -135,31 +143,37 @@ function onMouseMove(e: MouseEvent) {
   const y = e.clientY;
   const xPercent = ((x - rect.left) / rect.width) * 100;
   const yPercent = ((y - rect.top) / rect.height) * 100;
-
-  cursorsPresence.publishPresence({
-    [spaceId.value]: {
-      x,
-      y,
-      xPercent,
-      yPercent,
-      color: userCursorColor,
-    },
-  } as RoomSchema[RoomType]["presence"]);
+  try {
+    cursorsPresence.publishPresence({
+      [spaceId.value]: {
+        x,
+        y,
+        xPercent,
+        yPercent,
+        color: userCursorColor,
+      },
+    } as RoomSchema[RoomType]["presence"]);
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 // note: using it on mouseleave event
 function onMouseOut(e: MouseEvent) {
-  console.log("out");
   clearPresence(spaceId.value);
 }
 
 function clearPresence(_spaceId: typeof spaceId.value) {
-  if (cursorsPresence.isLoading.value) {
+  if (isLoadingFirst.value) {
     return;
   }
-  cursorsPresence.publishPresence({
-    [_spaceId]: undefined,
-  } as RoomSchema[RoomType]["presence"]);
+  try {
+    cursorsPresence.publishPresence({
+      [_spaceId]: undefined,
+    } as RoomSchema[RoomType]["presence"]);
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 watch(spaceId, (_, oldValue) => {
