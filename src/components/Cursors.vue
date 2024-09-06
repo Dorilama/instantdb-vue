@@ -6,7 +6,7 @@
     :is="props.as"
     :style="['position: relative', props.style]"
     @mousemove="onMouseMove"
-    @mouseout="onMouseOut"
+    @mouseleave="onMouseOut"
     ><slot></slot>
     <div
       :key="spaceId"
@@ -50,7 +50,7 @@
   generic="RoomSchema extends RoomSchemaShape, RoomType extends keyof RoomSchema"
 >
 import type * as CSS from "csstype";
-import { computed, onBeforeMount, watch, watchEffect } from "vue";
+import { computed, onBeforeUnmount, watch, watchEffect } from "vue";
 import { InstantVueRoom } from "../InstantVue";
 import type { RoomSchemaShape } from "@instantdb/core";
 import type { CursorSchema } from ".";
@@ -125,9 +125,10 @@ function onMouseMove(e: MouseEvent) {
   if (!propagate) {
     e.stopPropagation();
   }
-  if (cursorsPresence.isLoading) {
+  if (cursorsPresence.isLoading.value) {
     return;
   }
+
   e.currentTarget;
   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
   const x = e.clientX;
@@ -146,12 +147,14 @@ function onMouseMove(e: MouseEvent) {
   } as RoomSchema[RoomType]["presence"]);
 }
 
+// note: using it on mouseleave event
 function onMouseOut(e: MouseEvent) {
+  console.log("out");
   clearPresence(spaceId.value);
 }
 
 function clearPresence(_spaceId: typeof spaceId.value) {
-  if (cursorsPresence.isLoading) {
+  if (cursorsPresence.isLoading.value) {
     return;
   }
   cursorsPresence.publishPresence({
@@ -163,7 +166,7 @@ watch(spaceId, (_, oldValue) => {
   clearPresence(oldValue);
 });
 
-onBeforeMount(() => {
+onBeforeUnmount(() => {
   clearPresence(spaceId.value);
 });
 </script>
