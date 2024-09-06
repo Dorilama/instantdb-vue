@@ -50,7 +50,7 @@
   generic="RoomSchema extends RoomSchemaShape, RoomType extends keyof RoomSchema"
 >
 import type * as CSS from "csstype";
-import { computed, onBeforeMount, watch } from "vue";
+import { computed, onBeforeMount, watch, watchEffect } from "vue";
 import { InstantVueRoom } from "../InstantVue";
 import type { RoomSchemaShape } from "@instantdb/core";
 import type { CursorSchema } from ".";
@@ -68,6 +68,8 @@ const props = withDefaults(
   }>(),
   { as: "div" }
 );
+
+const emit = defineEmits<{ error: [value: string] }>();
 
 const absStyles: CSS.Properties = {
   position: "absolute",
@@ -103,6 +105,12 @@ const usePresenceOptions = computed(() => {
 
 const cursorsPresence = room.usePresence(usePresenceOptions);
 
+watchEffect(() => {
+  if (cursorsPresence.error?.value) {
+    emit("error", cursorsPresence.error.value);
+  }
+});
+
 const fullPresence = room.usePresence();
 
 function getCursor(presence: (typeof cursorsPresence.peers.value)[string]) {
@@ -117,12 +125,16 @@ function onMouseMove(e: MouseEvent) {
   if (!propagate) {
     e.stopPropagation();
   }
+  if (cursorsPresence.isLoading) {
+    return;
+  }
   e.currentTarget;
   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
   const x = e.clientX;
   const y = e.clientY;
   const xPercent = ((x - rect.left) / rect.width) * 100;
   const yPercent = ((y - rect.top) / rect.height) * 100;
+
   cursorsPresence.publishPresence({
     [spaceId.value]: {
       x,
@@ -139,6 +151,9 @@ function onMouseOut(e: MouseEvent) {
 }
 
 function clearPresence(_spaceId: typeof spaceId.value) {
+  if (cursorsPresence.isLoading) {
+    return;
+  }
   cursorsPresence.publishPresence({
     [_spaceId]: undefined,
   } as RoomSchema[RoomType]["presence"]);
