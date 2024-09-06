@@ -18,7 +18,9 @@ export type Schema = {
 export type RoomSchema = {
   chat: {
     presence: {
-      name: string;
+      userId: string;
+      color: string;
+      page: string;
     };
     topics: {
       notification: { text: string };

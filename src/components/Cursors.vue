@@ -5,7 +5,6 @@
   <component
     :is="props.as"
     :style="['position: relative', props.style]"
-    :class="props.className"
     @mousemove="onMouseMove"
     @mouseout="onMouseOut"
     ><slot></slot>
@@ -51,7 +50,7 @@
   generic="RoomSchema extends RoomSchemaShape, RoomType extends keyof RoomSchema"
 >
 import type * as CSS from "csstype";
-import { computed } from "vue";
+import { computed, onBeforeMount, watch } from "vue";
 import { InstantVueRoom } from "../InstantVue";
 import type { RoomSchemaShape } from "@instantdb/core";
 import type { CursorSchema } from ".";
@@ -64,7 +63,6 @@ const props = withDefaults(
     style?: CSS.Properties<string | number>;
     userCursorColor?: string;
     as?: any;
-    className?: string;
     propagate?: boolean;
     zIndex?: number;
   }>(),
@@ -87,11 +85,11 @@ const inertStyles: CSS.Properties = {
 
 const defaultZ = 99999;
 
-const { room, spaceId: _spaceId, propagate, userCursorColor } = props;
+const { room, propagate, userCursorColor } = props;
 
 const spaceId = computed(
   () =>
-    (_spaceId ||
+    (props.spaceId ||
       `cursors-space-default--${String(room.type)}-${
         room.id.value
       }`) as keyof RoomSchema[RoomType]["presence"]
@@ -137,10 +135,22 @@ function onMouseMove(e: MouseEvent) {
 }
 
 function onMouseOut(e: MouseEvent) {
+  clearPresence(spaceId.value);
+}
+
+function clearPresence(_spaceId: typeof spaceId.value) {
   cursorsPresence.publishPresence({
-    [spaceId.value]: undefined,
+    [_spaceId]: undefined,
   } as RoomSchema[RoomType]["presence"]);
 }
+
+watch(spaceId, (_, oldValue) => {
+  clearPresence(oldValue);
+});
+
+onBeforeMount(() => {
+  clearPresence(spaceId.value);
+});
 </script>
 
 <style scoped></style>

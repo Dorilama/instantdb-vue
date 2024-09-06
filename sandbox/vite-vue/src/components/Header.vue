@@ -14,7 +14,9 @@
         <span class="opacity-0" aria-hidden="true">Sign in</span>
       </button>
       <template v-else-if="user">
-        <span class="badge">{{ user.email }}</span>
+        <span class="badge" :style="{ borderColor: fixedRandomColor }">{{
+          user.email
+        }}</span>
         <button class="btn" @click="db.auth.signOut()">
           <span class="btm-nav-label">Sign out</span>
         </button></template
@@ -28,6 +30,7 @@
 <script setup lang="ts">
 import { useRouter, RouterLink } from "vue-router";
 import { db } from "@/db";
+import { fixedRandomColor } from "@/db/composables";
 
 const router = useRouter();
 const routes = router.getRoutes().filter((r) => r.meta.isNav === true);

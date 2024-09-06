@@ -42,7 +42,9 @@
       @click="db.auth.signOut()"
     >
       <span class="btm-nav-label flex flex-col items-center w-full">
-        <span class="badge w-full sm:w-fit"
+        <span
+          class="badge w-full sm:w-fit"
+          :style="{ borderColor: fixedRandomColor }"
           ><span class="overflow-hidden">{{ user.email }}</span></span
         >
         <span>Sign out</span></span
@@ -57,6 +59,7 @@
 import { useTemplateRef } from "vue";
 import { useRouter, RouterLink } from "vue-router";
 import { db } from "@/db";
+import { fixedRandomColor } from "@/db/composables";
 
 const router = useRouter();
 const routes = router.getRoutes().filter((r) => r.meta.isNav === true);
