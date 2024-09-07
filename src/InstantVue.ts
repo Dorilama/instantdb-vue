@@ -87,13 +87,14 @@ export class InstantVueRoom<
    *
    * @see https://instantdb.com/docs/presence-and-topics
    * @example
-   *  function App({ roomId }) {
+   *  <script setup>
+   *    const props = defineProps({roomId: String});
    *    db.room(roomType, roomId).useTopicEffect("chat", (message, peer) => {
    *      console.log("New message", message, 'from', peer.name);
    *    });
    *
    *    // ...
-   *  }
+   *  </script>
    */
   useTopicEffect = <TopicType extends keyof RoomSchema[RoomType]["topics"]>(
     topic: MaybeRef<Arrayable<TopicType>>,
@@ -145,14 +146,13 @@ export class InstantVueRoom<
    *
    * @see https://instantdb.com/docs/presence-and-topics
    * @example
-   * function App({ roomId }) {
-   *   const publishTopic = db.room(roomType, roomId).usePublishTopic("clicks");
-   *
-   *   return (
-   *     <button onClick={() => publishTopic({ ts: Date.now() })}>Click me</button>
-   *   );
-   * }
-   *
+   *  <script setup>
+   *    const props = defineProps({roomId: String});
+   *    const publishTopic = db.room(roomType, roomId).usePublishTopic("clicks");
+   *  </script>
+   *  <template>
+   *    <button @click="() => publishTopic({ ts: Date.now() })">Click me</button>
+   *  </template>
    */
   usePublishTopic = <Topic extends keyof RoomSchema[RoomType]["topics"]>(
     topic: MaybeRef<Topic>
@@ -191,14 +191,15 @@ export class InstantVueRoom<
    *
    * @see https://instantdb.com/docs/presence-and-topics
    * @example
-   *  function App({ roomId }) {
+   *  <script setup>
+   *    const props = defineProps({roomId: String});
    *    const {
    *      peers,
    *      publishPresence
    *    } = db.room(roomType, roomId).usePresence({ keys: ["name", "avatar"] });
    *
    *    // ...
-   *  }
+   *  </script>
    */
   usePresence = <Keys extends keyof RoomSchema[RoomType]["presence"]>(
     opts: MaybeRef<PresenceOpts<RoomSchema[RoomType]["presence"], Keys>> = {}
@@ -284,11 +285,12 @@ export class InstantVueRoom<
    *
    * @see https://instantdb.com/docs/presence-and-topics
    * @example
-   *  function App({ roomId }) {
+   *  <script setup>
+   *    const props = defineProps({roomId: String});
    *    db.room(roomType, roomId).useSyncPresence({ name, avatar, color });
    *
    *    // ...
-   *  }
+   *  </script>
    */
   useSyncPresence = (
     data: MaybeRef<Partial<RoomSchema[RoomType]["presence"]>>,
@@ -311,15 +313,17 @@ export class InstantVueRoom<
    *
    * @see https://instantdb.com/docs/presence-and-topics
    * @example
-   *  function App({ roomId }) {
+   *  <script setup>
+   *    const props = defineProps({roomId: String});
    *    const {
    *      active,
    *      setActive,
    *      inputProps,
    *    } = db.room(roomType, roomId).useTypingIndicator("chat-input", opts);
-   *
-   *    return <input {...inputProps} />;
-   *  }
+   *  </script>
+   *  <template>
+   *    <input @blur="inputProps.onBlur" @keydown="inputProps.onKeyDown"/>
+   *  </template>
    */
   useTypingIndicator = (
     inputName: MaybeRef<string>,
@@ -525,14 +529,12 @@ export class InstantVue<Schema = {}, RoomSchema extends RoomSchemaShape = {}> {
    *  <script setup>
    *    const { isLoading, user, error } = db.useAuth()
    *  </script>
-   *
    *  <template>
    *    <div v-if="isLoading">Loading...</div>
    *    <div v-else-if="error">Uh oh! {error.message}</div>
    *    <Main v-else-if="user" user={user} />
    *    <Login v-else/>
    *  </template>
-   *
    */
   useAuth = (): UseAuthReturn => {
     // (XXX): Don't set `isLoading` true if we already have data, would
