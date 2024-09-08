@@ -25,6 +25,12 @@ const routes = [
     name: "cursorsIframe",
     component: () => import("@/views/CursorsIframe.vue"),
   },
+  {
+    path: "/typing",
+    name: "typing",
+    component: () => import("@/views/Typing2.vue"),
+    meta: { label: "Typing", isNav: true },
+  },
 ];
 
 export const router = createRouter({
