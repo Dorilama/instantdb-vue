@@ -2,7 +2,7 @@
 // adapted from [@instantdb/react](https://github.com/instantdb/instant/blob/main/client/packages/react/README.md)
 // see instantdb-license.md for license
 
-import type { Config, RoomSchemaShape } from "@instantdb/core";
+import type { Config, RoomSchemaShape, i } from "@instantdb/core";
 import { InstantVue } from "./InstantVue";
 
 /**
@@ -28,5 +28,24 @@ import { InstantVue } from "./InstantVue";
 export function init<Schema = {}, RoomSchema extends RoomSchemaShape = {}>(
   config: Config
 ) {
+  //@ts-ignore TODO! same error in InstantReact with strict flag enabled
   return new InstantVue<Schema, RoomSchema>(config);
+}
+
+export function init_experimental<
+  Schema extends i.InstantGraph<any, any, any>,
+  WithCardinalityInference extends boolean = true
+>(
+  config: Config & {
+    schema: Schema;
+    cardinalityInference?: WithCardinalityInference;
+  }
+) {
+  return new InstantVue<
+    Schema,
+    Schema extends i.InstantGraph<any, any, infer RoomSchema>
+      ? RoomSchema
+      : never,
+    WithCardinalityInference
+  >(config);
 }

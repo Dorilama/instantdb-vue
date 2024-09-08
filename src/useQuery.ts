@@ -2,28 +2,48 @@
 // adapted from [@instantdb/react](https://github.com/instantdb/instant/blob/main/client/packages/react/README.md)
 // see instantdb-license.md for license
 
-import { weakHash, coerceQuery } from "@instantdb/core";
+import { weakHash, coerceQuery, i } from "@instantdb/core";
 import type {
   Query,
   Exactly,
   InstantClient,
   LifecycleSubscriptionState,
+  InstaQLQueryParams,
 } from "@instantdb/core";
 import { shallowRef, computed, toValue, watch, onScopeDispose, ref } from "vue";
 import type { ShallowRef, MaybeRef } from "vue";
 
-export type UseQueryReturn<Q, Schema> = {
-  [K in keyof LifecycleSubscriptionState<Q, Schema>]: ShallowRef<
-    LifecycleSubscriptionState<Q, Schema>[K]
+export type UseQueryReturn<
+  Q,
+  Schema,
+  WithCardinalityInference extends boolean
+> = {
+  [K in keyof LifecycleSubscriptionState<
+    Q,
+    Schema,
+    WithCardinalityInference
+  >]: ShallowRef<
+    LifecycleSubscriptionState<Q, Schema, WithCardinalityInference>[K]
   >;
 };
 
 const noop = () => {};
 
-export function useQuery<Q extends Query, Schema>(
-  _core: InstantClient<Schema>,
-  _query: MaybeRef<Exactly<Query, Q> | null>
-): { state: UseQueryReturn<Q, Schema>; query: any; stop: () => void } {
+export function useQuery<
+  Q extends Schema extends i.InstantGraph<any, any>
+    ? InstaQLQueryParams<Schema>
+    : //@ts-ignore TODO! same error in InstantReact with strict flag enabled
+      Exactly<Query, Q>,
+  Schema extends {} | i.InstantGraph<any, any, {}>,
+  WithCardinalityInference extends boolean
+>(
+  _core: InstantClient<Schema, any, WithCardinalityInference>,
+  _query: MaybeRef<null | Q>
+): {
+  state: UseQueryReturn<Q, Schema, WithCardinalityInference>;
+  query: any;
+  stop: () => void;
+} {
   const query = computed(() => {
     return _query ? coerceQuery(toValue(_query)) : null;
   });
@@ -31,7 +51,7 @@ export function useQuery<Q extends Query, Schema>(
     return weakHash(query.value);
   });
 
-  const state: UseQueryReturn<Q, Schema> = {
+  const state: UseQueryReturn<Q, Schema, WithCardinalityInference> = {
     isLoading: ref(true),
     data: shallowRef(undefined),
     pageInfo: shallowRef(undefined),

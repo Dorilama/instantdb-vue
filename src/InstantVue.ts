@@ -2,20 +2,27 @@
 // adapted from [@instantdb/react](https://github.com/instantdb/instant/blob/main/client/packages/react/README.md)
 // see instantdb-license.md for license
 
-import { init as initCore } from "@instantdb/core";
+import {
+  InstantClient,
+  Auth,
+  Storage,
+  txInit,
+  _init_internal,
+  i,
+} from "@instantdb/core";
 import type {
+  AuthState,
   Config,
   Query,
   Exactly,
-  AuthState,
-  InstantClient,
   TransactionChunk,
-  Auth,
-  LifecycleSubscriptionState,
+  // LifecycleSubscriptionState,
   PresenceOpts,
   PresenceResponse,
   RoomSchemaShape,
-  Storage,
+  InstaQLQueryParams,
+  ConfigWithSchema,
+  IDatabase,
 } from "@instantdb/core";
 import { useQuery } from "./useQuery";
 import type { UseQueryReturn } from "./useQuery";
@@ -64,7 +71,7 @@ type Arrayable<T> = T[] | T;
 export const defaultActivityStopTimeout = 1_000;
 
 export class InstantVueRoom<
-  Schema,
+  Schema extends {} | i.InstantGraph<any, any, {}>,
   RoomSchema extends RoomSchemaShape,
   RoomType extends keyof RoomSchema
 > {
@@ -73,7 +80,7 @@ export class InstantVueRoom<
   id: Ref<string>;
 
   constructor(
-    _core: InstantClient<Schema, RoomSchema>,
+    _core: InstantClient<Schema, RoomSchema, any>,
     type: RoomType,
     id: string
   ) {
@@ -415,16 +422,29 @@ export class InstantVueRoom<
   };
 }
 
-export class InstantVue<Schema = {}, RoomSchema extends RoomSchemaShape = {}> {
+export class InstantVue<
+  Schema extends i.InstantGraph<any, any> | {} = {},
+  RoomSchema extends RoomSchemaShape = {},
+  WithCardinalityInference extends boolean = false
+> implements IDatabase
+{
+  //@ts-ignore TODO! same error in InstantReact with strict flag enabled
+  public tx =
+    txInit<
+      Schema extends i.InstantGraph<any, any>
+        ? Schema
+        : i.InstantGraph<any, any>
+    >();
+
   public auth: Auth;
   public storage: Storage;
-  public _core: InstantClient<Schema, RoomSchema>;
+  public _core: InstantClient<Schema, RoomSchema, WithCardinalityInference>;
 
   static Storage?: any;
   static NetworkListener?: any;
 
-  constructor(config: Config) {
-    this._core = initCore<Schema, RoomSchema>(
+  constructor(config: Config | ConfigWithSchema<any>) {
+    this._core = _init_internal<Schema, RoomSchema, WithCardinalityInference>(
       config,
       // @ts-expect-error because TS can't resolve subclass statics
       this.constructor.Storage,
@@ -489,7 +509,9 @@ export class InstantVue<Schema = {}, RoomSchema extends RoomSchemaShape = {}> {
    *    tx.goals[goalId].link({todos: todoId}),
    *  ])
    */
-  transact = (chunks: TransactionChunk | TransactionChunk[]) => {
+  transact = (
+    chunks: TransactionChunk<any, any> | TransactionChunk<any, any>[]
+  ) => {
     return this._core.transact(chunks);
   };
 
@@ -511,9 +533,14 @@ export class InstantVue<Schema = {}, RoomSchema extends RoomSchemaShape = {}> {
    *  // skip if `user` is not logged in
    *  db.useQuery(auth.user ? { goals: {} } : null)
    */
-  useQuery = <Q extends Query>(
-    query: MaybeRef<Exactly<Query, Q> | null>
-  ): UseQueryReturn<Q, Schema> => {
+  useQuery = <
+    Q extends Schema extends i.InstantGraph<any, any>
+      ? InstaQLQueryParams<Schema>
+      : //@ts-ignore TODO! same error in InstantReact with strict flag enabled
+        Exactly<Query, Q>
+  >(
+    query: MaybeRef<null | Q>
+  ): UseQueryReturn<Q, Schema, WithCardinalityInference> => {
     //@ts-ignore TODO! same error in InstantReact
     return useQuery(this._core, query).state;
   };
