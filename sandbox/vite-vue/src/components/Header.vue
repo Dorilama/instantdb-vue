@@ -27,6 +27,7 @@
       </ul>
     </div>
     <div class="navbar-end gap-4">
+      <ThemeController />
       <button v-if="isLoading" class="btn skeleton" disabled>
         <span class="opacity-0" aria-hidden="true">Sign in</span>
       </button>
@@ -48,6 +49,7 @@
 import { RouterLink } from "vue-router";
 import { db } from "@/db";
 import { usePeerStats } from "@/db/composables";
+import ThemeController from "./ThemeController.vue";
 
 const { user: myPresence, home, routes, count } = usePeerStats();
 

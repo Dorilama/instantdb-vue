@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@dorilama/instantdb-vue": "file:../..",
+    "@vueuse/core": "^11.0.3",
     "vue": "^3.4.37",
     "vue-router": "^4.4.3"
   },

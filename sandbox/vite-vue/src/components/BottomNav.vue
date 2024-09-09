@@ -60,6 +60,7 @@
           </li></template
         >
       </ul>
+      <ThemeController />
 
       <div class="modal-action sm:hidden">
         <form method="dialog">
@@ -77,6 +78,7 @@ import { useTemplateRef } from "vue";
 import { RouterLink } from "vue-router";
 import { db } from "@/db";
 import { usePeerStats } from "@/db/composables";
+import ThemeController from "./ThemeController.vue";
 
 const control = useTemplateRef<HTMLDialogElement>("bottom-navigation-control");
 

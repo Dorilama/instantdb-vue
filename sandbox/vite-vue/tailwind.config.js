@@ -28,4 +28,8 @@ export default {
     },
   },
   plugins: [daisyui, addDynamicIconSelectors()],
+  daisyui: {
+    themes: ["light", "dark"],
+  },
+  darkMode: ["class", '[data-theme="dark"]'],
 };
