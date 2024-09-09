@@ -35,7 +35,7 @@ import {
   watch,
   watchEffect,
 } from "vue";
-import type { MaybeRef, MaybeRefOrGetter, Ref, ShallowRef } from "vue";
+import type { MaybeRefOrGetter, Ref, ShallowRef } from "vue";
 import { useTimeout } from "./useTimeout";
 
 type UseAuthReturn = { [K in keyof AuthState]: ShallowRef<AuthState[K]> };
@@ -104,7 +104,7 @@ export class InstantVueRoom<
    *  </script>
    */
   useTopicEffect = <TopicType extends keyof RoomSchema[RoomType]["topics"]>(
-    topic: MaybeRef<Arrayable<TopicType>>,
+    topic: MaybeRefOrGetter<Arrayable<TopicType>>,
     onEvent: Arrayable<
       (
         event: RoomSchema[RoomType]["topics"][TopicType],
@@ -162,7 +162,7 @@ export class InstantVueRoom<
    *  </template>
    */
   usePublishTopic = <Topic extends keyof RoomSchema[RoomType]["topics"]>(
-    topic: MaybeRef<Topic>
+    topic: MaybeRefOrGetter<Topic>
   ): ((data: RoomSchema[RoomType]["topics"][Topic]) => void) => {
     const stopRoomWatch = watchEffect((onCleanup) => {
       const id = this.id.value;
@@ -302,8 +302,8 @@ export class InstantVueRoom<
    *  </script>
    */
   useSyncPresence = (
-    data: MaybeRef<Partial<RoomSchema[RoomType]["presence"]>>,
-    deps?: MaybeRef<any[]>
+    data: MaybeRefOrGetter<Partial<RoomSchema[RoomType]["presence"]>>,
+    deps?: MaybeRefOrGetter<any[]>
   ): void => {
     const stop = watchEffect(() => {
       const id = this.id.value;
@@ -335,8 +335,8 @@ export class InstantVueRoom<
    *  </template>
    */
   useTypingIndicator = (
-    inputName: MaybeRef<string>,
-    opts: MaybeRef<TypingIndicatorOpts> = {}
+    inputName: MaybeRefOrGetter<string>,
+    opts: MaybeRefOrGetter<TypingIndicatorOpts> = {}
   ): TypingIndicatorHandle<RoomSchema[RoomType]["presence"]> => {
     const timeout = useTimeout();
 
@@ -528,7 +528,7 @@ export class InstantVue<
       : //@ts-ignore TODO! same error in InstantReact with strict flag enabled
         Exactly<Query, Q>
   >(
-    query: MaybeRef<null | Q>
+    query: MaybeRefOrGetter<null | Q>
   ): UseQueryReturn<Q, Schema, WithCardinalityInference> => {
     //@ts-ignore TODO! same error in InstantReact
     return useQuery(this._core, query).state;
