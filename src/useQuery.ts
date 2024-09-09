@@ -11,7 +11,7 @@ import type {
   InstaQLQueryParams,
 } from "@instantdb/core";
 import { shallowRef, computed, toValue, watch, onScopeDispose, ref } from "vue";
-import type { ShallowRef, MaybeRef } from "vue";
+import type { ShallowRef, MaybeRefOrGetter } from "vue";
 
 export type UseQueryReturn<
   Q,
@@ -27,8 +27,6 @@ export type UseQueryReturn<
   >;
 };
 
-const noop = () => {};
-
 export function useQuery<
   Q extends Schema extends i.InstantGraph<any, any>
     ? InstaQLQueryParams<Schema>
@@ -38,7 +36,7 @@ export function useQuery<
   WithCardinalityInference extends boolean
 >(
   _core: InstantClient<Schema, any, WithCardinalityInference>,
-  _query: MaybeRef<null | Q>
+  _query: MaybeRefOrGetter<null | Q>
 ): {
   state: UseQueryReturn<Q, Schema, WithCardinalityInference>;
   query: any;
