@@ -28,8 +28,13 @@ const routes = [
   {
     path: "/typing",
     name: "typing",
-    component: () => import("@/views/Typing2.vue"),
+    component: () => import("@/views/Typing.vue"),
     meta: { label: "Typing", isNav: true },
+  },
+  {
+    path: "/typing-iframe",
+    name: "typingIframe",
+    component: () => import("@/views/TypingIframe.vue"),
   },
 ];
 

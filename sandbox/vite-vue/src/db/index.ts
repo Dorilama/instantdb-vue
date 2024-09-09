@@ -29,4 +29,4 @@ export type RoomSchema = {
 };
 
 export const db = init<Schema, RoomSchema>({ appId: APP_ID });
-export const chatRoomoom = db.room("chat", "main");
+export const chatRoomoom = db.room("chat", "dev");

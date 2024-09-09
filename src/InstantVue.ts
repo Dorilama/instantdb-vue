@@ -35,7 +35,7 @@ import {
   watch,
   watchEffect,
 } from "vue";
-import type { MaybeRef, Ref, ShallowRef } from "vue";
+import type { MaybeRef, MaybeRefOrGetter, Ref, ShallowRef } from "vue";
 import { useTimeout } from "./useTimeout";
 
 type UseAuthReturn = { [K in keyof AuthState]: ShallowRef<AuthState[K]> };
@@ -209,7 +209,9 @@ export class InstantVueRoom<
    *  </script>
    */
   usePresence = <Keys extends keyof RoomSchema[RoomType]["presence"]>(
-    opts: MaybeRef<PresenceOpts<RoomSchema[RoomType]["presence"], Keys>> = {}
+    opts: MaybeRefOrGetter<
+      PresenceOpts<RoomSchema[RoomType]["presence"], Keys>
+    > = {}
   ): PresenceHandle<RoomSchema[RoomType]["presence"], Keys> => {
     const getInitialState = (
       id: string
@@ -340,19 +342,17 @@ export class InstantVueRoom<
 
     const _inputName = toValue(inputName);
 
-    const onservedPresence = computed(() => {
-      return this.usePresence({
-        //@ts-ignore TODO! same error in InstantReact
-        keys: [_inputName],
-      });
-    });
+    //@ts-ignore TODO! same error in InstantReact
+    const onservedPresence = this.usePresence(() => ({
+      keys: [toValue(inputName)],
+    }));
 
     const active = computed(() => {
       const presenceSnapshot = this._core._reactor.getPresence(
         this.type,
         this.id.value
       );
-      onservedPresence.value;
+      onservedPresence.peers.value;
 
       return toValue(opts)?.writeOnly
         ? []
@@ -362,46 +362,35 @@ export class InstantVueRoom<
           );
     });
 
-    let setActive = (isActive: boolean) => {};
-
-    const stopWatchActive = watchEffect(() => {
-      setActive = (isActive: boolean) => {
-        const _inputName = toValue(toValue(inputName));
-        const id = this.id.value;
-        this._core._reactor.publishPresence(this.type, id, {
-          [_inputName]: isActive,
-        } as unknown as Partial<RoomSchema[RoomType]>);
-
-        if (!isActive) return;
-
-        const _opts = toValue(opts);
-
-        if (_opts?.timeout === null || _opts?.timeout === 0) return;
-
-        timeout.set(_opts?.timeout ?? defaultActivityStopTimeout, () => {
-          this._core._reactor.publishPresence(this.type, id, {
-            [_inputName]: null,
-          } as Partial<RoomSchema[RoomType]>);
-        });
-      };
-    });
-
-    let onKeyDown = (e: KeyboardEvent) => {};
-
-    const stopWatchKey = watchEffect(() => {
+    const setActive = (isActive: boolean) => {
       const _opts = toValue(opts);
-      onKeyDown = (e: KeyboardEvent) => {
-        const isEnter = _opts?.stopOnEnter && e.key === "Enter";
-        const isActive = !isEnter;
+      const _inputName = toValue(inputName);
+      const id = this.id.value;
+      this._core._reactor.publishPresence(this.type, id, {
+        [_inputName]: isActive,
+      } as unknown as Partial<RoomSchema[RoomType]>);
 
-        setActive(isActive);
-      };
-    });
+      if (!isActive) return;
+
+      if (_opts?.timeout === null || _opts?.timeout === 0) return;
+
+      timeout.set(_opts?.timeout ?? defaultActivityStopTimeout, () => {
+        this._core._reactor.publishPresence(this.type, id, {
+          [_inputName]: null,
+        } as Partial<RoomSchema[RoomType]>);
+      });
+    };
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      const _opts = toValue(opts);
+      const isEnter = _opts?.stopOnEnter && e.key === "Enter";
+      const isActive = !isEnter;
+
+      setActive(isActive);
+    };
 
     function stop() {
       timeout.clear();
-      stopWatchActive();
-      stopWatchKey();
     }
 
     onScopeDispose(() => {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { watchEffect } from "vue";
+import { computed, watchEffect } from "vue";
 import { RouterView, useRoute } from "vue-router";
 import { chatRoomoom } from "@/db";
 import { useUserPresenceValue } from "./db/composables";
@@ -24,11 +24,17 @@ watchEffect(() => {
 });
 
 const route = useRoute();
+
+const iframeNames: (typeof route.name)[] = ["cursorsIframe", "typingIframe"];
+
+const isIframe = computed(() => {
+  return iframeNames.includes(route.name);
+});
 </script>
 
 <template>
   <Cursors
-    v-if="route.name !== 'cursorsIframe'"
+    v-if="!isIframe"
     :room="chatRoomoom"
     :user-cursor-color="userPresenceValue.color"
     :space-id="userPresenceValue.path"
@@ -45,8 +51,8 @@ const route = useRoute();
           <div>
             <h3 class="font-bold">This is a realtime app!</h3>
             <span v-if="!Object.values(peers).length" class="text-sm"
-              >Open this page in an incognito tab or another browser to see the
-              realtime interactions</span
+              >Open this page in another tab or browser to see the realtime
+              interactions</span
             ><span v-else>
               <span class="lg:hidden"
                 >You can see how many people are live on a page in the bottom
@@ -63,9 +69,9 @@ const route = useRoute();
     </main>
 
     <BottomNav></BottomNav>
-    <template v-if="route.name === 'cursors'" v-slot:cursor
+    <!-- <template v-if="route.name === 'cursors'" v-slot:cursor
       ><div class="hidden"></div
-    ></template>
+    ></template> -->
   </Cursors>
   <RouterView v-else />
 </template>
