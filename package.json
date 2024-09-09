@@ -1,7 +1,7 @@
 {
   "name": "@dorilama/instantdb-vue",
   "version": "0.1.0",
-  "description": "Instant DB for Vue",
+  "description": "Unofficial Instant DB for Vue",
   "author": "dorilama",
   "license": "ISC",
   "exports": {
@@ -33,6 +33,11 @@
     "components.d.ts",
     "dist"
   ],
+  "homepage": "https://github.com/Dorilama/instantdb-vue#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dorilama/instantdb-vue.git"
+  },
   "scripts": {
     "build": "unbuild",
     "dev": "cd ./sandbox/vite-vue && npm run dev",
