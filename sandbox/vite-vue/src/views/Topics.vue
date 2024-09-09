@@ -2,7 +2,7 @@
   <div
     class="flex flex-col items-center pt-4 pb-8 px-2 gap-4 max-w-screen-lg m-auto"
   >
-    <h1 class="text-4xl animate-tada">Typing indicator</h1>
+    <h1 class="text-4xl animate-tada">Topics</h1>
 
     <div class="flex flex-wrap gap-8 justify-around pb-8">
       <div
@@ -10,7 +10,7 @@
         :key="`iframe-${n}`"
         class="card card-bordered border-4 overflow-hidden h-full"
       >
-        <iframe v-if="src" :src="src" class="h-64"></iframe>
+        <iframe v-if="src" :src="src"></iframe>
         <div
           v-else
           role="alert"
@@ -21,7 +21,7 @@
             class="icon-[mdi--error-outline] text-2xl"
           ></span>
 
-          <span>Error! typingIframe route is missing</span>
+          <span>Error! topicsIframe route is missing</span>
         </div>
       </div>
     </div>
@@ -33,5 +33,5 @@ import { useRouter } from "vue-router";
 
 const src = useRouter()
   .getRoutes()
-  .find((r) => r.name === "typingIframe")?.path;
+  .find((r) => r.name === "topicsIframe")?.path;
 </script>

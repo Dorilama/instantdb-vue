@@ -36,6 +36,17 @@ const routes = [
     name: "typingIframe",
     component: () => import("@/views/TypingIframe.vue"),
   },
+  {
+    path: "/topics",
+    name: "topics",
+    component: () => import("@/views/Topics.vue"),
+    meta: { label: "Topics", isNav: true },
+  },
+  {
+    path: "/topics-iframe",
+    name: "topicsIframe",
+    component: () => import("@/views/TopicsIframe.vue"),
+  },
 ];
 
 export const router = createRouter({

@@ -25,10 +25,20 @@ watchEffect(() => {
 
 const route = useRoute();
 
-const iframeNames: (typeof route.name)[] = ["cursorsIframe", "typingIframe"];
+const iframeNames: (typeof route.name)[] = [
+  "cursorsIframe",
+  "typingIframe",
+  "topicsIframe",
+];
 
 const isIframe = computed(() => {
   return iframeNames.includes(route.name);
+});
+
+const pagesWithoutCursor: (typeof route.name)[] = ["cursors"];
+
+const hideCursor = computed(() => {
+  return pagesWithoutCursor.includes(route.name);
 });
 </script>
 
@@ -39,7 +49,6 @@ const isIframe = computed(() => {
     :user-cursor-color="userPresenceValue.color"
     :space-id="userPresenceValue.path"
     class="min-h-dvh"
-    id="asdf"
   >
     <Header></Header>
     <main class="pb-24 lg:pb-0">
@@ -69,9 +78,9 @@ const isIframe = computed(() => {
     </main>
 
     <BottomNav></BottomNav>
-    <!-- <template v-if="route.name === 'cursors'" v-slot:cursor
+    <template v-if="hideCursor" v-slot:cursor
       ><div class="hidden"></div
-    ></template> -->
+    ></template>
   </Cursors>
   <RouterView v-else />
 </template>

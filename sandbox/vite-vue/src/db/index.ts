@@ -23,7 +23,7 @@ export type RoomSchema = {
       path: string;
     };
     topics: {
-      notification: { text: string };
+      emoji: { text: string; color?: string };
     };
   };
 };
