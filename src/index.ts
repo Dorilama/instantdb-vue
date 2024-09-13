@@ -7,6 +7,7 @@ import type {
   QueryResponse,
   InstantQuery,
   InstantQueryResult,
+  InstantSchema,
   InstantObject,
   User,
   AuthState,
@@ -20,13 +21,15 @@ import type { CursorSchema } from "./components";
 
 export { id, tx, lookup, init, init_experimental, InstantVue, i };
 export type {
+  Config,
+  Query,
   QueryResponse,
-  InstantQuery,
-  InstantQueryResult,
   InstantObject,
   User,
   AuthState,
-  Query,
-  Config,
+  InstantQuery,
+  InstantQueryResult,
+  InstantSchema,
+  //
   CursorSchema,
 };

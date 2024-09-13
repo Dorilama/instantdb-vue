@@ -305,14 +305,23 @@ export class InstantVueRoom<
     data: MaybeRefOrGetter<Partial<RoomSchema[RoomType]["presence"]>>,
     deps?: MaybeRefOrGetter<any[]>
   ): void => {
+    const stopRoomWatch = watchEffect((onCleanup) => {
+      const id = this.id.value;
+      const cleanup = this._core._reactor.joinRoom(id);
+      onCleanup(cleanup);
+    });
+
     const stop = watchEffect(() => {
       const id = this.id.value;
       const _data = toValue(data);
+      this._core._reactor.joinRoom(id);
+      // TODO! should this.type be a ref?
       this._core._reactor.publishPresence(this.type, id, _data);
       toValue(deps);
     });
 
     onScopeDispose(() => {
+      stopRoomWatch();
       stop();
     });
   };
@@ -415,8 +424,9 @@ export class InstantVue<
   Schema extends i.InstantGraph<any, any> | {} = {},
   RoomSchema extends RoomSchemaShape = {},
   WithCardinalityInference extends boolean = false
-> implements IDatabase
+> implements IDatabase<Schema, RoomSchema, WithCardinalityInference>
 {
+  public withCardinalityInference?: WithCardinalityInference;
   //@ts-ignore TODO! same error in InstantReact with strict flag enabled
   public tx =
     txInit<
