@@ -33,3 +33,7 @@ const addMessage = (message) => {
 ```
 
 The aim of this library is to have @instantdb/react for vue with feature parity. You should be able to follow the react docs and examples using this library. Arguments are reactive so you can use refs or getters. `Cursors` component has a separate import from `@dorilama/instantdb-vue/components`. Some of the functions return also a `stop` function to manually clear all side-effects and break live updated.
+
+---
+
+Related: [this](https://github.com/Dorilama/instantdb-byos#readme) is library that tries to bring the same sdk for multiple signal based reactivity.

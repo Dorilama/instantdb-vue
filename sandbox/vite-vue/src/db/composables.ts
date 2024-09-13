@@ -13,10 +13,12 @@ export function useUserPresenceValue() {
 
   const { user } = db.useAuth();
   const userPresence = computed<RoomSchema["chat"]["presence"]>(() => {
+    const userId =
+      user.value?.id && !route.query.anon ? user.value?.id : anonUser;
     return {
-      userId: user.value?.id || anonUser,
+      userId,
       color: fixedRandomColor,
-      path: route.fullPath,
+      path: route.path,
     };
   });
 

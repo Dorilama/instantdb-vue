@@ -7,8 +7,8 @@
       :class="{ skeleton: presence.isLoading.value }"
     >
       <div
-        v-for="peer of peers"
-        :key="peer.userId"
+        v-for="[id, peer] of peers"
+        :key="id"
         class="avatar placeholder indicator"
       >
         <span
@@ -54,10 +54,11 @@ const presence = chatRoomoom.usePresence();
 const { active, inputProps } = chatRoomoom.useTypingIndicator("typing");
 
 const peers = computed(() =>
-  Object.values(presence.peers.value).filter(
-    (p) => p.userId && p.path == route.path
+  Object.entries(presence.peers.value).filter(
+    ([id, p]) => p.userId && p.path == route.path
   )
 );
+
 const activeMap = computed(() =>
   Object.fromEntries(
     active.value.map((activePeer) => {

@@ -10,7 +10,11 @@
         :key="`iframe-${n}`"
         class="card card-bordered border-4 overflow-hidden h-full"
       >
-        <iframe v-if="src" :src="src" class="h-64"></iframe>
+        <iframe
+          v-if="src"
+          :src="src + (n != 1 ? '?anon=true' : '')"
+          class="h-64"
+        ></iframe>
         <div
           v-else
           role="alert"
