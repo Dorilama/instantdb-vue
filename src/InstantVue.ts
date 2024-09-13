@@ -553,12 +553,12 @@ export class InstantVue<
    *  </template>
    */
   useAuth = (): UseAuthReturn => {
-    // (XXX): Don't set `isLoading` true if we already have data, would
-    // be better to immediately show loaded data
+    const initialState = this._core._reactor._currentUserCached;
+
     const state: UseAuthReturn = {
-      isLoading: ref(true),
-      user: shallowRef(undefined),
-      error: shallowRef(undefined),
+      isLoading: ref(initialState.isLoading),
+      user: shallowRef(initialState.user),
+      error: shallowRef(initialState.error),
     };
     const unsubscribe = this._core._reactor.subscribeAuth((resp: any) => {
       state.isLoading.value = false;
