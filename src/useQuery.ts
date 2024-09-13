@@ -27,6 +27,16 @@ export type UseQueryReturn<
   >;
 };
 
+function stateForResult(result: any) {
+  return {
+    isLoading: !Boolean(result),
+    data: undefined,
+    pageInfo: undefined,
+    error: undefined,
+    ...(result ? result : {}),
+  };
+}
+
 export function useQuery<
   Q extends Schema extends i.InstantGraph<any, any>
     ? InstaQLQueryParams<Schema>
@@ -50,11 +60,13 @@ export function useQuery<
     return weakHash(query.value);
   });
 
+  const initialState = stateForResult(_core._reactor.getPreviousResult(query));
+
   const state: UseQueryReturn<Q, Schema, WithCardinalityInference> = {
-    isLoading: ref(true),
-    data: shallowRef(undefined),
-    pageInfo: shallowRef(undefined),
-    error: shallowRef(undefined),
+    isLoading: ref(initialState.isLoading),
+    data: shallowRef(initialState.data),
+    pageInfo: shallowRef(initialState.pageInfo),
+    error: shallowRef(initialState.error),
   };
 
   const stop = watch(
