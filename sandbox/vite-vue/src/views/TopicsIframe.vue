@@ -13,6 +13,7 @@
         </button>
       </li>
     </ul>
+    <p>Click a button! ✨</p>
   </div>
 </template>
 

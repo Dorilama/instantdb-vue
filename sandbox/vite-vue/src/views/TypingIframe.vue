@@ -16,7 +16,7 @@
           class="indicator-item loading loading-dots loading-xs"
         ></span>
         <div
-          class="text-neutral rounded-full border-4"
+          class="rounded-full border-4"
           :class="[peers.length > 4 ? 'w-8' : 'w-12']"
           :style="{ borderColor: peer.color }"
         >

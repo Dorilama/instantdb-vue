@@ -43,7 +43,8 @@ export function useQuery<
   stop: () => void;
 } {
   const query = computed(() => {
-    return _query ? coerceQuery(toValue(_query)) : null;
+    const value = toValue(_query);
+    return value ? coerceQuery(value) : null;
   });
   const queryHash = computed(() => {
     return weakHash(query.value);

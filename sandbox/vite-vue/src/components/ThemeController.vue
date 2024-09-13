@@ -1,6 +1,11 @@
 <template>
   <label class="swap swap-rotate">
-    <input type="checkbox" :value="theme" @change="toggle" />
+    <input
+      type="checkbox"
+      :value="theme"
+      :checked="theme !== 'dark'"
+      @change="toggle"
+    />
 
     <div
       class="swap-on h-10 w-10 fill-current icon-[mdi--white-balance-sunny]"
@@ -19,6 +24,7 @@ useThemeUpdater();
 
 const settings = useLocalSettings();
 const theme = computed(() => settings.value.theme);
+
 function toggle() {
   if (settings.value.theme === "light") {
     settings.value.theme = "dark";

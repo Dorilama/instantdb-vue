@@ -59,7 +59,7 @@ const hideCursor = computed(() => {
           <span class="icon-[mdi--information-outline] text-xl"></span>
           <div>
             <h3 class="font-bold">This is a realtime app!</h3>
-            <span v-if="!Object.values(peers).length" class="text-sm"
+            <span v-if="!Object.values(peers).length"
               >Open this page in another tab or browser to see the realtime
               interactions</span
             ><span v-else>
