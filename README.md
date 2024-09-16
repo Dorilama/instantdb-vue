@@ -36,4 +36,4 @@ The aim of this library is to have @instantdb/react for vue with feature parity.
 
 ---
 
-Related: [this](https://github.com/Dorilama/instantdb-byos#readme) is library that tries to bring the same sdk for multiple signal based reactivity.
+Related: [this](https://github.com/Dorilama/instantdb-byos#readme) library tries to bring the same sdk for multiple signal based reactivity.

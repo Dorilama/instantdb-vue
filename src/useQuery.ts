@@ -60,7 +60,9 @@ export function useQuery<
     return weakHash(query.value);
   });
 
-  const initialState = stateForResult(_core._reactor.getPreviousResult(query));
+  const initialState = stateForResult(
+    _core._reactor.getPreviousResult(query.value)
+  );
 
   const state: UseQueryReturn<Q, Schema, WithCardinalityInference> = {
     isLoading: ref(initialState.isLoading),
