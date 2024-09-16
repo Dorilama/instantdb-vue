@@ -25,7 +25,7 @@ export type UseQueryReturn<
   >]: ShallowRef<
     LifecycleSubscriptionState<Q, Schema, WithCardinalityInference>[K]
   >;
-};
+} & { stop: () => void };
 
 function stateForResult(result: any) {
   return {
@@ -50,7 +50,6 @@ export function useQuery<
 ): {
   state: UseQueryReturn<Q, Schema, WithCardinalityInference>;
   query: any;
-  stop: () => void;
 } {
   const query = computed(() => {
     const value = toValue(_query);
@@ -69,6 +68,7 @@ export function useQuery<
     data: shallowRef(initialState.data),
     pageInfo: shallowRef(initialState.pageInfo),
     error: shallowRef(initialState.error),
+    stop: () => {},
   };
 
   const stop = watch(
@@ -88,9 +88,11 @@ export function useQuery<
     { immediate: true }
   );
 
+  state.stop = stop;
+
   onScopeDispose(() => {
     stop();
   });
 
-  return { state, query, stop };
+  return { state, query };
 }

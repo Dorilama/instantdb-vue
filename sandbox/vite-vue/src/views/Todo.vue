@@ -22,22 +22,41 @@
         <span>Error! {{ error.message || "unknown error." }}</span>
       </div>
     </div>
+    <button class="btn btn-outline" @click="toggle">
+      {{ query ? "Pause" : "Restore" }} live update
+    </button>
+    <button class="btn btn-outline" @click="stop">
+      Stop live update without recover
+    </button>
   </div>
 </template>
 <script setup lang="ts">
-import { useTemplateRef, watchEffect } from "vue";
-import { db, chatRoomoom } from "@/db";
+import { useTemplateRef, watchEffect, ref } from "vue";
+import { db, chatRoomoom, Schema } from "@/db";
 import TodoForm from "@/components/TodoForm.vue";
 import TodoList from "@/components/TodoList.vue";
 import ActionBar from "@/components/TodoFooter.vue";
 
-const { isLoading, data, error } = db.useQuery({ todos: {} });
+const q = { todos: {} };
+
+const query = ref(q);
+
+const { isLoading, data, error, stop } = db.useQuery(query);
 const alertError = useTemplateRef("alert-error");
 watchEffect(() => {
   if (error.value && alertError.value) {
     alertError.value?.scrollIntoView();
   }
 });
+
+function toggle() {
+  if (query.value) {
+    //@ts-ignore
+    query.value = null;
+  } else {
+    query.value = q;
+  }
+}
 </script>
 
 <style scoped></style>
