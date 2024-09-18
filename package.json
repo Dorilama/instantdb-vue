@@ -45,7 +45,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@instantdb/core": "0.12.34"
+    "@instantdb/core": "0.13.0"
   },
   "peerDependencies": {
     "vue": "^3.0.0-0"
