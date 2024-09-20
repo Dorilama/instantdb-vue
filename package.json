@@ -1,6 +1,6 @@
 {
   "name": "@dorilama/instantdb-vue",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Unofficial Instant DB for Vue",
   "author": "dorilama",
   "license": "ISC",
@@ -45,7 +45,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@instantdb/core": "0.13.0"
+    "@instantdb/core": "0.14.0"
   },
   "peerDependencies": {
     "vue": "^3.0.0-0"

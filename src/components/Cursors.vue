@@ -51,7 +51,7 @@
 >
 import type * as CSS from "csstype";
 import { computed, onBeforeUnmount, ref, watch, watchEffect } from "vue";
-import { InstantVueRoom } from "../InstantVue";
+import type { InstantVueRoom } from "../InstantVue";
 import type { RoomSchemaShape } from "@instantdb/core";
 import type { CursorSchema } from ".";
 import Cursor from "./Cursor.vue";
