@@ -76,6 +76,7 @@ export function useQuery<
     queryHash,
     (_, __, onCleanup) => {
       if (!query.value) {
+        state.isLoading.value = false;
         return;
       }
       const unsubscribe = _core.subscribeQuery<Q>(query.value, (result) => {
