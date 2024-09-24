@@ -43,7 +43,7 @@ export function useQuery<
     ? InstaQLQueryParams<Schema>
     : //@ts-ignore TODO! same error in InstantReact with strict flag enabled
       Exactly<Query, Q>,
-  Schema extends {} | InstantGraph<any, any, {}>,
+  Schema extends InstantGraph<any, any, any> | {},
   WithCardinalityInference extends boolean
 >(
   _core: InstantClient<Schema, any, WithCardinalityInference>,

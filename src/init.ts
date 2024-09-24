@@ -25,9 +25,10 @@ import { InstantVue } from "./InstantVue";
  *  const db = init<Schema>({ appId: "my-app-id" })
  *
  */
-export function init<Schema = {}, RoomSchema extends RoomSchemaShape = {}>(
-  config: Config
-) {
+export function init<
+  Schema extends {} = {},
+  RoomSchema extends RoomSchemaShape = {}
+>(config: Config) {
   //@ts-ignore TODO! same error in InstantReact with strict flag enabled
   return new InstantVue<Schema, RoomSchema>(config);
 }
