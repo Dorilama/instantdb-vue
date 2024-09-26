@@ -35,7 +35,7 @@ import {
   watch,
   watchEffect,
 } from "vue";
-import type { MaybeRefOrGetter, Ref, ShallowRef } from "vue";
+import type { ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from "vue";
 import { useTimeout } from "./useTimeout";
 
 type UseAuthReturn = { [K in keyof AuthState]: ShallowRef<AuthState[K]> };
@@ -76,17 +76,21 @@ export class InstantVueRoom<
   RoomType extends keyof RoomSchema
 > {
   _core: InstantClient<Schema, RoomSchema>;
-  type: RoomType;
-  id: Ref<string>;
+  type: ComputedRef<RoomType>;
+  id: ComputedRef<string>;
 
   constructor(
     _core: InstantClient<Schema, RoomSchema, any>,
-    type: RoomType,
-    id: string
+    type: MaybeRefOrGetter<RoomType>,
+    id: MaybeRefOrGetter<string>
   ) {
     this._core = _core;
-    this.type = type;
-    this.id = ref(id);
+    this.type = computed(() => {
+      return toValue(type);
+    });
+    this.id = computed(() => {
+      return toValue(id);
+    });
   }
 
   /**
@@ -174,10 +178,11 @@ export class InstantVueRoom<
 
     const stopTopicWatch = watchEffect(() => {
       const id = this.id.value;
+      const type = this.type.value;
       const _topic = toValue(topic);
       publishTopic = (data: RoomSchema[RoomType]["topics"][Topic]) => {
         this._core._reactor.publishTopic({
-          roomType: this.type,
+          roomType: type,
           roomId: id,
           topic: _topic,
           data,
@@ -213,12 +218,13 @@ export class InstantVueRoom<
       PresenceOpts<RoomSchema[RoomType]["presence"], Keys>
     > = {}
   ): PresenceHandle<RoomSchema[RoomType]["presence"], Keys> => {
-    const getInitialState = (
-      id: string
-    ): PresenceResponse<RoomSchema[RoomType]["presence"], Keys> => {
+    const getInitialState = (): PresenceResponse<
+      RoomSchema[RoomType]["presence"],
+      Keys
+    > => {
       const presence = this._core._reactor.getPresence(
-        this.type,
-        id,
+        this.type.value,
+        this.id.value,
         toValue(opts)
       ) ?? {
         peers: {},
@@ -233,7 +239,7 @@ export class InstantVueRoom<
       };
     };
 
-    const initialState = getInitialState(this.id.value);
+    const initialState = getInitialState();
 
     const state = {
       peers: shallowRef(initialState.peers),
@@ -242,19 +248,12 @@ export class InstantVueRoom<
       error: shallowRef(initialState.error),
     };
 
-    const stopWatchId = watch(this.id, (id) => {
-      Object.entries(getInitialState(id)).forEach(([key, value]) => {
-        state[
-          key as keyof PresenceResponse<RoomSchema[RoomType]["presence"], Keys>
-        ].value = value;
-      });
-    });
-
-    const stopEffect = watchEffect((onCleanup) => {
+    const stop = watchEffect((onCleanup) => {
       const id = this.id.value;
+      const type = this.type.value;
       const _opts = toValue(opts);
       const unsubscribe = this._core._reactor.subscribePresence(
-        this.type,
+        type,
         id,
         _opts,
         (data) => {
@@ -271,11 +270,6 @@ export class InstantVueRoom<
       onCleanup(unsubscribe);
     });
 
-    function stop() {
-      stopWatchId();
-      stopEffect();
-    }
-
     onScopeDispose(() => {
       stop();
     });
@@ -283,7 +277,11 @@ export class InstantVueRoom<
     return {
       ...state,
       publishPresence: (data) => {
-        this._core._reactor.publishPresence(this.type, this.id.value, data);
+        this._core._reactor.publishPresence(
+          this.type.value,
+          this.id.value,
+          data
+        );
       },
       stop,
     };
@@ -313,10 +311,10 @@ export class InstantVueRoom<
 
     const stop = watchEffect(() => {
       const id = this.id.value;
+      const type = this.type.value;
       const _data = toValue(data);
       this._core._reactor.joinRoom(id);
-      // TODO! should this.type be a ref?
-      this._core._reactor.publishPresence(this.type, id, _data);
+      this._core._reactor.publishPresence(type, id, _data);
       toValue(deps);
     });
 
@@ -358,7 +356,7 @@ export class InstantVueRoom<
 
     const active = computed(() => {
       const presenceSnapshot = this._core._reactor.getPresence(
-        this.type,
+        this.type.value,
         this.id.value
       );
       onservedPresence.peers.value;
@@ -375,7 +373,8 @@ export class InstantVueRoom<
       const _opts = toValue(opts);
       const _inputName = toValue(inputName);
       const id = this.id.value;
-      this._core._reactor.publishPresence(this.type, id, {
+      const type = this.type.value;
+      this._core._reactor.publishPresence(type, id, {
         [_inputName]: isActive,
       } as unknown as Partial<RoomSchema[RoomType]>);
 
@@ -384,7 +383,7 @@ export class InstantVueRoom<
       if (_opts?.timeout === null || _opts?.timeout === 0) return;
 
       timeout.set(_opts?.timeout ?? defaultActivityStopTimeout, () => {
-        this._core._reactor.publishPresence(this.type, id, {
+        this._core._reactor.publishPresence(type, id, {
           [_inputName]: null,
         } as Partial<RoomSchema[RoomType]>);
       });
@@ -473,8 +472,8 @@ export class InstantVue<
    * } = db.room(roomType, roomId);
    */
   room<RoomType extends keyof RoomSchema>(
-    type: RoomType = "_defaultRoomType" as RoomType,
-    id: string = "_defaultRoomId"
+    type: MaybeRefOrGetter<RoomType> = "_defaultRoomType" as RoomType,
+    id: MaybeRefOrGetter<string> = "_defaultRoomId"
   ) {
     return new InstantVueRoom<Schema, RoomSchema, RoomType>(
       this._core,
