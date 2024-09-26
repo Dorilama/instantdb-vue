@@ -239,19 +239,24 @@ export class InstantVueRoom<
       };
     };
 
-    const initialState = getInitialState();
-
     const state = {
-      peers: shallowRef(initialState.peers),
-      isLoading: ref(initialState.isLoading),
-      user: shallowRef(initialState.user),
-      error: shallowRef(initialState.error),
+      peers: shallowRef({}),
+      isLoading: ref(false),
+      user: shallowRef(undefined),
+      error: shallowRef(undefined),
     };
 
     const stop = watchEffect((onCleanup) => {
       const id = this.id.value;
       const type = this.type.value;
       const _opts = toValue(opts);
+
+      Object.entries(getInitialState()).forEach(([key, value]) => {
+        state[
+          key as keyof PresenceResponse<RoomSchema[RoomType]["presence"], Keys>
+        ].value = value;
+      });
+
       const unsubscribe = this._core._reactor.subscribePresence(
         type,
         id,
@@ -472,13 +477,19 @@ export class InstantVue<
    * } = db.room(roomType, roomId);
    */
   room<RoomType extends keyof RoomSchema>(
-    type: MaybeRefOrGetter<RoomType> = "_defaultRoomType" as RoomType,
-    id: MaybeRefOrGetter<string> = "_defaultRoomId"
+    type?: MaybeRefOrGetter<RoomType | undefined>,
+    id?: MaybeRefOrGetter<string | undefined>
   ) {
+    const _type = computed(() => {
+      return toValue(type) || ("_defaultRoomType" as RoomType);
+    });
+    const _id = computed(() => {
+      return toValue(id) || "_defaultRoomId";
+    });
     return new InstantVueRoom<Schema, RoomSchema, RoomType>(
       this._core,
-      type,
-      id
+      _type,
+      _id
     );
   }
 

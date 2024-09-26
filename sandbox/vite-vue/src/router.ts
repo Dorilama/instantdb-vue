@@ -47,6 +47,12 @@ const routes = [
     name: "topicsIframe",
     component: () => import("@/views/TopicsIframe.vue"),
   },
+  {
+    path: "/rooms",
+    name: "rooms",
+    component: () => import("@/views/Rooms.vue"),
+    meta: { label: "Rooms", isNav: true },
+  },
 ];
 
 export const router = createRouter({
