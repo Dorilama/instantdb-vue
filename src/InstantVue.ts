@@ -81,16 +81,12 @@ export class InstantVueRoom<
 
   constructor(
     _core: InstantClient<Schema, RoomSchema, any>,
-    type: MaybeRefOrGetter<RoomType>,
-    id: MaybeRefOrGetter<string>
+    type: ComputedRef<RoomType>,
+    id: ComputedRef<string>
   ) {
     this._core = _core;
-    this.type = computed(() => {
-      return toValue(type);
-    });
-    this.id = computed(() => {
-      return toValue(id);
-    });
+    this.type = type;
+    this.id = id;
   }
 
   /**
