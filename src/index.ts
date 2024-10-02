@@ -9,6 +9,8 @@ import type {
   InstantQueryResult,
   InstantSchema,
   InstantObject,
+  InstantEntity,
+  InstantSchemaDatabase,
   User,
   AuthState,
   Query,
@@ -44,6 +46,8 @@ export type {
   InstantQuery,
   InstantQueryResult,
   InstantSchema,
+  InstantEntity,
+  InstantSchemaDatabase,
   InstaQLQueryParams,
   // schema types
   AttrsDefs,
