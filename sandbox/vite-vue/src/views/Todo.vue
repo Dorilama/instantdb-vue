@@ -28,11 +28,22 @@
     <button class="btn btn-outline" @click="stop">
       Stop live update without recover
     </button>
+    <button
+      class="btn btn-outline mt-4"
+      :class="[
+        once.isLoading.value && 'skeleton',
+        once.error.value && 'btn-error',
+      ]"
+      @click="queryOnce"
+      :disabled="once.isLoading.value"
+    >
+      {{ queryOnceText }}
+    </button>
   </div>
 </template>
 <script setup lang="ts">
-import { useTemplateRef, watchEffect, ref } from "vue";
-import { db, chatRoomoom, Schema } from "@/db";
+import { useTemplateRef, watchEffect, ref, computed } from "vue";
+import { db, chatRoomoom, type Todo } from "@/db";
 import TodoForm from "@/components/TodoForm.vue";
 import TodoList from "@/components/TodoList.vue";
 import ActionBar from "@/components/TodoFooter.vue";
@@ -57,6 +68,48 @@ function toggle() {
     query.value = q;
   }
 }
+
+type x = typeof db.queryOnce;
+type y = Awaited<ReturnType<x>>;
+type z = y["data"];
+
+const once = {
+  todos: ref<Todo[] | null>(null),
+  error: ref<string | null>(null),
+  isLoading: ref(false),
+};
+
+async function queryOnce() {
+  if (once.isLoading.value) {
+    return;
+  }
+  once.isLoading.value = true;
+  once.error.value = null;
+  try {
+    const result = await db.queryOnce({ todos: {} });
+    once.todos.value = result.data.todos;
+  } catch (error) {
+    if (error instanceof Error) {
+      once.error.value = error.message || "unknown error";
+    } else {
+      once.error.value = "unknown error";
+    }
+    once.todos.value = null;
+  }
+  once.isLoading.value = false;
+}
+
+const queryOnceText = computed(() => {
+  if (once.error.value) {
+    return `QueryOnce Error: ${once.error.value} Click to update`;
+  }
+  if (once.todos.value === null) {
+    return `Use QueryOnce to get a static count of todos`;
+  }
+  return `QueryOnce: ${
+    Object.values(once.todos.value).length
+  } todos. Click to update`;
+});
 </script>
 
 <style scoped></style>
