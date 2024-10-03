@@ -69,10 +69,6 @@ function toggle() {
   }
 }
 
-type x = typeof db.queryOnce;
-type y = Awaited<ReturnType<x>>;
-type z = y["data"];
-
 const once = {
   todos: ref<Todo[] | null>(null),
   error: ref<string | null>(null),
