@@ -7,6 +7,8 @@
     :style="['position: relative', props.style]"
     @mousemove="onMouseMove"
     @mouseleave="onMouseOut"
+    @touchmove="onTouchMove"
+    @touchend="onTouchEnd"
     ><slot></slot>
     <div
       :key="spaceId"
@@ -129,20 +131,19 @@ function getCursor(presence: (typeof cursorsPresence.peers.value)[string]) {
     CursorSchema;
 }
 
-function onMouseMove(e: MouseEvent) {
-  if (!propagate) {
-    e.stopPropagation();
-  }
+function publishCursor(
+  rect: DOMRect,
+  touch: { clientX: number; clientY: number }
+) {
+  const x = touch.clientX;
+  const y = touch.clientY;
+  const xPercent = ((x - rect.left) / rect.width) * 100;
+  const yPercent = ((y - rect.top) / rect.height) * 100;
+
   if (cursorsPresence.isLoading.value) {
     return;
   }
 
-  e.currentTarget;
-  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-  const x = e.clientX;
-  const y = e.clientY;
-  const xPercent = ((x - rect.left) / rect.width) * 100;
-  const yPercent = ((y - rect.top) / rect.height) * 100;
   try {
     cursorsPresence.publishPresence({
       [spaceId.value]: {
@@ -158,8 +159,39 @@ function onMouseMove(e: MouseEvent) {
   }
 }
 
+function onMouseMove(e: MouseEvent) {
+  if (!propagate) {
+    e.stopPropagation();
+  }
+
+  if (e.currentTarget instanceof Element) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    publishCursor(rect, e);
+  }
+}
+
 // note: using it on mouseleave event
 function onMouseOut(e: MouseEvent) {
+  clearPresence(spaceId.value);
+}
+
+function onTouchMove(e: TouchEvent) {
+  if (e.touches.length !== 1) {
+    return;
+  }
+
+  const touch = e.touches[0];
+
+  if (touch.target instanceof Element) {
+    if (!propagate) {
+      e.stopPropagation();
+    }
+    const rect = touch.target.getBoundingClientRect();
+    publishCursor(rect, touch);
+  }
+}
+
+function onTouchEnd(e: TouchEvent) {
   clearPresence(spaceId.value);
 }
 

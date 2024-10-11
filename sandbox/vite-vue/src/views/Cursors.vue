@@ -82,3 +82,10 @@ function makeSrc(id: string, color: string, custom?: string) {
   }`;
 }
 </script>
+
+<style global>
+.block-scroll {
+  height: 100%;
+  overflow: hidden;
+}
+</style>
