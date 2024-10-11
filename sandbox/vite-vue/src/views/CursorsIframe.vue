@@ -32,7 +32,6 @@ const color = route.query.color as string;
 const custom = route.query.custom as string;
 
 function scroll(allow: boolean) {
-  console.log(allow, window.parent.document.body);
   if (allow) {
     window.parent.document.body.classList.remove("block-scroll");
   } else {
