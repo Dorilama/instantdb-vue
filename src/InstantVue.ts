@@ -568,19 +568,24 @@ export class InstantVue<
    *    <Login v-else/>
    *  </template>
    */
-  useAuth = (): UseAuthReturn => {
+  useAuth = (): UseAuthReturn & { stop: () => void } => {
     const initialState = this._core._reactor._currentUserCached;
 
-    const state: UseAuthReturn = {
+    const state: UseAuthReturn & { stop: () => void } = {
       isLoading: ref(initialState.isLoading),
       user: shallowRef(initialState.user),
       error: shallowRef(initialState.error),
+      stop: () => {},
     };
     const unsubscribe = this._core._reactor.subscribeAuth((resp: any) => {
       state.isLoading.value = false;
       state.user.value = resp.user;
       state.error.value = resp.error;
     });
+
+    state.stop = () => {
+      unsubscribe();
+    };
 
     onScopeDispose(() => {
       unsubscribe();
