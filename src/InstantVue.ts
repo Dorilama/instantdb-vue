@@ -305,14 +305,14 @@ export class InstantVueRoom<
   useSyncPresence = (
     data: MaybeRefOrGetter<Partial<RoomSchema[RoomType]["presence"]>>,
     deps?: MaybeRefOrGetter<any[]>
-  ): void => {
+  ): (() => void) => {
     const stopRoomWatch = watchEffect((onCleanup) => {
       const id = this.id.value;
       const cleanup = this._core._reactor.joinRoom(id);
       onCleanup(cleanup);
     });
 
-    const stop = watchEffect(() => {
+    const stopEffect = watchEffect(() => {
       const id = this.id.value;
       const type = this.type.value;
       const _data = toValue(data);
@@ -321,10 +321,16 @@ export class InstantVueRoom<
       toValue(deps);
     });
 
-    onScopeDispose(() => {
+    function stop() {
       stopRoomWatch();
+      stopEffect();
+    }
+
+    onScopeDispose(() => {
       stop();
     });
+
+    return stop;
   };
 
   /**
