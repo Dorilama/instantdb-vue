@@ -110,7 +110,8 @@ export class InstantVueRoom<
     onEvent: Arrayable<
       (
         event: RoomSchema[RoomType]["topics"][TopicType],
-        peer: RoomSchema[RoomType]["presence"]
+        peer: RoomSchema[RoomType]["presence"],
+        topic: TopicType
       ) => any
     >
   ): (() => void) => {
@@ -134,7 +135,7 @@ export class InstantVueRoom<
               peer: RoomSchema[RoomType]["presence"]
             ) => {
               callbacks.forEach((cb) => {
-                cb(event, peer);
+                cb(event, peer, topicType);
               });
             }
           );
