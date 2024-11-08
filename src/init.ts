@@ -2,8 +2,21 @@
 // adapted from [@instantdb/react](https://github.com/instantdb/instant/blob/main/client/packages/react/README.md)
 // see instantdb-license.md for license
 
-import type { Config, InstantGraph, RoomSchemaShape } from "@instantdb/core";
+import type {
+  Config as InstantConfig,
+  InstantGraph,
+  RoomSchemaShape,
+} from "@instantdb/core";
 import { InstantVue } from "./InstantVue";
+
+export type Config = InstantConfig &
+  Partial<{
+    clientOnlyUseQuery: boolean;
+  }>;
+
+export type ConfigWithSchema<S extends InstantGraph<any, any>> = Config & {
+  schema: S;
+};
 
 /**
  *

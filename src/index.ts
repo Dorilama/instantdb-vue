@@ -14,7 +14,6 @@ import type {
   User,
   AuthState,
   Query,
-  Config,
   InstaQLQueryParams,
   // schema types
   AttrsDefs,
@@ -33,6 +32,7 @@ import type {
 
 import { InstantVue } from "./InstantVue";
 import { init, init_experimental } from "./init";
+import type { Config } from "./init";
 import type { CursorSchema } from "./components";
 
 export { id, tx, lookup, init, init_experimental, InstantVue, i };

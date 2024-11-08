@@ -11,7 +11,6 @@ import {
 } from "@instantdb/core";
 import type {
   AuthState,
-  Config,
   Query,
   Exactly,
   TransactionChunk,
@@ -20,7 +19,6 @@ import type {
   PresenceResponse,
   RoomSchemaShape,
   InstaQLQueryParams,
-  ConfigWithSchema,
   IDatabase,
   InstantGraph,
   QueryResponse,
@@ -32,6 +30,7 @@ import { computed, ref, shallowRef, toValue, watch, watchEffect } from "vue";
 import type { ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from "vue";
 import { useTimeout } from "./useTimeout";
 import { tryOnScopeDispose } from "./utils";
+import type { Config, ConfigWithSchema } from "./init";
 
 type UseAuthReturn = { [K in keyof AuthState]: ShallowRef<AuthState[K]> };
 
@@ -442,6 +441,8 @@ export class InstantVue<
   static Storage?: any;
   static NetworkListener?: any;
 
+  static clientOnlyUseQuery?: boolean;
+
   constructor(config: Config | ConfigWithSchema<any>) {
     this._core = _init_internal<Schema, RoomSchema, WithCardinalityInference>(
       config,
@@ -452,6 +453,8 @@ export class InstantVue<
     );
     this.auth = this._core.auth;
     this.storage = this._core.storage;
+    // @ts-expect-error because TS can't resolve subclass statics
+    this.constructor.clientOnlyUseQuery = !!config.clientOnlyUseQuery;
   }
 
   getLocalId = (name: string) => {
@@ -547,7 +550,7 @@ export class InstantVue<
     query: MaybeRefOrGetter<null | Q>
   ): UseQueryReturn<Q, Schema, WithCardinalityInference> => {
     //@ts-ignore TODO! same error in InstantReact
-    return useQuery(this._core, query).state;
+    return useQuery(this._core, query, clientOnlyUseQuery).state;
   };
 
   /**

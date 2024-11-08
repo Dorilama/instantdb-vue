@@ -48,7 +48,8 @@ export function useQuery<
   WithCardinalityInference extends boolean
 >(
   _core: InstantClient<Schema, any, WithCardinalityInference>,
-  _query: MaybeRefOrGetter<null | Q>
+  _query: MaybeRefOrGetter<null | Q>,
+  clientOnlyUseQuery?: boolean
 ): {
   state: UseQueryReturn<Q, Schema, WithCardinalityInference>;
   query: any;
@@ -73,29 +74,31 @@ export function useQuery<
     stop: () => {},
   };
 
-  const stop = watch(
-    queryHash,
-    (_, __, onCleanup) => {
-      if (!query.value) {
-        state.isLoading.value = false;
-        return;
-      }
-      const unsubscribe = _core.subscribeQuery<Q>(query.value, (result) => {
-        state.isLoading.value = !Boolean(result);
-        state.data.value = result.data;
-        state.pageInfo.value = result.pageInfo;
-        state.error.value = result.error;
-      });
-      onCleanup(unsubscribe);
-    },
-    { immediate: true }
-  );
+  if (!clientOnlyUseQuery || _core._reactor.querySubs) {
+    const stop = watch(
+      queryHash,
+      (_, __, onCleanup) => {
+        if (!query.value) {
+          state.isLoading.value = false;
+          return;
+        }
+        const unsubscribe = _core.subscribeQuery<Q>(query.value, (result) => {
+          state.isLoading.value = !Boolean(result);
+          state.data.value = result.data;
+          state.pageInfo.value = result.pageInfo;
+          state.error.value = result.error;
+        });
+        onCleanup(unsubscribe);
+      },
+      { immediate: true }
+    );
 
-  state.stop = stop;
+    state.stop = stop;
 
-  tryOnScopeDispose(() => {
-    stop();
-  });
+    tryOnScopeDispose(() => {
+      stop();
+    });
+  }
 
   return { state, query };
 }
