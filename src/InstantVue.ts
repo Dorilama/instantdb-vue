@@ -28,17 +28,10 @@ import type {
 } from "@instantdb/core";
 import { useQuery } from "./useQuery";
 import type { UseQueryReturn } from "./useQuery";
-import {
-  computed,
-  onScopeDispose,
-  ref,
-  shallowRef,
-  toValue,
-  watch,
-  watchEffect,
-} from "vue";
+import { computed, ref, shallowRef, toValue, watch, watchEffect } from "vue";
 import type { ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from "vue";
 import { useTimeout } from "./useTimeout";
+import { tryOnScopeDispose } from "./utils";
 
 type UseAuthReturn = { [K in keyof AuthState]: ShallowRef<AuthState[K]> };
 
@@ -144,7 +137,7 @@ export class InstantVueRoom<
       onCleanup(unsubscribe);
     });
 
-    onScopeDispose(() => {
+    tryOnScopeDispose(() => {
       stop();
     });
 
@@ -189,7 +182,7 @@ export class InstantVueRoom<
       };
     });
 
-    onScopeDispose(() => {
+    tryOnScopeDispose(() => {
       stopRoomWatch();
       stopTopicWatch();
     });
@@ -274,7 +267,7 @@ export class InstantVueRoom<
       onCleanup(unsubscribe);
     });
 
-    onScopeDispose(() => {
+    tryOnScopeDispose(() => {
       stop();
     });
 
@@ -327,7 +320,7 @@ export class InstantVueRoom<
       stopEffect();
     }
 
-    onScopeDispose(() => {
+    tryOnScopeDispose(() => {
       stop();
     });
 
@@ -411,7 +404,7 @@ export class InstantVueRoom<
       timeout.clear();
     }
 
-    onScopeDispose(() => {
+    tryOnScopeDispose(() => {
       stop();
     });
 
@@ -594,7 +587,7 @@ export class InstantVue<
       unsubscribe();
     };
 
-    onScopeDispose(() => {
+    tryOnScopeDispose(() => {
       unsubscribe();
     });
 

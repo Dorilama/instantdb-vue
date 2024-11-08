@@ -11,8 +11,9 @@ import type {
   InstaQLQueryParams,
   InstantGraph,
 } from "@instantdb/core";
-import { shallowRef, computed, toValue, watch, onScopeDispose, ref } from "vue";
+import { shallowRef, computed, toValue, watch, ref } from "vue";
 import type { ShallowRef, MaybeRefOrGetter } from "vue";
+import { tryOnScopeDispose } from "./utils";
 
 export type UseQueryReturn<
   Q,
@@ -92,7 +93,7 @@ export function useQuery<
 
   state.stop = stop;
 
-  onScopeDispose(() => {
+  tryOnScopeDispose(() => {
     stop();
   });
 

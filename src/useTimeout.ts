@@ -2,7 +2,7 @@
 // adapted from [@instantdb/react](https://github.com/instantdb/instant/blob/main/client/packages/react/README.md)
 // see instantdb-license.md for license
 
-import { onScopeDispose } from "vue";
+import { tryOnScopeDispose } from "./utils";
 
 export function useTimeout() {
   let timeout: ReturnType<typeof setTimeout> | null = null;
@@ -21,7 +21,7 @@ export function useTimeout() {
     }
   }
 
-  onScopeDispose(() => {
+  tryOnScopeDispose(() => {
     clear();
   });
 
