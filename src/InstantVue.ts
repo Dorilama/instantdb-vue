@@ -550,7 +550,8 @@ export class InstantVue<
     query: MaybeRefOrGetter<null | Q>
   ): UseQueryReturn<Q, Schema, WithCardinalityInference> => {
     //@ts-ignore TODO! same error in InstantReact
-    return useQuery(this._core, query, clientOnlyUseQuery).state;
+    return useQuery(this._core, query, this.constructor.clientOnlyUseQuery)
+      .state;
   };
 
   /**
