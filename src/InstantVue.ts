@@ -31,6 +31,7 @@ import type { ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from "vue";
 import { useTimeout } from "./useTimeout";
 import { tryOnScopeDispose } from "./utils";
 import type { Config, ConfigWithSchema } from "./init";
+import version from "./version";
 
 type UseAuthReturn = { [K in keyof AuthState]: ShallowRef<AuthState[K]> };
 
@@ -443,18 +444,23 @@ export class InstantVue<
 
   static clientOnlyUseQuery?: boolean;
 
-  constructor(config: Config | ConfigWithSchema<any>) {
+  constructor(
+    config: Config | ConfigWithSchema<any>,
+    versions?: { [key: string]: string }
+  ) {
+    const { clientOnlyUseQuery, ..._config } = config;
     this._core = _init_internal<Schema, RoomSchema, WithCardinalityInference>(
-      config,
+      _config,
       // @ts-expect-error because TS can't resolve subclass statics
       this.constructor.Storage,
       // @ts-expect-error because TS can't resolve subclass statics
-      this.constructor.NetworkListener
+      this.constructor.NetworkListener,
+      { ...(versions || {}), "@dorilama/instantdb-vue": version }
     );
     this.auth = this._core.auth;
     this.storage = this._core.storage;
     // @ts-expect-error because TS can't resolve subclass statics
-    this.constructor.clientOnlyUseQuery = !!config.clientOnlyUseQuery;
+    this.constructor.clientOnlyUseQuery = !!clientOnlyUseQuery;
   }
 
   getLocalId = (name: string) => {
