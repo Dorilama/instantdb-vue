@@ -448,7 +448,14 @@ export class InstantVue<
     config: Config | ConfigWithSchema<any>,
     versions?: { [key: string]: string }
   ) {
-    const { clientOnlyUseQuery, ..._config } = config;
+    const { __extra_vue, ..._config } = config;
+
+    if (_config.clientOnlyUseQuery) {
+      console.warn(
+        `clientOnlyUseQuery is deprecated. use __extra_vue.clientOnlyUseQuery`
+      );
+    }
+
     this._core = _init_internal<Schema, RoomSchema, WithCardinalityInference>(
       _config,
       // @ts-expect-error because TS can't resolve subclass statics
@@ -460,7 +467,8 @@ export class InstantVue<
     this.auth = this._core.auth;
     this.storage = this._core.storage;
     // @ts-expect-error because TS can't resolve subclass statics
-    this.constructor.clientOnlyUseQuery = !!clientOnlyUseQuery;
+    this.constructor.clientOnlyUseQuery =
+      !!__extra_vue?.clientOnlyUseQuery || !!_config.clientOnlyUseQuery;
   }
 
   getLocalId = (name: string) => {

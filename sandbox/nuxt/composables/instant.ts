@@ -27,7 +27,10 @@ export type RoomSchema = {
 function init() {
   const config = useRuntimeConfig();
   const appId = config.public.instantAppId as string;
-  return instantInit<Schema, RoomSchema>({ appId, clientOnlyUseQuery: true });
+  return instantInit<Schema, RoomSchema>({
+    appId,
+    __extra_vue: { clientOnlyUseQuery: true },
+  });
 }
 
 let db: ReturnType<typeof init>;

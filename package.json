@@ -1,6 +1,6 @@
 {
   "name": "@dorilama/instantdb-vue",
-  "version": "0.1.26",
+  "version": "0.2.0",
   "description": "Unofficial Instant DB for Vue",
   "author": "dorilama",
   "license": "ISC",

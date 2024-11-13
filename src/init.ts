@@ -9,10 +9,18 @@ import type {
 } from "@instantdb/core";
 import { InstantVue } from "./InstantVue";
 
-export type Config = InstantConfig &
-  Partial<{
-    clientOnlyUseQuery: boolean;
-  }>;
+type ExtraConfig = Partial<{
+  clientOnlyUseQuery: boolean;
+}>;
+
+type DeprecatedExtraConfig = Partial<{
+  /** @deprecated use __extra_vue.clientOnlyUseQuery instead */
+  clientOnlyUseQuery: boolean;
+}>;
+
+export type Config = InstantConfig & {
+  __extra_vue?: ExtraConfig;
+} & DeprecatedExtraConfig;
 
 export type ConfigWithSchema<S extends InstantGraph<any, any>> = Config & {
   schema: S;
