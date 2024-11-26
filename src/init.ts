@@ -3,24 +3,29 @@
 // see instantdb-license.md for license
 
 import type {
-  Config as InstantConfig,
+  Config as OriginalConfig,
+  InstantConfig as OriginalInstantConfig,
   InstantGraph,
   RoomSchemaShape,
+  InstantSchemaDef,
 } from "@instantdb/core";
 import { InstantVue } from "./InstantVue";
 
-type ExtraConfig = Partial<{
-  clientOnlyUseQuery: boolean;
-}>;
+type ExtraConfig = {
+  __extra_vue?: Partial<{
+    clientOnlyUseQuery: boolean;
+  }>;
+};
 
 type DeprecatedExtraConfig = Partial<{
   /** @deprecated use __extra_vue.clientOnlyUseQuery instead */
   clientOnlyUseQuery: boolean;
 }>;
 
-export type Config = InstantConfig & {
-  __extra_vue?: ExtraConfig;
-} & DeprecatedExtraConfig;
+export type Config = OriginalConfig & ExtraConfig & DeprecatedExtraConfig;
+
+export type InstantConfig<S extends InstantSchemaDef<any, any, any>> =
+  OriginalInstantConfig<S> & ExtraConfig & DeprecatedExtraConfig;
 
 export type ConfigWithSchema<S extends InstantGraph<any, any>> = Config & {
   schema: S;

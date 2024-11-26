@@ -17,7 +17,6 @@ import type {
   PresenceResponse,
   RoomSchemaShape,
   InstaQLParams,
-  InstantConfig,
   PageInfoResponse,
   InstaQLLifecycleState,
   InstaQLResponse,
@@ -31,7 +30,7 @@ import { computed, ref, shallowRef, toValue, watch, watchEffect } from "vue";
 import type { ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from "vue";
 import { useTimeout } from "./useTimeout";
 import { tryOnScopeDispose } from "./utils";
-import type { Config, ConfigWithSchema } from "./init";
+import type { InstantConfig } from "./init";
 import version from "./version";
 
 type UseAuthReturn = { [K in keyof AuthState]: ShallowRef<AuthState[K]> };
@@ -426,12 +425,11 @@ export class InstantVueRoom<
   };
 }
 
-export class InstantVue<
+export class InstantVueDatabase<
   Schema extends InstantSchemaDef<any, any, any>,
   Rooms extends RoomSchemaShape = RoomsOf<Schema>
 > implements IInstantDatabase<Schema>
 {
-  //@ts-ignore TODO! same error in InstantReact with strict flag enabled
   public tx = txInit<Schema>();
 
   public auth: Auth;
@@ -443,10 +441,7 @@ export class InstantVue<
 
   static clientOnlyUseQuery?: boolean;
 
-  constructor(
-    config: Config | ConfigWithSchema<any>,
-    versions?: { [key: string]: string }
-  ) {
+  constructor(config: InstantConfig<Schema>) {
     const { __extra_vue, ..._config } = config;
 
     if (_config.clientOnlyUseQuery) {
