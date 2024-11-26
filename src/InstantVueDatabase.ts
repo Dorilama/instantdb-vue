@@ -3,29 +3,30 @@
 // see instantdb-license.md for license
 
 import {
-  InstantClient,
   Auth,
   Storage,
   txInit,
   _init_internal,
+  InstantCoreDatabase,
+  init_experimental,
 } from "@instantdb/core";
 import type {
   AuthState,
-  Query,
-  Exactly,
   TransactionChunk,
-  // LifecycleSubscriptionState,
   PresenceOpts,
   PresenceResponse,
   RoomSchemaShape,
   InstaQLParams,
-  IDatabase,
-  InstantGraph,
-  QueryResponse,
+  InstantConfig,
   PageInfoResponse,
+  InstaQLLifecycleState,
+  InstaQLResponse,
+  RoomsOf,
+  InstantSchemaDef,
+  IInstantDatabase,
 } from "@instantdb/core";
-import { useQuery } from "./useQuery";
-import type { UseQueryReturn } from "./useQuery";
+import { useQueryInternal } from "./useQuery";
+import type { UseQueryInternalReturn } from "./useQuery";
 import { computed, ref, shallowRef, toValue, watch, watchEffect } from "vue";
 import type { ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from "vue";
 import { useTimeout } from "./useTimeout";
@@ -66,16 +67,16 @@ type Arrayable<T> = T[] | T;
 export const defaultActivityStopTimeout = 1_000;
 
 export class InstantVueRoom<
-  Schema extends InstantGraph<any, any> | {},
+  Schema extends InstantSchemaDef<any, any, any>,
   RoomSchema extends RoomSchemaShape,
   RoomType extends keyof RoomSchema
 > {
-  _core: InstantClient<Schema, RoomSchema>;
+  _core: InstantCoreDatabase<Schema>;
   type: ComputedRef<RoomType>;
   id: ComputedRef<string>;
 
   constructor(
-    _core: InstantClient<Schema, RoomSchema, any>,
+    _core: InstantCoreDatabase<Schema>,
     type: ComputedRef<RoomType>,
     id: ComputedRef<string>
   ) {
@@ -426,21 +427,16 @@ export class InstantVueRoom<
 }
 
 export class InstantVue<
-  Schema extends InstantGraph<any, any> | {} = {},
-  RoomSchema extends RoomSchemaShape = {},
-  WithCardinalityInference extends boolean = false
-> implements IDatabase<Schema, RoomSchema, WithCardinalityInference>
+  Schema extends InstantSchemaDef<any, any, any>,
+  Rooms extends RoomSchemaShape = RoomsOf<Schema>
+> implements IInstantDatabase<Schema>
 {
-  public withCardinalityInference?: WithCardinalityInference;
   //@ts-ignore TODO! same error in InstantReact with strict flag enabled
-  public tx =
-    txInit<
-      Schema extends InstantGraph<any, any> ? Schema : InstantGraph<any, any>
-    >();
+  public tx = txInit<Schema>();
 
   public auth: Auth;
   public storage: Storage;
-  public _core: InstantClient<Schema, RoomSchema, WithCardinalityInference>;
+  public _core: InstantCoreDatabase<Schema>;
 
   static Storage?: any;
   static NetworkListener?: any;
@@ -459,13 +455,12 @@ export class InstantVue<
       );
     }
 
-    this._core = _init_internal<Schema, RoomSchema, WithCardinalityInference>(
+    this._core = init_experimental<Schema>(
       _config,
       // @ts-expect-error because TS can't resolve subclass statics
       this.constructor.Storage,
       // @ts-expect-error because TS can't resolve subclass statics
-      this.constructor.NetworkListener,
-      { ...(versions || {}), "@dorilama/instantdb-vue": version }
+      this.constructor.NetworkListener
     );
     this.auth = this._core.auth;
     this.storage = this._core.storage;
@@ -494,7 +489,7 @@ export class InstantVue<
    *   useTypingIndicator,
    * } = db.room(roomType, roomId);
    */
-  room<RoomType extends keyof RoomSchema>(
+  room<RoomType extends keyof Rooms>(
     type?: MaybeRefOrGetter<RoomType | undefined>,
     id?: MaybeRefOrGetter<string | undefined>
   ) {
@@ -504,11 +499,7 @@ export class InstantVue<
     const _id = computed(() => {
       return toValue(id) || "_defaultRoomId";
     });
-    return new InstantVueRoom<Schema, RoomSchema, RoomType>(
-      this._core,
-      _type,
-      _id
-    );
+    return new InstantVueRoom<Schema, Rooms, RoomType>(this._core, _type, _id);
   }
 
   /**
@@ -558,16 +549,11 @@ export class InstantVue<
    *  // skip if `user` is not logged in
    *  db.useQuery(auth.user ? { goals: {} } : null)
    */
-  useQuery = <
-    Q extends Schema extends InstantGraph<any, any>
-      ? InstaQLParams<Schema>
-      : //@ts-ignore TODO! same error in InstantReact with strict flag enabled
-        Exactly<Query, Q>
-  >(
+  useQuery = <Q extends InstaQLParams<Schema>>(
     query: MaybeRefOrGetter<null | Q>
-  ): UseQueryReturn<Q, Schema, WithCardinalityInference> => {
+  ): UseQueryInternalReturn<Schema, Q> => {
     //@ts-ignore TODO! same error in InstantReact
-    return useQuery(
+    return useQueryInternal(
       this._core,
       query,
       // @ts-expect-error because TS can't resolve subclass statics
@@ -632,14 +618,10 @@ export class InstantVue<
    *  const resp = await db.queryOnce({ goals: {} });
    *  console.log(resp.data.goals)
    */
-  queryOnce = <
-    Q extends Schema extends InstantGraph<any, any>
-      ? InstaQLParams<Schema>
-      : Exactly<Query, Q>
-  >(
+  queryOnce = <Q extends InstaQLParams<Schema>>(
     query: Q
   ): Promise<{
-    data: QueryResponse<Q, Schema, WithCardinalityInference>;
+    data: InstaQLResponse<Schema, Q>;
     pageInfo: PageInfoResponse<Q>;
   }> => {
     return this._core.queryOnce(query);
