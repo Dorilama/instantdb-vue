@@ -561,12 +561,10 @@ export class InstantVue<
   useQuery = <
     Q extends Schema extends InstantGraph<any, any>
       ? InstaQLParams<Schema>
-      : //@ts-ignore TODO! same error in InstantReact with strict flag enabled
-        Exactly<Query, Q>
+      : Exactly<Query, Q>
   >(
     query: MaybeRefOrGetter<null | Q>
   ): UseQueryReturn<Q, Schema, WithCardinalityInference> => {
-    //@ts-ignore TODO! same error in InstantReact
     return useQuery(
       this._core,
       query,
