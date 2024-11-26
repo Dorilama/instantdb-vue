@@ -6,10 +6,12 @@ import type {
   Config as OriginalConfig,
   InstantConfig as OriginalInstantConfig,
   InstantGraph,
-  RoomSchemaShape,
   InstantSchemaDef,
+  RoomSchemaShape,
+  InstantUnknownSchema,
 } from "@instantdb/core";
 import { InstantVue } from "./InstantVue";
+import { InstantVueDatabase } from "./InstantVueDatabase";
 
 type ExtraConfig = {
   __extra_vue?: Partial<{
@@ -55,24 +57,11 @@ export function init<
   Schema extends {} = {},
   RoomSchema extends RoomSchemaShape = {}
 >(config: Config) {
-  //@ts-ignore TODO! same error in InstantReact with strict flag enabled
   return new InstantVue<Schema, RoomSchema>(config);
 }
 
 export function init_experimental<
-  Schema extends InstantGraph<any, any, any>,
-  WithCardinalityInference extends boolean = true
->(
-  config: Config & {
-    schema: Schema;
-    cardinalityInference?: WithCardinalityInference;
-  }
-) {
-  return new InstantVue<
-    Schema,
-    Schema extends InstantGraph<any, any, infer RoomSchema>
-      ? RoomSchema
-      : never,
-    WithCardinalityInference
-  >(config);
+  Schema extends InstantSchemaDef<any, any, any> = InstantUnknownSchema
+>(config: InstantConfig<Schema>) {
+  return new InstantVueDatabase<Schema>(config);
 }

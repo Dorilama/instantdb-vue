@@ -547,7 +547,6 @@ export class InstantVueDatabase<
   useQuery = <Q extends InstaQLParams<Schema>>(
     query: MaybeRefOrGetter<null | Q>
   ): UseQueryInternalReturn<Schema, Q> => {
-    //@ts-ignore TODO! same error in InstantReact
     return useQueryInternal(
       this._core,
       query,

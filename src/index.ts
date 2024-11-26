@@ -11,10 +11,11 @@ import type {
   InstantObject,
   InstantEntity,
   InstantSchemaDatabase,
+  IInstantDatabase,
   User,
   AuthState,
   Query,
-  InstaQLQueryParams,
+  InstaQLParams,
   // schema types
   AttrsDefs,
   CardinalityKind,
@@ -28,16 +29,32 @@ import type {
   LinksDef,
   ResolveAttrs,
   ValueTypes,
+  InstaQLEntity,
+  InstaQLResult,
+  InstantUnknownSchema,
+  InstantSchemaDef,
+  BackwardsCompatibleSchema,
 } from "@instantdb/core";
 
 import { InstantVue } from "./InstantVue";
+import { InstantVueDatabase } from "./InstantVueDatabase";
 import { init, init_experimental } from "./init";
-import type { Config } from "./init";
+import type { Config, InstantConfig } from "./init";
 import type { CursorSchema } from "./components";
 
-export { id, tx, lookup, init, init_experimental, InstantVue, i };
+export {
+  id,
+  tx,
+  lookup,
+  init,
+  init_experimental,
+  InstantVue,
+  InstantVueDatabase,
+  i,
+};
 export type {
   Config,
+  InstantConfig,
   Query,
   QueryResponse,
   InstantObject,
@@ -48,7 +65,8 @@ export type {
   InstantSchema,
   InstantEntity,
   InstantSchemaDatabase,
-  InstaQLQueryParams,
+  IInstantDatabase,
+  InstaQLParams,
   // schema types
   AttrsDefs,
   CardinalityKind,
@@ -62,6 +80,11 @@ export type {
   LinksDef,
   ResolveAttrs,
   ValueTypes,
+  InstaQLEntity,
+  InstaQLResult,
+  InstantUnknownSchema,
+  InstantSchemaDef,
+  BackwardsCompatibleSchema,
   //
   CursorSchema,
 };
