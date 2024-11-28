@@ -16,6 +16,7 @@ import type {
   AuthState,
   Query,
   InstaQLParams,
+  ConnectionStatus,
   // schema types
   AttrsDefs,
   CardinalityKind,
@@ -34,6 +35,7 @@ import type {
   InstantUnknownSchema,
   InstantSchemaDef,
   BackwardsCompatibleSchema,
+  InstantRules,
 } from "@instantdb/core";
 
 import { InstantVue } from "./InstantVue";
@@ -60,6 +62,7 @@ export type {
   InstantObject,
   User,
   AuthState,
+  ConnectionStatus,
   InstantQuery,
   InstantQueryResult,
   InstantSchema,
@@ -85,6 +88,7 @@ export type {
   InstantUnknownSchema,
   InstantSchemaDef,
   BackwardsCompatibleSchema,
+  InstantRules,
   //
   CursorSchema,
 };
