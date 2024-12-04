@@ -648,9 +648,7 @@ export class InstantVue<
       status.value = newStatus;
     });
 
-    tryOnScopeDispose(() => {
-      unsubscribe();
-    });
+    tryOnScopeDispose(unsubscribe);
 
     return status;
   };

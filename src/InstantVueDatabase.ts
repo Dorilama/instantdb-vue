@@ -12,6 +12,7 @@ import {
 } from "@instantdb/core";
 import type {
   AuthState,
+  ConnectionStatus,
   TransactionChunk,
   PresenceOpts,
   PresenceResponse,
@@ -597,6 +598,41 @@ export class InstantVueDatabase<
     });
 
     return state;
+  };
+
+  /**
+   * Listen for connection status changes to Instant. Use this for things like
+   * showing connection state to users
+   *
+   * @see https://www.instantdb.com/docs/patterns#connection-status
+   * @example
+   *  <script setup>
+   *    const connectionState =
+   *      computed(() => (status.value === 'connecting' || status.value === 'opened'
+   *        ? 'authenticating'
+   *        : status.value === 'authenticated'
+   *          ? 'connected'
+   *          : status.value === 'closed'
+   *            ? 'closed'
+   *            : status.value === 'errored'
+   *              ? 'errored'
+   *              : 'unexpected state'));
+   *  </script>
+   *  <template>
+   *    <div>Connection state: {connectionState}</div>
+   *  </template>
+   */
+  useConnectionStatus = (): Ref<ConnectionStatus> => {
+    const status = ref<ConnectionStatus>(
+      this._core._reactor.status as ConnectionStatus
+    );
+    const unsubscribe = this._core.subscribeConnectionStatus((newStatus) => {
+      status.value = newStatus;
+    });
+
+    tryOnScopeDispose(unsubscribe);
+
+    return status;
   };
 
   /**
