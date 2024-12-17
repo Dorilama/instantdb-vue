@@ -1,6 +1,6 @@
 {
   "name": "@dorilama/instantdb-vue",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "description": "Unofficial Instant DB for Vue",
   "author": "dorilama",
   "license": "ISC",
@@ -47,7 +47,7 @@
     "update": "npx rimraf package-lock.json node_modules sandbox/vite-vue/package-lock.json sandbox/vite-vue/node_modules sandbox/nuxt/package-lock.json sandbox/nuxt/node_modules && npm i --save-exact @instantdb/core@latest && cd sandbox/vite-vue && npm i && cd ../nuxt && npm i"
   },
   "dependencies": {
-    "@instantdb/core": "0.16.6"
+    "@instantdb/core": "0.16.7"
   },
   "peerDependencies": {
     "vue": "^3.0.0-0"
