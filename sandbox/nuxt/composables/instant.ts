@@ -1,35 +1,20 @@
 import { init as instantInit } from "@dorilama/instantdb-vue";
+import type { InstaQLParams, InstaQLResult } from "@dorilama/instantdb-vue";
+import schema from "../instant.schema";
 
-export interface Todo {
-  id: string;
-  text: string;
-  done: boolean;
-  createdAt: number;
-}
+const todosQuery = { todos: {} } satisfies InstaQLParams<typeof schema>;
 
-export type Schema = {
-  todos: Todo;
-};
+type TodosResult = InstaQLResult<typeof schema, typeof todosQuery>;
 
-export type RoomSchema = {
-  chat: {
-    presence: {
-      userId: string;
-      color: string;
-      path: string;
-    };
-    topics: {
-      emoji: { text: string; color?: string };
-    };
-  };
-};
+export type Todo = TodosResult["todos"][number];
 
 function init() {
   const config = useRuntimeConfig();
   const appId = config.public.instantAppId as string;
-  return instantInit<Schema, RoomSchema>({
+  return instantInit({
     appId,
     __extra_vue: { clientOnlyUseQuery: true },
+    schema,
   });
 }
 
