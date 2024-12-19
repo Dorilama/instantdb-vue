@@ -39,7 +39,7 @@ export type PresenceHandle<
   Keys extends keyof PresenceShape,
   State = PresenceResponse<PresenceShape, Keys>
 > = { [K in keyof State]: ShallowRef<State[K]> } & {
-  publishPresence: (data: Partial<PresenceShape>) => void;
+  publishPresence: (data?: Partial<PresenceShape>) => void;
   stop: () => void;
 };
 
@@ -299,7 +299,9 @@ export class InstantVueRoom<
    *  </script>
    */
   useSyncPresence = (
-    data: MaybeRefOrGetter<Partial<RoomSchema[RoomType]["presence"]>>,
+    data: MaybeRefOrGetter<
+      Partial<RoomSchema[RoomType]["presence"] | undefined>
+    >,
     deps?: MaybeRefOrGetter<any[]>
   ): (() => void) => {
     const stopRoomWatch = watchEffect((onCleanup) => {
