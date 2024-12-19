@@ -59,10 +59,10 @@
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import { chatRoomoom } from "@/db";
+import { chatRoom } from "@/db";
 import { computed } from "vue";
 
-const { user } = chatRoomoom.usePresence();
+const { user } = chatRoom.usePresence();
 
 const src = useRouter()
   .getRoutes()

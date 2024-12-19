@@ -1,32 +1,20 @@
-import { init } from "@dorilama/instantdb-vue";
+import {
+  init,
+  i,
+  type InstaQLParams,
+  InstaQLResult,
+} from "@dorilama/instantdb-vue";
+
+import schema from "../../instant.schema";
 
 // Visit https://instantdb.com/dash to get your APP_ID :)
 const APP_ID = import.meta.env["VITE_INSTANT_APP_ID"];
 
-// Optional: Declare your schema for intellisense!
-export interface Todo {
-  id: string;
-  text: string;
-  done: boolean;
-  createdAt: number;
-}
+export const db = init({ appId: APP_ID, schema });
+export const chatRoom = db.room("chat", "dev");
 
-export type Schema = {
-  todos: Todo;
-};
+const todosQuery = { todos: {} } satisfies InstaQLParams<typeof schema>;
 
-export type RoomSchema = {
-  chat: {
-    presence: {
-      userId: string;
-      color: string;
-      path: string;
-    };
-    topics: {
-      emoji: { text: string; color?: string };
-    };
-  };
-};
+type TodosResult = InstaQLResult<typeof schema, typeof todosQuery>;
 
-export const db = init<Schema, RoomSchema>({ appId: APP_ID });
-export const chatRoomoom = db.room("chat", "dev");
+export type Todo = TodosResult["todos"][number];

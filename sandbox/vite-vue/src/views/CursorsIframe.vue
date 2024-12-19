@@ -1,6 +1,6 @@
 <template>
   <Cursors
-    :room="chatRoomoom"
+    :room="chatRoom"
     class="w-screen h-screen flex items-center justify-center"
     :space-id="spaceId"
     :user-cursor-color="color ? '#' + color : ''"
@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import { useRoute } from "vue-router";
-import { chatRoomoom } from "@/db";
+import { chatRoom } from "@/db";
 import { Cursors } from "@dorilama/instantdb-vue/components";
 import { useHideInstantDevTools } from "@/utils/composables";
 

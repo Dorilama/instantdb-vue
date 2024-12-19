@@ -43,15 +43,15 @@
 
 <script setup lang="ts">
 import { useRoute } from "vue-router";
-import { chatRoomoom } from "@/db";
+import { chatRoom } from "@/db";
 import { computed } from "vue";
 import { useHideInstantDevTools } from "@/utils/composables";
 
 const route = useRoute();
 
-const presence = chatRoomoom.usePresence();
+const presence = chatRoom.usePresence();
 
-const { active, inputProps } = chatRoomoom.useTypingIndicator("typing");
+const { active, inputProps } = chatRoom.useTypingIndicator("typing");
 
 const peers = computed(() =>
   Object.entries(presence.peers.value).filter(

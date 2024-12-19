@@ -6,7 +6,6 @@ import { weakHash, coerceQuery, InstantCoreDatabase } from "@instantdb/core";
 import type {
   Query,
   Exactly,
-  InstantClient,
   LifecycleSubscriptionState,
   InstaQLParams,
   InstantGraph,
@@ -16,20 +15,6 @@ import type {
 import { shallowRef, computed, toValue, watch, ref } from "vue";
 import type { ShallowRef, MaybeRefOrGetter } from "vue";
 import { tryOnScopeDispose } from "./utils";
-
-export type UseQueryReturn<
-  Q,
-  Schema,
-  WithCardinalityInference extends boolean
-> = {
-  [K in keyof LifecycleSubscriptionState<
-    Q,
-    Schema,
-    WithCardinalityInference
-  >]: ShallowRef<
-    LifecycleSubscriptionState<Q, Schema, WithCardinalityInference>[K]
-  >;
-} & { stop: () => void };
 
 export type UseQueryInternalReturn<Schema, Q> = {
   [K in keyof InstaQLLifecycleState<Schema, Q>]: ShallowRef<
@@ -45,70 +30,6 @@ function stateForResult(result: any) {
     error: undefined,
     ...(result ? result : {}),
   };
-}
-
-export function useQuery<
-  Q extends Schema extends InstantGraph<any, any>
-    ? InstaQLParams<Schema>
-    : //@ts-ignore TODO! same error in InstantReact with strict flag enabled
-      Exactly<Query, Q>,
-  Schema extends InstantGraph<any, any, any> | {},
-  WithCardinalityInference extends boolean
->(
-  _core: InstantClient<Schema, any, WithCardinalityInference>,
-  _query: MaybeRefOrGetter<null | Q>,
-  clientOnlyUseQuery?: boolean
-): {
-  state: UseQueryReturn<Q, Schema, WithCardinalityInference>;
-  query: any;
-} {
-  const query = computed(() => {
-    const value = toValue(_query);
-    return value ? coerceQuery(value) : null;
-  });
-  const queryHash = computed(() => {
-    return weakHash(query.value);
-  });
-
-  const initialState = stateForResult(
-    _core._reactor.getPreviousResult(query.value)
-  );
-
-  const state: UseQueryReturn<Q, Schema, WithCardinalityInference> = {
-    isLoading: ref(initialState.isLoading),
-    data: shallowRef(initialState.data),
-    pageInfo: shallowRef(initialState.pageInfo),
-    error: shallowRef(initialState.error),
-    stop: () => {},
-  };
-
-  if (!clientOnlyUseQuery || _core._reactor.querySubs) {
-    const stop = watch(
-      queryHash,
-      (_, __, onCleanup) => {
-        if (!query.value) {
-          state.isLoading.value = false;
-          return;
-        }
-        const unsubscribe = _core.subscribeQuery<Q>(query.value, (result) => {
-          state.isLoading.value = !Boolean(result);
-          state.data.value = result.data;
-          state.pageInfo.value = result.pageInfo;
-          state.error.value = result.error;
-        });
-        onCleanup(unsubscribe);
-      },
-      { immediate: true }
-    );
-
-    state.stop = stop;
-
-    tryOnScopeDispose(() => {
-      stop();
-    });
-  }
-
-  return { state, query };
 }
 
 export function useQueryInternal<

@@ -38,24 +38,13 @@ import type {
   InstantRules,
 } from "@instantdb/core";
 
-import { InstantVue } from "./InstantVue";
 import { InstantVueDatabase } from "./InstantVueDatabase";
 import { init, init_experimental } from "./init";
-import type { Config, InstantConfig } from "./init";
+import type { InstantConfig } from "./init";
 import type { CursorSchema } from "./components";
 
-export {
-  id,
-  tx,
-  lookup,
-  init,
-  init_experimental,
-  InstantVue,
-  InstantVueDatabase,
-  i,
-};
+export { id, tx, lookup, init, init_experimental, InstantVueDatabase, i };
 export type {
-  Config,
   InstantConfig,
   Query,
   QueryResponse,

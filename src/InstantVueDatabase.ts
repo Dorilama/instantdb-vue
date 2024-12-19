@@ -6,9 +6,8 @@ import {
   Auth,
   Storage,
   txInit,
-  _init_internal,
   InstantCoreDatabase,
-  init_experimental,
+  init as core_init,
 } from "@instantdb/core";
 import type {
   AuthState,
@@ -32,7 +31,6 @@ import type { ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from "vue";
 import { useTimeout } from "./useTimeout";
 import { tryOnScopeDispose } from "./utils";
 import type { InstantConfig } from "./init";
-import version from "./version";
 
 type UseAuthReturn = { [K in keyof AuthState]: ShallowRef<AuthState[K]> };
 
@@ -442,7 +440,10 @@ export class InstantVueDatabase<
 
   static clientOnlyUseQuery?: boolean;
 
-  constructor(config: InstantConfig<Schema>) {
+  constructor(
+    config: InstantConfig<Schema>,
+    versions?: { [key: string]: string }
+  ) {
     const { __extra_vue, ..._config } = config;
 
     if (_config.clientOnlyUseQuery) {
@@ -451,12 +452,13 @@ export class InstantVueDatabase<
       );
     }
 
-    this._core = init_experimental<Schema>(
+    this._core = core_init<Schema>(
       _config,
       // @ts-expect-error because TS can't resolve subclass statics
       this.constructor.Storage,
       // @ts-expect-error because TS can't resolve subclass statics
-      this.constructor.NetworkListener
+      this.constructor.NetworkListener,
+      versions
     );
     this.auth = this._core.auth;
     this.storage = this._core.storage;

@@ -3,15 +3,12 @@
 // see instantdb-license.md for license
 
 import type {
-  Config as OriginalConfig,
   InstantConfig as OriginalInstantConfig,
-  InstantGraph,
   InstantSchemaDef,
-  RoomSchemaShape,
   InstantUnknownSchema,
 } from "@instantdb/core";
-import { InstantVue } from "./InstantVue";
 import { InstantVueDatabase } from "./InstantVueDatabase";
+import version from "./version";
 
 type ExtraConfig = {
   __extra_vue?: Partial<{
@@ -24,14 +21,8 @@ type DeprecatedExtraConfig = Partial<{
   clientOnlyUseQuery: boolean;
 }>;
 
-export type Config = OriginalConfig & ExtraConfig & DeprecatedExtraConfig;
-
 export type InstantConfig<S extends InstantSchemaDef<any, any, any>> =
   OriginalInstantConfig<S> & ExtraConfig & DeprecatedExtraConfig;
-
-export type ConfigWithSchema<S extends InstantGraph<any, any>> = Config & {
-  schema: S;
-};
 
 /**
  *
@@ -40,28 +31,40 @@ export type ConfigWithSchema<S extends InstantGraph<any, any>> = Config & {
  * Visit https://instantdb.com/dash to get your `appId` :)
  *
  * @example
- *  const db = init({ appId: "my-app-id" })
+ * import { init } from "@dorilama/instantdb-vue"
+ *
+ * const db = init({ appId: "my-app-id" })
  *
  * // You can also provide a a schema for type safety and editor autocomplete!
  *
- *  type Schema = {
- *    goals: {
- *      title: string
- *    }
- *  }
+ * import { init } from "@dorilama/instantdb-vue"
+ * import schema from ""../instant.schema.ts";
  *
- *  const db = init<Schema>({ appId: "my-app-id" })
+ * const db = init({ appId: "my-app-id", schema })
+ *
+ * // To learn more: https://instantdb.com/docs/modeling-data
  *
  */
 export function init<
-  Schema extends {} = {},
-  RoomSchema extends RoomSchemaShape = {}
->(config: Config) {
-  return new InstantVue<Schema, RoomSchema>(config);
-}
-
-export function init_experimental<
   Schema extends InstantSchemaDef<any, any, any> = InstantUnknownSchema
 >(config: InstantConfig<Schema>) {
-  return new InstantVueDatabase<Schema>(config);
+  return new InstantVueDatabase<Schema>(config, {
+    "@dorilama/instantdb-vue": version,
+  });
 }
+
+/**
+ * @deprecated
+ * `init_experimental` is deprecated. You can replace it with `init`.
+ *
+ * @example
+ *
+ * // Before
+ * import { init_experimental } from "@dorilama/instantdb-vue"
+ * const db = init_experimental({  ...  });
+ *
+ * // After
+ * import { init } from "@dorilama/instantdb-vue"
+ * const db = init({ ...  });
+ */
+export const init_experimental = init;

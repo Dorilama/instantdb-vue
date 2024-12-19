@@ -20,7 +20,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import type { Ref } from "vue";
-import { chatRoomoom } from "@/db";
+import { chatRoom } from "@/db";
 import { useHideInstantDevTools } from "@/utils/composables";
 
 const emoji = {
@@ -49,9 +49,9 @@ function assignRef(el: HTMLElement | null, key: string) {
   emojiRefs[key as keyof typeof emoji].value = el;
 }
 
-const publishTopic = chatRoomoom.usePublishTopic("emoji");
+const publishTopic = chatRoom.usePublishTopic("emoji");
 
-chatRoomoom.useTopicEffect("emoji", (event, peer, topic) => {
+chatRoom.useTopicEffect("emoji", (event, peer, topic) => {
   console.log(event, peer, topic);
   const el = emojiRefs[event.text as keyof typeof emoji];
   if (!el.value) {
@@ -72,7 +72,7 @@ chatRoomoom.useTopicEffect("emoji", (event, peer, topic) => {
   }, 1000);
 });
 
-const { user } = chatRoomoom.usePresence();
+const { user } = chatRoom.usePresence();
 
 useHideInstantDevTools();
 </script>

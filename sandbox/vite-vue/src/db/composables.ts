@@ -1,7 +1,7 @@
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { db, chatRoomoom } from "@/db";
-import type { RoomSchema } from "@/db";
+import { db, chatRoom } from "@/db";
+import type { AppSchema } from "@/db";
 
 export const fixedRandomColor =
   "#" + Math.floor(Math.random() * 16777215).toString(16);
@@ -12,7 +12,7 @@ export function useUserPresenceValue() {
   const route = useRoute();
 
   const { user } = db.useAuth();
-  const userPresence = computed<RoomSchema["chat"]["presence"]>(() => {
+  const userPresence = computed(() => {
     const userId =
       user.value?.id && !route.query.anon ? user.value?.id : anonUser;
     return {
@@ -32,7 +32,7 @@ export function usePeerStats() {
     path: "/",
     meta: {} as Record<string, unknown>,
   };
-  const { peers, user } = chatRoomoom.usePresence();
+  const { peers, user } = chatRoom.usePresence();
 
   const count = computed<{
     byPath: Record<(typeof routes)[number]["path"], number>;

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, watchEffect } from "vue";
 import { RouterView, useRoute } from "vue-router";
-import { chatRoomoom } from "@/db";
+import { chatRoom } from "@/db";
 import { useUserPresenceValue } from "./db/composables";
 import { Cursors } from "@dorilama/instantdb-vue/components";
 import Header from "@/components/Header.vue";
@@ -13,7 +13,7 @@ const {
   peers,
   publishPresence,
   isLoading: isLoadingPresence,
-} = chatRoomoom.usePresence();
+} = chatRoom.usePresence();
 
 watchEffect(() => {
   const presence = userPresenceValue.value;
@@ -45,7 +45,7 @@ const hideCursor = computed(() => {
 <template>
   <Cursors
     v-if="!isIframe"
-    :room="chatRoomoom"
+    :room="chatRoom"
     :user-cursor-color="userPresenceValue.color"
     :space-id="userPresenceValue.path"
     class="min-h-dvh"
