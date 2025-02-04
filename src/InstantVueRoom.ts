@@ -458,18 +458,18 @@ export class InstantVueRoom<
   }
 
   /**
-   * Listen for broadcasted events given a room and topic.
+   * @deprecated
+   * `db.room(...).useTopicEffect` is deprecated. You can replace it with `db.rooms.useTopicEffect`.
    *
-   * @see https://instantdb.com/docs/presence-and-topics
    * @example
-   *  <script setup>
-   *    const props = defineProps({roomId: String});
-   *    db.room(roomType, roomId).useTopicEffect("chat", (message, peer) => {
-   *      console.log("New message", message, 'from', peer.name);
-   *    });
    *
-   *    // ...
-   *  </script>
+   * // Before
+   * const room = db.room('chat', 'room-id');
+   * room.useTopicEffect('emoji', (message, peer) => {  });
+   *
+   * // After
+   * const room = db.room('chat', 'room-id');
+   * db.rooms.useTopicEffect(room, 'emoji', (message, peer) => {  });
    */
   useTopicEffect = <TopicType extends keyof RoomSchema[RoomType]["topics"]>(
     topic: MaybeRefOrGetter<Arrayable<TopicType>>,
@@ -485,17 +485,18 @@ export class InstantVueRoom<
   };
 
   /**
-   * Broadcast an event to a room.
+   * @deprecated
+   * `db.room(...).usePublishTopic` is deprecated. You can replace it with `db.rooms.usePublishTopic`.
    *
-   * @see https://instantdb.com/docs/presence-and-topics
    * @example
-   *  <script setup>
-   *    const props = defineProps({roomId: String});
-   *    const publishTopic = db.room(roomType, roomId).usePublishTopic("clicks");
-   *  </script>
-   *  <template>
-   *    <button @click="() => publishTopic({ ts: Date.now() })">Click me</button>
-   *  </template>
+   *
+   * // Before
+   * const room = db.room('chat', 'room-id');
+   * const publish = room.usePublishTopic('emoji');
+   *
+   * // After
+   * const room = db.room('chat', 'room-id');
+   * const publish = db.rooms.usePublishTopic(room, 'emoji');
    */
   usePublishTopic = <Topic extends keyof RoomSchema[RoomType]["topics"]>(
     topic: MaybeRefOrGetter<Topic>
@@ -504,19 +505,18 @@ export class InstantVueRoom<
   };
 
   /**
-   * Listen for peer's presence data in a room, and publish the current user's presence.
+   * @deprecated
+   * `db.room(...).usePresence` is deprecated. You can replace it with `db.rooms.usePresence`.
    *
-   * @see https://instantdb.com/docs/presence-and-topics
    * @example
-   *  <script setup>
-   *    const props = defineProps({roomId: String});
-   *    const {
-   *      peers,
-   *      publishPresence
-   *    } = db.room(roomType, roomId).usePresence({ keys: ["name", "avatar"] });
    *
-   *    // ...
-   *  </script>
+   * // Before
+   * const room = db.room('chat', 'room-id');
+   * const { peers } = room.usePresence({ keys: ["name", "avatar"] });
+   *
+   * // After
+   * const room = db.room('chat', 'room-id');
+   * const { peers } = db.rooms.usePresence(room, { keys: ["name", "avatar"] });
    */
   usePresence = <Keys extends keyof RoomSchema[RoomType]["presence"]>(
     opts: MaybeRefOrGetter<
@@ -527,16 +527,18 @@ export class InstantVueRoom<
   };
 
   /**
-   * Publishes presence data to a room
+   * @deprecated
+   * `db.room(...).useSyncPresence` is deprecated. You can replace it with `db.rooms.useSyncPresence`.
    *
-   * @see https://instantdb.com/docs/presence-and-topics
    * @example
-   *  <script setup>
-   *    const props = defineProps({roomId: String});
-   *    db.room(roomType, roomId).useSyncPresence({ name, avatar, color });
    *
-   *    // ...
-   *  </script>
+   * // Before
+   * const room = db.room('chat', 'room-id');
+   * room.useSyncPresence(room, { nickname });
+   *
+   * // After
+   * const room = db.room('chat', 'room-id');
+   * db.rooms.useSyncPresence(room, { nickname });
    */
   useSyncPresence = (
     data: MaybeRefOrGetter<
@@ -548,21 +550,18 @@ export class InstantVueRoom<
   };
 
   /**
-   * Manage typing indicator state
+   * @deprecated
+   * `db.room(...).useTypingIndicator` is deprecated. You can replace it with `db.rooms.useTypingIndicator`.
    *
-   * @see https://instantdb.com/docs/presence-and-topics
    * @example
-   *  <script setup>
-   *    const props = defineProps({roomId: String});
-   *    const {
-   *      active,
-   *      setActive,
-   *      inputProps,
-   *    } = db.room(roomType, roomId).useTypingIndicator("chat-input", opts);
-   *  </script>
-   *  <template>
-   *    <input @blur="inputProps.onBlur" @keydown="inputProps.onKeyDown"/>
-   *  </template>
+   *
+   * // Before
+   * const room = db.room('chat', 'room-id');
+   * const typing = room.useTypingIndiactor(room, 'chat-input');
+   *
+   * // After
+   * const room = db.room('chat', 'room-id');
+   * const typing = db.rooms.useTypingIndiactor(room, 'chat-input');
    */
   useTypingIndicator = (
     inputName: MaybeRefOrGetter<string>,
