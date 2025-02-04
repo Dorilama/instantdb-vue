@@ -30,7 +30,7 @@ import { computed, ref, shallowRef, toValue, watch, watchEffect } from "vue";
 import type { ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from "vue";
 import { tryOnScopeDispose } from "./utils";
 import type { InstantConfig } from "./init";
-import { InstantVueRoom } from "./InstantVueRoom";
+import { InstantVueRoom, rooms } from "./InstantVueRoom";
 
 type UseAuthReturn = { [K in keyof AuthState]: ShallowRef<AuthState[K]> };
 
@@ -90,12 +90,8 @@ export class InstantVueDatabase<
    * @see https://instantdb.com/docs/presence-and-topics
    *
    * @example
-   *  const {
-   *   useTopicEffect,
-   *   usePublishTopic,
-   *   useSyncPresence,
-   *   useTypingIndicator,
-   * } = db.room(roomType, roomId);
+   *  const room = db.room('chat', roomId);
+   *  const { peers } = db.rooms.usePresence(room);
    */
   room<RoomType extends keyof Rooms>(
     type?: MaybeRefOrGetter<RoomType | undefined>,
@@ -109,6 +105,19 @@ export class InstantVueDatabase<
     });
     return new InstantVueRoom<Schema, Rooms, RoomType>(this._core, _type, _id);
   }
+
+  /**
+   * Hooks for working with rooms
+   *
+   * @see https://instantdb.com/docs/presence-and-topics
+   *
+   * @example
+   *  const room = db.room('chat', roomId);
+   *  const { peers } = db.rooms.usePresence(room);
+   *  const publish = db.rooms.usePublishTopic(room, 'emoji');
+   *  // ...
+   */
+  rooms = rooms;
 
   /**
    * Use this to write data! You can create, update, delete, and link objects
