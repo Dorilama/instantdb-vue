@@ -47,7 +47,22 @@ export const defaultActivityStopTimeout = 1_000;
 // ------
 // #region Topics
 
-function useTopicEffect<
+/**
+ * Listen for broadcasted events given a room and topic.
+ *
+ * @see https://instantdb.com/docs/presence-and-topics
+ * @example
+ *  <script setup>
+ *    const props = defineProps({roomId: String});
+ *    const room = db.room('chats', roomId);
+ *    db.rooms.useTopicEffect(room, 'emoji', (message, peer) => {
+ *      console.log(peer.name, 'sent', message);
+ *    });
+ *
+ *    // ...
+ *  </script>
+ */
+export function useTopicEffect<
   RoomSchema extends RoomSchemaShape,
   RoomType extends keyof RoomSchema,
   TopicType extends keyof RoomSchema[RoomType]["topics"]
@@ -98,7 +113,21 @@ function useTopicEffect<
   return stop;
 }
 
-function usePublishTopic<
+/**
+ * Broadcast an event to a room.
+ *
+ * @see https://instantdb.com/docs/presence-and-topics
+ * @example
+ *  <script setup>
+ *    const props = defineProps({roomId: String});
+ *    const room = db.room('chats', roomId);
+ *    const publishTopic = db.rooms.usePublishTopic(room, "emoji");
+ *  </script>
+ *  <template>
+ *    <button @click="() => publishTopic({ emoji: "🔥" })">Send emoji</button>
+ *  </template>
+ */
+export function usePublishTopic<
   RoomSchema extends RoomSchemaShape,
   RoomType extends keyof RoomSchema,
   TopicType extends keyof RoomSchema[RoomType]["topics"]
@@ -140,7 +169,24 @@ function usePublishTopic<
 
 // ---------
 // #region Presence
-function usePresence<
+
+/**
+ * Listen for peer's presence data in a room, and publish the current user's presence.
+ *
+ * @see https://instantdb.com/docs/presence-and-topics
+ * @example
+ *  <script setup>
+ *    const props = defineProps({roomId: String});
+ *    const room = db.room('chats', roomId);
+ *    const {
+ *      peers,
+ *      publishPresence
+ *    } = db.rooms.usePresence(room, { keys: ["name", "avatar"] });
+ *
+ *    // ...
+ *  </script>
+ */
+export function usePresence<
   RoomSchema extends RoomSchemaShape,
   RoomType extends keyof RoomSchema,
   Keys extends keyof RoomSchema[RoomType]["presence"]
@@ -223,7 +269,20 @@ function usePresence<
   };
 }
 
-function useSyncPresence<
+/**
+ * Publishes presence data to a room
+ *
+ * @see https://instantdb.com/docs/presence-and-topics
+ * @example
+ *  <script setup>
+ *    const props = defineProps({roomId: String});
+ *    const room = db.room('chats', roomId);
+ *    db.rooms.useSyncPresence(room, { name, avatar, color });
+ *
+ *    // ...
+ *  </script>
+ */
+export function useSyncPresence<
   RoomSchema extends RoomSchemaShape,
   RoomType extends keyof RoomSchema
 >(
@@ -263,7 +322,25 @@ function useSyncPresence<
 // -----------------
 // #region Typing Indicator
 
-function useTypingIndicator<
+/**
+ * Manage typing indicator state
+ *
+ * @see https://instantdb.com/docs/presence-and-topics
+ * @example
+ *  <script setup>
+ *    const props = defineProps({roomId: String});
+ *    const room = db.room('chats', roomId);
+ *    const {
+ *      active,
+ *      setActive,
+ *      inputProps,
+ *    } = db.rooms.useTypingIndicator(room, "chat-input");
+ *  </script>
+ *  <template>
+ *    <input @blur="inputProps.onBlur" @keydown="inputProps.onKeyDown"/>
+ *  </template>
+ */
+export function useTypingIndicator<
   RoomSchema extends RoomSchemaShape,
   RoomType extends keyof RoomSchema
 >(
@@ -348,7 +425,7 @@ function useTypingIndicator<
 
 // --------------
 // #region Hooks
-const rooms = {
+export const rooms = {
   useTopicEffect,
   usePublishTopic,
   usePresence,
