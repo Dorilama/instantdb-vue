@@ -12,3 +12,5 @@ export function tryOnScopeDispose(fn: () => void) {
   }
   return false;
 }
+
+export type Arrayable<T> = T[] | T;

@@ -2,42 +2,23 @@
 [@instantdb/react](https://github.com/instantdb/instant/blob/main/client/packages/react/README.md)
 // see instantdb-license.md for license
 <template>
-  <component
-    :is="props.as"
-    :style="['position: relative', props.style]"
-    @mousemove="onMouseMove"
-    @mouseleave="onMouseOut"
-    @touchmove="onTouchMove"
-    @touchend="onTouchEnd"
-    ><slot></slot>
-    <div
-      :key="spaceId"
-      :style="{
-        ...absStyles,
-        ...inertStyles,
-        zIndex: props.zIndex !== undefined ? props.zIndex : defaultZ,
-      }"
-    >
-      <template
-        v-for="[id, presence] of Object.entries(cursorsPresence.peers.value)"
-        :key="id"
-      >
-        <div
-          v-if="getCursor(presence)"
-          :style="{
-            ...absStyles,
-            transform: `translate(${getCursor(presence).xPercent}%, ${
-              getCursor(presence).yPercent
+  <component :is="props.as" :style="['position: relative', props.style]" @mousemove="onMouseMove"
+    @mouseleave="onMouseOut" @touchmove="onTouchMove" @touchend="onTouchEnd">
+    <slot></slot>
+    <div :key="spaceId" :style="{
+      ...absStyles,
+      ...inertStyles,
+      zIndex: props.zIndex !== undefined ? props.zIndex : defaultZ,
+    }">
+      <template v-for="[id, presence] of Object.entries(cursorsPresence.peers.value)" :key="id">
+        <div v-if="getCursor(presence)" :style="{
+          ...absStyles,
+          transform: `translate(${getCursor(presence).xPercent}%, ${getCursor(presence).yPercent
             }%)`,
-            transformOrigin: '0 0',
-            transition: 'transform 100ms',
-          }"
-        >
-          <slot
-            name="cursor"
-            :color="getCursor(presence).color"
-            :presence="fullPresence.peers.value[id]"
-          >
+          transformOrigin: '0 0',
+          transition: 'transform 100ms',
+        }">
+          <slot name="cursor" :color="getCursor(presence).color" :presence="fullPresence.peers.value[id]">
             <Cursor v-bind:color="getCursor(presence).color" />
           </slot>
         </div>
@@ -46,14 +27,10 @@
   </component>
 </template>
 
-<script
-  setup
-  lang="ts"
-  generic="RoomSchema extends RoomSchemaShape, RoomType extends keyof RoomSchema"
->
+<script setup lang="ts" generic="RoomSchema extends RoomSchemaShape, RoomType extends keyof RoomSchema">
 import type * as CSS from "csstype";
 import { computed, onBeforeUnmount, ref, watch, watchEffect } from "vue";
-import type { InstantVueRoom } from "../InstantVueDatabase";
+import { InstantVueRoom } from "../InstantVueRoom";
 import type { RoomSchemaShape } from "@instantdb/core";
 import type { CursorSchema } from ".";
 import Cursor from "./Cursor.vue";
@@ -94,8 +71,7 @@ const { room, propagate, userCursorColor } = props;
 const spaceId = computed(
   () =>
     (props.spaceId ||
-      `cursors-space-default--${String(room.type)}-${
-        room.id.value
+      `cursors-space-default--${String(room.type)}-${room.id.value
       }`) as keyof RoomSchema[RoomType]["presence"]
 );
 

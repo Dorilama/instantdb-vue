@@ -52,7 +52,6 @@ function assignRef(el: HTMLElement | null, key: string) {
 const publishTopic = chatRoom.usePublishTopic("emoji");
 
 chatRoom.useTopicEffect("emoji", (event, peer, topic) => {
-  console.log(event, peer, topic);
   const el = emojiRefs[event.text as keyof typeof emoji];
   if (!el.value) {
     return;
