@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col items-center pt-4 pb-8 px-2 gap-4">
-    <h1 class="text-4xl">Dynamic Rooms</h1>
+    <h1 class="text-4xl">Dynamic Rooms 2</h1>
     <div class="card card-bordered rounded-lg bg-base-100 sm:min-w-96">
       <div class="card-body">
         <div class="form-control">
@@ -49,7 +49,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { useTemplateRef, watchEffect, watch, ref } from "vue";
+import { useTemplateRef, watchEffect, ref, computed } from "vue";
 import { db } from "@/db";
 import { useRoute, useRouter } from "vue-router";
 
@@ -57,13 +57,18 @@ const route = useRoute();
 const router = useRouter();
 
 const allRooms = ["room1", "room2"];
+
 const roomId = ref((route.query.id as string | undefined) || allRooms[0]);
 
-watch(roomId, (id) => {
-  router.push({ query: { id: id || undefined } });
-});
 
-const room = db.room("chat", roomId);
+const room = computed(() => {
+  return db.room("chat", roomId);
+})
+
+watchEffect(() => {
+  router.push({ query: { id: room.value.id.value || undefined } });
+})
+
 const presence = db.rooms.usePresence(room);
 
 const alertError = useTemplateRef("alert-error");

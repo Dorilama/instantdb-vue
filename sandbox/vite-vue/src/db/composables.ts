@@ -31,7 +31,7 @@ export function usePeerStats() {
     path: "/",
     meta: {} as Record<string, unknown>,
   };
-  const { peers, user } = chatRoom.usePresence();
+  const { peers, user } = db.rooms.usePresence(chatRoom);
 
   const count = computed<{
     byPath: Record<(typeof routes)[number]["path"], number>;

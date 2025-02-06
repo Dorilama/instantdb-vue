@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, watchEffect } from "vue";
 import { RouterView, useRoute } from "vue-router";
-import { chatRoom } from "@/db";
+import { chatRoom, db } from "@/db";
 import { useUserPresenceValue } from "./db/composables";
 import { Cursors } from "@dorilama/instantdb-vue/components";
 import Header from "@/components/Header.vue";
@@ -13,7 +13,7 @@ const {
   peers,
   publishPresence,
   isLoading: isLoadingPresence,
-} = chatRoom.usePresence();
+} = db.rooms.usePresence(chatRoom);
 
 watchEffect(() => {
   const presence = userPresenceValue.value;
@@ -43,13 +43,8 @@ const hideCursor = computed(() => {
 </script>
 
 <template>
-  <Cursors
-    v-if="!isIframe"
-    :room="chatRoom"
-    :user-cursor-color="userPresenceValue.color"
-    :space-id="userPresenceValue.path"
-    class="min-h-dvh"
-  >
+  <Cursors v-if="!isIframe" :room="chatRoom" :user-cursor-color="userPresenceValue.color"
+    :space-id="userPresenceValue.path" class="min-h-dvh">
     <Header></Header>
     <main class="pb-24 lg:pb-0">
       <RouterView />
@@ -59,18 +54,12 @@ const hideCursor = computed(() => {
           <span class="icon-[mdi--information-outline] text-xl"></span>
           <div>
             <h3 class="font-bold">This is a realtime app!</h3>
-            <span v-if="!Object.values(peers).length"
-              >Open this page in another tab or browser to see the realtime
-              interactions</span
-            ><span v-else>
-              <span class="lg:hidden"
-                >You can see how many people are live on a page in the bottom
-                navigation</span
-              >
-              <span class="hidden lg:block"
-                >You can see how many people are live on a page in the top
-                header</span
-              >
+            <span v-if="!Object.values(peers).length">Open this page in another tab or browser to see the realtime
+              interactions</span><span v-else>
+              <span class="lg:hidden">You can see how many people are live on a page in the bottom
+                navigation</span>
+              <span class="hidden lg:block">You can see how many people are live on a page in the top
+                header</span>
             </span>
           </div>
         </div>
@@ -78,9 +67,9 @@ const hideCursor = computed(() => {
     </main>
 
     <BottomNav></BottomNav>
-    <template v-if="hideCursor" v-slot:cursor
-      ><div class="hidden"></div
-    ></template>
+    <template v-if="hideCursor" v-slot:cursor>
+      <div class="hidden"></div>
+    </template>
   </Cursors>
   <RouterView v-else />
 </template>

@@ -81,6 +81,8 @@ const usePresenceOptions = computed(() => {
   };
 });
 
+// react sdk still does not use db.rooms
+// see https://github.com/instantdb/instant/blob/main/client/packages/react/src/Cursors.tsx
 const cursorsPresence = room.usePresence(usePresenceOptions);
 
 const isLoadingFirst = ref(true);
@@ -97,6 +99,8 @@ watchEffect(() => {
   }
 });
 
+// react sdk still does not use db.rooms
+// see https://github.com/instantdb/instant/blob/main/client/packages/react/src/Cursors.tsx
 const fullPresence = room.usePresence();
 
 function getCursor(presence: (typeof cursorsPresence.peers.value)[string]) {

@@ -1,14 +1,9 @@
 <template>
-  <div
-    class="flex flex-col items-center pt-4 pb-8 px-2 gap-4 max-w-screen-lg m-auto"
-  >
+  <div class="flex flex-col items-center pt-4 pb-8 px-2 gap-4 max-w-screen-lg m-auto">
     <ul class="flex gap-2">
       <li v-for="[name, text] of Object.entries(emoji)" :key="name">
-        <button
-          class="btn btn-outline text-xl"
-          @click="publishTopic({ text: name, color: user?.color })"
-          :ref="(el) => assignRef(el as HTMLElement ,name)"
-        >
+        <button class="btn btn-outline text-xl" @click="publishTopic({ text: name, color: user?.color })"
+          :ref="(el) => assignRef(el as HTMLElement, name)">
           {{ text }}
         </button>
       </li>
@@ -20,7 +15,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import type { Ref } from "vue";
-import { chatRoom } from "@/db";
+import { chatRoom, db } from "@/db";
 import { useHideInstantDevTools } from "@/utils/composables";
 
 const emoji = {
@@ -49,9 +44,9 @@ function assignRef(el: HTMLElement | null, key: string) {
   emojiRefs[key as keyof typeof emoji].value = el;
 }
 
-const publishTopic = chatRoom.usePublishTopic("emoji");
+const publishTopic = db.rooms.usePublishTopic(chatRoom, 'emoji')
 
-chatRoom.useTopicEffect("emoji", (event, peer, topic) => {
+db.rooms.useTopicEffect(chatRoom, "emoji", (event, peer, topic) => {
   const el = emojiRefs[event.text as keyof typeof emoji];
   if (!el.value) {
     return;
@@ -71,7 +66,7 @@ chatRoom.useTopicEffect("emoji", (event, peer, topic) => {
   }, 1000);
 });
 
-const { user } = chatRoom.usePresence();
+const { user } = db.rooms.usePresence(chatRoom);
 
 useHideInstantDevTools();
 </script>
