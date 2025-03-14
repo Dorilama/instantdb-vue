@@ -45,14 +45,27 @@
     >
       {{ queryOnceText }}
     </button>
+    <button
+      class="btn btn-outline mt-4"
+      :class="[
+        userOnce.isLoading.value && 'skeleton',
+        userOnce.error.value && 'btn-error',
+      ]"
+      @click="getAuth"
+      :disabled="userOnce.isLoading.value"
+    >
+      {{ userOnceText }}
+    </button>
   </div>
 </template>
+
 <script setup lang="ts">
 import { useTemplateRef, watchEffect, ref, computed } from "vue";
 import { db, chatRoom, type Todo } from "@/db";
 import TodoForm from "@/components/TodoForm.vue";
 import TodoList from "@/components/TodoList.vue";
 import ActionBar from "@/components/TodoFooter.vue";
+import { type User } from "@dorilama/instantdb-vue";
 
 const q = { todos: {} };
 
@@ -114,6 +127,49 @@ const queryOnceText = computed(() => {
 });
 
 const connectionStatus = db.useConnectionStatus();
+
+const userOnce = {
+  user: ref<User | null>(null),
+  error: ref<string | null>(null),
+  isLoading: ref(false),
+  firstLoad: ref(true),
+};
+
+async function getAuth() {
+  if (userOnce.isLoading.value) {
+    return;
+  }
+  userOnce.isLoading.value = true;
+  userOnce.error.value = null;
+  try {
+    const result = await db.getAuth();
+    userOnce.user.value = result;
+  } catch (error) {
+    if (error instanceof Error) {
+      userOnce.error.value = error.message || "unknown error";
+    } else {
+      userOnce.error.value = "unknown error";
+    }
+    userOnce.user.value = null;
+  }
+  userOnce.isLoading.value = false;
+  userOnce.firstLoad.value = false;
+}
+
+const userOnceText = computed(() => {
+  if (userOnce.error.value) {
+    return `GetAuth Error: ${userOnce.error.value} Click to update`;
+  }
+  if (userOnce.user.value === null) {
+    if (userOnce.firstLoad.value) {
+      return `Use GetAuth to get the static value of the user`;
+    }
+    return `Not logged in. Click to update.`;
+  }
+  return `User: ${
+    userOnce.user.value.email || "missing email"
+  }. Click to update`;
+});
 </script>
 
 <style scoped></style>
