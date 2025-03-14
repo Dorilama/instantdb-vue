@@ -12,6 +12,9 @@ const _schema = i.schema({
       done: i.boolean(),
       createdAt: i.number(),
     }),
+    docs: i.entity({
+      text: i.string(),
+    }),
   },
   links: {},
   rooms: {

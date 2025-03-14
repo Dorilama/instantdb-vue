@@ -59,6 +59,12 @@ const routes = [
     component: () => import("@/views/Rooms2.vue"),
     meta: { label: "Rooms", isNav: true },
   },
+  {
+    path: "/docs",
+    name: "docs",
+    component: () => import("@/views/Docs.vue"),
+    meta: { label: "Docs", isNav: true },
+  },
 ];
 
 export const router = createRouter({
