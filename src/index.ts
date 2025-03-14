@@ -38,6 +38,16 @@ import type {
   InstantRules,
   UpdateParams,
   LinkParams,
+  ExchangeCodeForTokenParams,
+  SendMagicCodeParams,
+  SendMagicCodeResponse,
+  SignInWithIdTokenParams,
+  VerifyMagicCodeParams,
+  VerifyResponse,
+  // storage types
+  FileOpts,
+  UploadFileResponse,
+  DeleteFileResponse,
 } from "@instantdb/core";
 
 import { InstantVueDatabase } from "./InstantVueDatabase";
@@ -82,6 +92,16 @@ export type {
   InstantRules,
   UpdateParams,
   LinkParams,
+  ExchangeCodeForTokenParams,
+  SendMagicCodeParams,
+  SendMagicCodeResponse,
+  SignInWithIdTokenParams,
+  VerifyMagicCodeParams,
+  VerifyResponse,
+  // storage types
+  FileOpts,
+  UploadFileResponse,
+  DeleteFileResponse,
   //
   CursorSchema,
 };
