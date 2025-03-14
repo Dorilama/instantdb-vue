@@ -12,6 +12,7 @@ import type {
 import { shallowRef, computed, toValue, watch, ref } from "vue";
 import type { ShallowRef, MaybeRefOrGetter } from "vue";
 import { tryOnScopeDispose } from "./utils";
+import type { Extra } from "./init";
 
 export type UseQueryInternalReturn<Schema, Q> = {
   [K in keyof InstaQLLifecycleState<Schema, Q>]: ShallowRef<
@@ -36,7 +37,7 @@ export function useQueryInternal<
   _core: InstantCoreDatabase<Schema>,
   _query: MaybeRefOrGetter<null | Q>,
   _opts?: MaybeRefOrGetter<InstaQLOptions>,
-  clientOnlyUseQuery?: boolean
+  extra?: Extra
 ): {
   state: UseQueryInternalReturn<Schema, Q>;
   query: any;
@@ -65,12 +66,14 @@ export function useQueryInternal<
     stop: () => {},
   };
 
-  if (!clientOnlyUseQuery || _core._reactor.querySubs) {
+  if (!extra?.clientOnlyUseQuery || _core._reactor.querySubs) {
     const stop = watch(
       queryHash,
       (_, __, onCleanup) => {
         if (!query.value) {
-          state.isLoading.value = false;
+          if (extra?.stopLoadingOnNullQuery) {
+            state.isLoading.value = false;
+          }
           return;
         }
         const unsubscribe = _core.subscribeQuery<Q>(query.value, (result) => {

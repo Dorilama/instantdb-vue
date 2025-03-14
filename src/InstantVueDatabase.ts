@@ -28,7 +28,7 @@ import type { UseQueryInternalReturn } from "./useQuery";
 import { computed, ref, shallowRef, toValue } from "vue";
 import type { MaybeRefOrGetter, Ref, ShallowRef } from "vue";
 import { tryOnScopeDispose } from "./utils";
-import type { InstantConfig } from "./init";
+import type { InstantConfig, Extra } from "./init";
 import { InstantVueRoom, rooms } from "./InstantVueRoom";
 
 type UseAuthReturn = { [K in keyof AuthState]: ShallowRef<AuthState[K]> };
@@ -47,7 +47,7 @@ export class InstantVueDatabase<
   static Storage?: any;
   static NetworkListener?: any;
 
-  static clientOnlyUseQuery?: boolean;
+  static extra: Extra;
 
   constructor(
     config: InstantConfig<Schema>,
@@ -72,8 +72,11 @@ export class InstantVueDatabase<
     this.auth = this._core.auth;
     this.storage = this._core.storage;
     // @ts-expect-error because TS can't resolve subclass statics
-    this.constructor.clientOnlyUseQuery =
-      !!__extra_vue?.clientOnlyUseQuery || !!_config.clientOnlyUseQuery;
+    this.constructor.extra = {
+      clientOnlyUseQuery:
+        !!__extra_vue?.clientOnlyUseQuery || !!_config.clientOnlyUseQuery,
+      stopLoadingOnNullQuery: !!__extra_vue?.stopLoadingOnNullQuery,
+    } satisfies Extra;
   }
 
   getLocalId = (name: string) => {
@@ -174,7 +177,7 @@ export class InstantVueDatabase<
       query,
       opts,
       // @ts-expect-error because TS can't resolve subclass statics
-      this.constructor.clientOnlyUseQuery
+      this.constructor.extra
     ).state;
   };
 

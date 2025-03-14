@@ -10,10 +10,13 @@ import type {
 import { InstantVueDatabase } from "./InstantVueDatabase";
 import version from "./version";
 
+export interface Extra {
+  clientOnlyUseQuery: boolean;
+  stopLoadingOnNullQuery: boolean;
+}
+
 type ExtraConfig = {
-  __extra_vue?: Partial<{
-    clientOnlyUseQuery: boolean;
-  }>;
+  __extra_vue?: Partial<Extra>;
 };
 
 type DeprecatedExtraConfig = Partial<{
