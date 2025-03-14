@@ -16,6 +16,7 @@ import type {
   TransactionChunk,
   RoomSchemaShape,
   InstaQLParams,
+  InstaQLOptions,
   PageInfoResponse,
   InstaQLResponse,
   RoomsOf,
@@ -165,11 +166,13 @@ export class InstantVueDatabase<
    *  db.useQuery(auth.user ? { goals: {} } : null)
    */
   useQuery = <Q extends InstaQLParams<Schema>>(
-    query: MaybeRefOrGetter<null | Q>
+    query: MaybeRefOrGetter<null | Q>,
+    opts?: MaybeRefOrGetter<InstaQLOptions>
   ): UseQueryInternalReturn<Schema, Q> => {
     return useQueryInternal(
       this._core,
       query,
+      opts,
       // @ts-expect-error because TS can't resolve subclass statics
       this.constructor.clientOnlyUseQuery
     ).state;
