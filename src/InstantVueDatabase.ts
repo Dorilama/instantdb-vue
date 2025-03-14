@@ -13,12 +13,9 @@ import type {
   AuthState,
   ConnectionStatus,
   TransactionChunk,
-  PresenceOpts,
-  PresenceResponse,
   RoomSchemaShape,
   InstaQLParams,
   PageInfoResponse,
-  InstaQLLifecycleState,
   InstaQLResponse,
   RoomsOf,
   InstantSchemaDef,
@@ -26,8 +23,8 @@ import type {
 } from "@instantdb/core";
 import { useQueryInternal } from "./useQuery";
 import type { UseQueryInternalReturn } from "./useQuery";
-import { computed, ref, shallowRef, toValue, watch, watchEffect } from "vue";
-import type { ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from "vue";
+import { computed, ref, shallowRef, toValue } from "vue";
+import type { MaybeRefOrGetter, Ref, ShallowRef } from "vue";
 import { tryOnScopeDispose } from "./utils";
 import type { InstantConfig } from "./init";
 import { InstantVueRoom, rooms } from "./InstantVueRoom";

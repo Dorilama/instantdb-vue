@@ -1,6 +1,17 @@
 // Notice: // adapted from
 [@instantdb/react](https://github.com/instantdb/instant/blob/main/client/packages/react/README.md)
 // see instantdb-license.md for license
+
+<script setup lang="ts">
+import { computed } from "vue";
+
+const props = defineProps<{ color: string }>();
+const size = 35;
+const fill = computed(() => {
+  return props.color || "black";
+});
+</script>
+
 <template>
   <svg
     :style="{ width: `${size}px`, height: `${size}px` }"
@@ -31,15 +42,3 @@
     </g>
   </svg>
 </template>
-
-<script setup lang="ts">
-import { computed } from "vue";
-
-const props = defineProps<{ color: string }>();
-const size = 35;
-const fill = computed(() => {
-  return props.color || "black";
-});
-</script>
-
-<style scoped></style>

@@ -10,7 +10,7 @@ import type {
   InstantSchemaDef,
 } from "@instantdb/core";
 
-import { computed, ref, shallowRef, toValue, watch, watchEffect } from "vue";
+import { computed, ref, shallowRef, toValue, watchEffect } from "vue";
 import type { ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from "vue";
 
 import { useTimeout } from "./useTimeout";

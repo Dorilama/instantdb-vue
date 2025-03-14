@@ -4,11 +4,7 @@
 
 import { weakHash, coerceQuery, InstantCoreDatabase } from "@instantdb/core";
 import type {
-  Query,
-  Exactly,
-  LifecycleSubscriptionState,
   InstaQLParams,
-  InstantGraph,
   InstaQLLifecycleState,
   InstantSchemaDef,
 } from "@instantdb/core";
