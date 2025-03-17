@@ -36,7 +36,7 @@ export function useQueryInternal<
 >(
   _core: InstantCoreDatabase<Schema>,
   _query: MaybeRefOrGetter<null | Q>,
-  _opts?: MaybeRefOrGetter<InstaQLOptions>,
+  _opts?: MaybeRefOrGetter<InstaQLOptions | null>,
   extra?: Extra
 ): {
   state: UseQueryInternalReturn<Schema, Q>;

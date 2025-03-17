@@ -170,7 +170,7 @@ export class InstantVueDatabase<
    */
   useQuery = <Q extends InstaQLParams<Schema>>(
     query: MaybeRefOrGetter<null | Q>,
-    opts?: MaybeRefOrGetter<InstaQLOptions>
+    opts?: MaybeRefOrGetter<InstaQLOptions | null>
   ): UseQueryInternalReturn<Schema, Q> => {
     return useQueryInternal(
       this._core,
