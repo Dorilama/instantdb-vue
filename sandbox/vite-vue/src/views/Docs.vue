@@ -32,15 +32,15 @@ const firstDocId = "c0cf9996-89d0-40d3-8068-8f4fefdd43f0";
 
 const secondDocId = "58911734-6d15-4bfa-98ca-432936cb96e3";
 
-const ruleParams = ref({ knownDocId: firstDocId });
+const options = ref({ ruleParams: { knownDocId: firstDocId } });
 
-const { data } = db.useQuery({ docs: {} }, { ruleParams: ruleParams.value });
+const { data } = db.useQuery({ docs: {} }, options);
 
 function changeDoc() {
-  if (ruleParams.value.knownDocId === firstDocId) {
-    ruleParams.value.knownDocId = secondDocId;
+  if (options.value.ruleParams.knownDocId === firstDocId) {
+    options.value.ruleParams.knownDocId = secondDocId;
   } else {
-    ruleParams.value.knownDocId = firstDocId;
+    options.value.ruleParams.knownDocId = firstDocId;
   }
 }
 </script>
