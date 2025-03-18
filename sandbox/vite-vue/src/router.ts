@@ -54,12 +54,6 @@ const routes = [
     meta: { label: "Rooms", isNav: true },
   },
   {
-    path: "/rooms2",
-    name: "rooms2",
-    component: () => import("@/views/Rooms2.vue"),
-    meta: { label: "Rooms", isNav: true },
-  },
-  {
     path: "/docs",
     name: "docs",
     component: () => import("@/views/Docs.vue"),
