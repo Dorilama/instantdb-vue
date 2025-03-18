@@ -44,7 +44,7 @@
     "dev:nuxt": "cd ./sandbox/nuxt && npm run dev",
     "publish-package": "npm publish --access public",
     "prepublishOnly": "node ./scripts/prepublish.js && npm run build",
-    "update": "npx rimraf package-lock.json node_modules sandbox/vite-vue/package-lock.json sandbox/vite-vue/node_modules sandbox/nuxt/package-lock.json sandbox/nuxt/node_modules && npm i --save-exact @instantdb/core@latest && cd sandbox/vite-vue && npm i && cd ../nuxt && npm i"
+    "update": "npm i @instantdb/core@latest"
   },
   "dependencies": {
     "@instantdb/core": "0.17.31"
@@ -54,9 +54,9 @@
   },
   "devDependencies": {
     "@vue/tsconfig": "^0.5.1",
-    "mkdist": "^1.5.5",
+    "mkdist": "^2.2.0",
     "typescript": "^5.5.4",
-    "unbuild": "^2.0.0"
+    "unbuild": "^3.5.0"
   },
   "type": "module"
 }
