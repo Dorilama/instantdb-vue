@@ -292,24 +292,24 @@ export function useSyncPresence<
   data: MaybeRefOrGetter<Partial<RoomSchema[RoomType]["presence"] | undefined>>,
   deps?: MaybeRefOrGetter<any[]>
 ): () => void {
-  const stopRoomWatch = watchEffect((onCleanup) => {
+  const stopJoinRoom = watchEffect((onCleanup) => {
     const id = room.id.value;
-    const cleanup = room._core._reactor.joinRoom(id);
+    const _data = toValue(data);
+    const cleanup = room._core._reactor.joinRoom(id, _data);
     onCleanup(cleanup);
   });
 
-  const stopEffect = watchEffect(() => {
+  const stopPublishPresence = watchEffect(() => {
     const id = room.id.value;
     const type = room.type.value;
     const _data = toValue(data);
-    room._core._reactor.joinRoom(id);
-    room._core._reactor.publishPresence(type, id, _data);
     toValue(deps);
+    room._core._reactor.publishPresence(type, id, _data);
   });
 
   function stop() {
-    stopRoomWatch();
-    stopEffect();
+    stopJoinRoom();
+    stopPublishPresence();
   }
 
   tryOnScopeDispose(() => {
