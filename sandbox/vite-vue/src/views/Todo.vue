@@ -56,6 +56,13 @@
     >
       {{ userOnceText }}
     </button>
+    <button
+      class="btn btn-outline mt-4"
+      :class="[!localId && 'skeleton']"
+      @click="idCount++"
+    >
+      LocalId {{ idCount }}: {{ localId || "loading" }}
+    </button>
   </div>
 </template>
 
@@ -170,6 +177,10 @@ const userOnceText = computed(() => {
     userOnce.user.value.email || "missing email"
   }. Click to update`;
 });
+
+const idCount = ref(0);
+
+const localId = db.useLocalId(() => "device" + idCount.value);
 </script>
 
 <style scoped></style>

@@ -25,7 +25,14 @@ import type {
 } from "@instantdb/core";
 import { useQueryInternal } from "./useQuery";
 import type { UseQueryInternalReturn } from "./useQuery";
-import { computed, ref, shallowRef, toValue } from "vue";
+import {
+  computed,
+  onMounted,
+  ref,
+  shallowRef,
+  toValue,
+  watchEffect,
+} from "vue";
 import type { MaybeRefOrGetter, Ref, ShallowRef } from "vue";
 import { tryOnScopeDispose } from "./utils";
 import type { InstantConfig, Extra } from "./init";
@@ -79,8 +86,54 @@ export class InstantVueDatabase<
     } satisfies Extra;
   }
 
+  /**
+   * Returns a unique ID for a given `name`. It's stored in local storage,
+   * so you will get the same ID across sessions.
+   *
+   * This is useful for generating IDs that could identify a local device or user.
+   *
+   * @example
+   *  const deviceId = await db.getLocalId('device');
+   */
   getLocalId = (name: string) => {
     return this._core.getLocalId(name);
+  };
+
+  /**
+   * A hook that returns a unique ID for a given `name`. localIds are
+   * stored in local storage, so you will get the same ID across sessions.
+   *
+   * Initially returns `null`, and then loads the localId.
+   *
+   * @example
+   * const deviceId = db.useLocalId('device');
+   * watch(deviceId, (value)=>{
+   *   if(value){
+   *     console.log('Device ID:', value)
+   *   }
+   * })
+   */
+  useLocalId = (name: MaybeRefOrGetter<string>): Ref<string | null> => {
+    const localId = ref<string | null>(null);
+
+    const isMounted = ref(false);
+
+    onMounted(() => {
+      isMounted.value = true;
+    });
+
+    watchEffect(async () => {
+      const _name = toValue(name);
+      if (!isMounted) {
+        return;
+      }
+      const id = await this.getLocalId(_name);
+      if (toValue(name) === _name) {
+        localId.value = id;
+      }
+    });
+
+    return localId;
   };
 
   /**
