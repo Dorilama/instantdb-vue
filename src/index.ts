@@ -56,12 +56,30 @@ import type {
   DeleteFileResponse,
 } from "@instantdb/core";
 
-import { InstantVueDatabase } from "./InstantVueDatabase";
+import InstantVueWebDatabase from "./InstantVueWebDatabase";
+import InstantVueAbstractDatabase from "./InstantVueAbstractDatabase";
 import { init, init_experimental } from "./init";
 import type { InstantConfig } from "./init";
 import type { CursorSchema } from "./components";
 
-export { id, tx, lookup, init, init_experimental, InstantVueDatabase, i };
+/**
+ * @deprecated
+ * Use `InstantVueWebDatabase`
+ */
+const InstantVueDatabase = InstantVueWebDatabase;
+
+export {
+  id,
+  tx,
+  lookup,
+  init,
+  init_experimental,
+  InstantVueWebDatabase,
+  InstantVueDatabase,
+  i,
+  // internal
+  InstantVueAbstractDatabase,
+};
 export type {
   InstantConfig,
   Query,
