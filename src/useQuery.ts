@@ -14,9 +14,9 @@ import type { ShallowRef, MaybeRefOrGetter } from "vue";
 import { tryOnScopeDispose } from "./utils";
 import type { Extra } from "./init";
 
-export type UseQueryInternalReturn<Schema, Q> = {
-  [K in keyof InstaQLLifecycleState<Schema, Q>]: ShallowRef<
-    InstaQLLifecycleState<Schema, Q>[K]
+export type UseQueryInternalReturn<Schema, Q, UseDates extends boolean> = {
+  [K in keyof InstaQLLifecycleState<Schema, Q, UseDates>]: ShallowRef<
+    InstaQLLifecycleState<Schema, Q, UseDates>[K]
   >;
 } & { stop: () => void };
 
@@ -32,14 +32,15 @@ function stateForResult(result: any) {
 
 export function useQueryInternal<
   Q extends InstaQLParams<Schema>,
-  Schema extends InstantSchemaDef<any, any, any>
+  Schema extends InstantSchemaDef<any, any, any>,
+  UseDates extends boolean
 >(
-  _core: InstantCoreDatabase<Schema>,
+  _core: InstantCoreDatabase<Schema, UseDates>,
   _query: MaybeRefOrGetter<null | Q>,
   _opts?: MaybeRefOrGetter<InstaQLOptions | null>,
   extra?: Extra
 ): {
-  state: UseQueryInternalReturn<Schema, Q>;
+  state: UseQueryInternalReturn<Schema, Q, UseDates>;
   query: any;
 } {
   const query = computed(() => {
@@ -58,7 +59,7 @@ export function useQueryInternal<
     _core._reactor.getPreviousResult(query.value)
   );
 
-  const state: UseQueryInternalReturn<Schema, Q> = {
+  const state: UseQueryInternalReturn<Schema, Q, UseDates> = {
     isLoading: ref(initialState.isLoading),
     data: shallowRef(initialState.data),
     pageInfo: shallowRef(initialState.pageInfo),
@@ -84,12 +85,15 @@ export function useQueryInternal<
           }
           return;
         }
-        const unsubscribe = _core.subscribeQuery<Q>(query.value, (result) => {
-          state.isLoading.value = !Boolean(result);
-          state.data.value = result.data;
-          state.pageInfo.value = result.pageInfo;
-          state.error.value = result.error;
-        });
+        const unsubscribe = _core.subscribeQuery<Q, UseDates>(
+          query.value,
+          (result) => {
+            state.isLoading.value = !Boolean(result);
+            state.data.value = result.data;
+            state.pageInfo.value = result.pageInfo;
+            state.error.value = result.error;
+          }
+        );
         onCleanup(unsubscribe);
       },
       { immediate: true }

@@ -7,7 +7,7 @@ import type {
   InstantSchemaDef,
   InstantUnknownSchema,
 } from "@instantdb/core";
-import { InstantVueDatabase } from "./InstantVueDatabase";
+import InstantVueWebDatabase from "./InstantVueWebDatabase";
 import version from "./version";
 
 export interface Extra {
@@ -24,8 +24,10 @@ type DeprecatedExtraConfig = Partial<{
   clientOnlyUseQuery: boolean;
 }>;
 
-export type InstantConfig<S extends InstantSchemaDef<any, any, any>> =
-  OriginalInstantConfig<S> & ExtraConfig & DeprecatedExtraConfig;
+export type InstantConfig<
+  S extends InstantSchemaDef<any, any, any>,
+  UseDates extends boolean = false
+> = OriginalInstantConfig<S, UseDates> & ExtraConfig & DeprecatedExtraConfig;
 
 /**
  *
@@ -49,11 +51,15 @@ export type InstantConfig<S extends InstantSchemaDef<any, any, any>> =
  *
  */
 export function init<
-  Schema extends InstantSchemaDef<any, any, any> = InstantUnknownSchema
->(config: InstantConfig<Schema>) {
-  return new InstantVueDatabase<Schema>(config, {
-    "@dorilama/instantdb-vue": version,
-  });
+  Schema extends InstantSchemaDef<any, any, any> = InstantUnknownSchema,
+  UseDates extends boolean = false
+>(config: InstantConfig<Schema, UseDates>) {
+  return new InstantVueWebDatabase<Schema, InstantConfig<Schema, UseDates>>(
+    config,
+    {
+      "@dorilama/instantdb-vue": version,
+    }
+  );
 }
 
 /**

@@ -448,12 +448,12 @@ export class InstantVueRoom<
   RoomSchema extends RoomSchemaShape,
   RoomType extends keyof RoomSchema
 > {
-  _core: InstantCoreDatabase<Schema>;
+  _core: InstantCoreDatabase<Schema, boolean>;
   type: ComputedRef<RoomType>;
   id: ComputedRef<string>;
 
   constructor(
-    _core: InstantCoreDatabase<Schema>,
+    _core: InstantCoreDatabase<Schema, boolean>,
     type: ComputedRef<RoomType>,
     id: ComputedRef<string>
   ) {

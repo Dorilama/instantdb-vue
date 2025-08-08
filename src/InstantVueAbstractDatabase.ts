@@ -40,8 +40,9 @@ import { InstantVueRoom, rooms } from "./InstantVueRoom";
 
 type UseAuthReturn = { [K in keyof AuthState]: ShallowRef<AuthState[K]> };
 
-export class InstantVueDatabase<
+export default abstract class InstantVueAbstractDatabase<
   Schema extends InstantSchemaDef<any, any, any>,
+  Config extends InstantConfig<Schema, boolean> = InstantConfig<Schema, false>,
   Rooms extends RoomSchemaShape = RoomsOf<Schema>
 > implements IInstantDatabase<Schema>
 {
@@ -49,17 +50,17 @@ export class InstantVueDatabase<
 
   public auth: Auth;
   public storage: Storage;
-  public _core: InstantCoreDatabase<Schema>;
+  public _core: InstantCoreDatabase<
+    Schema,
+    NonNullable<Config["useDateObjects"]>
+  >;
 
   static Storage?: any;
   static NetworkListener?: any;
 
   static extra: Extra;
 
-  constructor(
-    config: InstantConfig<Schema>,
-    versions?: { [key: string]: string }
-  ) {
+  constructor(config: Config, versions?: { [key: string]: string }) {
     const { __extra_vue, ..._config } = config;
 
     if (_config.clientOnlyUseQuery) {
@@ -68,7 +69,7 @@ export class InstantVueDatabase<
       );
     }
 
-    this._core = core_init<Schema>(
+    this._core = core_init<Schema, NonNullable<Config["useDateObjects"]>>(
       _config,
       // @ts-expect-error because TS can't resolve subclass statics
       this.constructor.Storage,
@@ -230,8 +231,12 @@ export class InstantVueDatabase<
   useQuery = <Q extends InstaQLParams<Schema>>(
     query: MaybeRefOrGetter<null | Q>,
     opts?: MaybeRefOrGetter<InstaQLOptions | null>
-  ): UseQueryInternalReturn<Schema, Q> => {
-    return useQueryInternal<Q, Schema>(
+  ): UseQueryInternalReturn<
+    Schema,
+    Q,
+    NonNullable<Config["useDateObjects"]>
+  > => {
+    return useQueryInternal<Q, Schema, NonNullable<Config["useDateObjects"]>>(
       this._core,
       query,
       opts,
@@ -350,7 +355,7 @@ export class InstantVueDatabase<
     query: Q,
     opts?: InstaQLOptions
   ): Promise<{
-    data: InstaQLResponse<Schema, Q>;
+    data: InstaQLResponse<Schema, Q, NonNullable<Config["useDateObjects"]>>;
     pageInfo: PageInfoResponse<Q>;
   }> => {
     return this._core.queryOnce(query, opts);
