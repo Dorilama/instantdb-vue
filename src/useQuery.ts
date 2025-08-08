@@ -70,6 +70,14 @@ export function useQueryInternal<
     const stop = watch(
       queryHash,
       (_, __, onCleanup) => {
+        const currentState = stateForResult(
+          _core._reactor.getPreviousResult(query.value)
+        );
+        state.isLoading.value = currentState.isLoading;
+        state.data.value = currentState.data;
+        state.pageInfo.value = currentState.pageInfo;
+        state.error.value = currentState.error;
+
         if (!query.value) {
           if (extra?.stopLoadingOnNullQuery) {
             state.isLoading.value = false;
