@@ -210,16 +210,22 @@ export class InstantVueDatabase<
    *
    * @example
    *  // listen to all goals
-   *  db.useQuery({ goals: {} })
+   *  const { isLoading, error, data } = db.useQuery({ goals: {} })
    *
    *  // goals where the title is "Get Fit"
-   *  db.useQuery({ goals: { $: { where: { title: "Get Fit" } } } })
+   *  const { isLoading, error, data } = db.useQuery({
+   *    goals: { $: { where: { title: "Get Fit" } } }
+   *  })
    *
    *  // all goals, _alongside_ their todos
-   *  db.useQuery({ goals: { todos: {} } })
+   *  const { isLoading, error, data } = db.useQuery({
+   *    goals: { todos: {} }
+   *  })
    *
    *  // skip if `user` is not logged in
-   *  db.useQuery(auth.user ? { goals: {} } : null)
+   *  const { isLoading, error, data } = db.useQuery(
+   *    auth.user ? { goals: {} } : null
+   *  )
    */
   useQuery = <Q extends InstaQLParams<Schema>>(
     query: MaybeRefOrGetter<null | Q>,
