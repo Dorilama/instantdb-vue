@@ -22,7 +22,6 @@ import type {
   RoomsOf,
   InstantSchemaDef,
   IInstantDatabase,
-  Exactly,
 } from "@instantdb/core";
 import { useQueryInternal } from "./useQuery";
 import type { UseQueryInternalReturn } from "./useQuery";
@@ -229,7 +228,7 @@ export class InstantVueDatabase<
    *  )
    */
   useQuery = <Q extends InstaQLParams<Schema>>(
-    query: MaybeRefOrGetter<null | Exactly<InstaQLParams<Schema>, Q>>,
+    query: MaybeRefOrGetter<null | Q>,
     opts?: MaybeRefOrGetter<InstaQLOptions | null>
   ): UseQueryInternalReturn<Schema, Q> => {
     return useQueryInternal<Q, Schema>(
