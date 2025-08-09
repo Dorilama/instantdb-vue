@@ -77,7 +77,7 @@
     </db.SignedOut>
     </div>
     <div>
-      You should see an error when loggeo out
+      You should see an error when logged out
       <ErrorBoundary>
         <UserSample />
       </ErrorBoundary>

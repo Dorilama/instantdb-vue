@@ -408,14 +408,18 @@ export default abstract class InstantVueAbstractDatabase<
    *    <MyComponent />
    *  </db.SignedIn>
    */
-  SignedIn = defineComponent((_, { slots }) => {
-    const auth = this.useAuth();
-    return () => {
-      if (auth.isLoading.value || auth.error.value || !auth.user.value)
-        return null;
-      return slots.default?.();
-    };
-  });
+  SignedIn = componentWithDb(this, (db) =>
+    defineComponent({
+      setup: (_, { slots }) => {
+        const auth = db.useAuth();
+        return () => {
+          if (auth.isLoading.value || auth.error.value || !auth.user.value)
+            return null;
+          return slots.default?.();
+        };
+      },
+    })
+  );
 
   /**
    * Only render children if the user is signed out.
@@ -427,12 +431,29 @@ export default abstract class InstantVueAbstractDatabase<
    *    <MyComponent />
    *  </db.SignedOut>
    */
-  SignedOut = defineComponent((_, { slots }) => {
-    const auth = this.useAuth();
-    return () => {
-      if (auth.isLoading.value || auth.error.value || auth.user.value)
-        return null;
-      return slots.default?.();
-    };
-  });
+  SignedOut = componentWithDb(this, (db) =>
+    defineComponent({
+      setup(_, { slots }) {
+        const auth = db.useAuth();
+        return () => {
+          if (auth.isLoading.value || auth.error.value || auth.user.value)
+            return null;
+          return slots.default?.();
+        };
+      },
+    })
+  );
+}
+
+function componentWithDb<
+  Schema extends InstantSchemaDef<any, any, any>,
+  Config extends InstantConfig<Schema, boolean>,
+  Rooms extends RoomSchemaShape
+>(
+  db: InstantVueAbstractDatabase<Schema, Config, Rooms>,
+  defineComponentCallback: (
+    db: InstantVueAbstractDatabase<Schema, Config, Rooms>
+  ) => ReturnType<typeof defineComponent>
+) {
+  return defineComponentCallback(db);
 }
