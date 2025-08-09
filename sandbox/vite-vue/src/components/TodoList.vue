@@ -16,10 +16,11 @@
           />
         </td>
 
-        <td class="flex-auto flex items-center">
+        <td class="flex-auto flex flex-col align-center">
           <span :class="todo.done ? 'line-through' : 'no-underline'">{{
             todo.text
           }}</span>
+          <span class="italic text-xs"> {{ todo.lastModified.toLocaleString("it-IT") }}</span>
         </td>
         <td>
           <button
