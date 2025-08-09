@@ -8,6 +8,7 @@ import {
   txInit,
   InstantCoreDatabase,
   init as core_init,
+  InstantError,
 } from "@instantdb/core";
 import type {
   AuthState,
@@ -32,6 +33,10 @@ import {
   shallowRef,
   toValue,
   watchEffect,
+  h,
+  defineComponent,
+  type SetupContext,
+  type SlotsType,
 } from "vue";
 import type { MaybeRefOrGetter, Ref, ShallowRef } from "vue";
 import { tryOnScopeDispose } from "./utils";
@@ -246,6 +251,37 @@ export default abstract class InstantVueAbstractDatabase<
   };
 
   /**
+   * Subscribe to the currently logged in user.
+   * If the user is not logged in, this hook with throw an Error.
+   * You will want to protect any calls of this hook with a <db.SignedIn> component, or your own logic based on db.useAuth()
+   *
+   * @see https://instantdb.com/docs/auth/frontend
+   * @throws Error indicating user not signed in
+   * @example
+   *  function UserDisplay() {
+   *    const user = db.useUser()
+   *    return <div>Logged in as: {user.email}</div>
+   *  }
+   *
+   *  <db.SignedIn>
+   *    <UserDisplay />
+   *  </db.SignedIn>
+   *
+   */
+
+  useUser = (): ShallowRef<User> => {
+    const { user } = this.useAuth();
+
+    if (!user.value) {
+      throw new InstantError(
+        "useUser must be used within an auth-protected route"
+      );
+    }
+
+    return user as ShallowRef<User>;
+  };
+
+  /**
    * Listen for the logged in state. This is useful
    * for deciding when to show a login screen.
    *
@@ -360,4 +396,92 @@ export default abstract class InstantVueAbstractDatabase<
   }> => {
     return this._core.queryOnce(query, opts);
   };
+
+  /**
+   * Only render children if the user is signed in.
+   * Optional `loading` prop will render if the user is loading.
+   * @see https://instantdb.com/docs/auth/frontend
+   *
+   * @example
+   *  <db.SignedIn>
+   *    <MyComponent />
+   *  </db.SignedIn>
+   *
+   *  <db.SignedIn>
+   *    <template v-slot:loading>
+   *      <div>Loading...</div>
+   *    </template>
+   *    <template v-slot:error="{message}">
+   *      <div>error: {{ message||'unknown' }}</div>
+   *    </template>
+   *    <MyComponent />
+   *  </db.SignedIn>
+   */
+  SignedIn = defineComponent<
+    {},
+    [],
+    "",
+    SlotsType<{ loading: any; error: { message?: string }; default: any }>
+  >((_, { slots }) => {
+    const auth = this.useAuth();
+    return () => {
+      if (auth.isLoading.value) {
+        return slots.loading?.() || null;
+      }
+      if (auth.error.value) {
+        return (
+          slots.error?.({ message: auth.error.value.message }) ||
+          auth.error.value.message
+        );
+      }
+      if (!auth.user.value) {
+        return null;
+      }
+      return slots.default();
+    };
+  });
+
+  /**
+   * Only render children if the user is signed out.
+   * Optional `loading` prop will render if the user is loading.
+   * @see https://instantdb.com/docs/auth/frontend
+   *
+   * @example
+   *  <db.SignedOut>
+   *    <MyComponent />
+   *  </db.SignedOut>
+   *
+   *  <db.SignedOut>
+   *    <template v-slot:loading>
+   *      <div>Loading...</div>
+   *    </template>
+   *    <template v-slot:error="{message}">
+   *      <div>error: {{ message||'unknown' }}</div>
+   *    </template>
+   *    <MyComponent />
+   *  </db.SignedOut>
+   */
+  SignedOut = defineComponent<
+    {},
+    [],
+    "",
+    SlotsType<{ loading: any; error: { message?: string }; default: any }>
+  >((_, { slots }) => {
+    const auth = this.useAuth();
+    return () => {
+      if (auth.isLoading.value) {
+        return slots.loading?.() || null;
+      }
+      if (auth.error.value) {
+        return (
+          slots.error?.({ message: auth.error.value.message }) ||
+          auth.error.value.message
+        );
+      }
+      if (auth.user.value) {
+        return null;
+      }
+      return slots.default();
+    };
+  });
 }

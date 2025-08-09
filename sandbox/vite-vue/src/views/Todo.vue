@@ -63,6 +63,27 @@
     >
       LocalId {{ idCount }}: {{ localId || "loading" }}
     </button>
+    <div><db.SignedIn>
+      <template v-slot:loading>loading...</template>
+      <template v-slot:error="{message}">error: {{ message||'unknown' }}</template>
+      signed in
+      <UserSample/>
+    </db.SignedIn></div>
+    <div>
+      <db.SignedOut>
+      <template v-slot:loading>loading...</template>
+      <template v-slot:error="{message}">error: {{ message||'unknown' }}</template>
+      signed out
+    </db.SignedOut>
+    </div>
+    <div>
+      You should see an error when loggeo out
+      <ErrorBoundary>
+        <UserSample />
+      </ErrorBoundary>
+    </div>
+    
+   
   </div>
 </template>
 
@@ -72,6 +93,8 @@ import { db, chatRoom, type Todo } from "@/db";
 import TodoForm from "@/components/TodoForm.vue";
 import TodoList from "@/components/TodoList.vue";
 import ActionBar from "@/components/TodoFooter.vue";
+import UserSample from "@/components/UserSample.vue";
+import ErrorBoundary from "@/components/ErrorBoundary.vue";
 import { type User } from "@dorilama/instantdb-vue";
 
 const q = { todos: {} };
@@ -181,6 +204,7 @@ const userOnceText = computed(() => {
 const idCount = ref(0);
 
 const localId = db.useLocalId(() => "device" + idCount.value);
+
 </script>
 
 <style scoped></style>
