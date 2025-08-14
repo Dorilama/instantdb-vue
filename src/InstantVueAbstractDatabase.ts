@@ -400,7 +400,6 @@ export default abstract class InstantVueAbstractDatabase<
 
   /**
    * Only render children if the user is signed in.
-   * Optional `loading` prop will render if the user is loading.
    * @see https://instantdb.com/docs/auth
    *
    * @example
@@ -423,7 +422,6 @@ export default abstract class InstantVueAbstractDatabase<
 
   /**
    * Only render children if the user is signed out.
-   * Optional `loading` prop will render if the user is loading.
    * @see https://instantdb.com/docs/auth
    *
    * @example
