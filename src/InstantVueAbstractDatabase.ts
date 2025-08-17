@@ -130,7 +130,7 @@ export default abstract class InstantVueAbstractDatabase<
 
     watchEffect(async () => {
       const _name = toValue(name);
-      if (!isMounted) {
+      if (!isMounted.value) {
         return;
       }
       const id = await this.getLocalId(_name);
