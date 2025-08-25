@@ -4,10 +4,10 @@
 
 import { weakHash, coerceQuery, InstantCoreDatabase } from "@instantdb/core";
 import type {
-  InstaQLParams,
   InstaQLOptions,
   InstaQLLifecycleState,
   InstantSchemaDef,
+  ValidQuery,
 } from "@instantdb/core";
 import { shallowRef, computed, toValue, watch, ref } from "vue";
 import type { ShallowRef, MaybeRefOrGetter } from "vue";
@@ -31,7 +31,7 @@ function stateForResult(result: any) {
 }
 
 export function useQueryInternal<
-  Q extends InstaQLParams<Schema>,
+  Q extends ValidQuery<Q, Schema>,
   Schema extends InstantSchemaDef<any, any, any>,
   UseDates extends boolean
 >(
