@@ -47,7 +47,7 @@
     "update": "npm i @instantdb/core@latest"
   },
   "dependencies": {
-    "@instantdb/core": "^0.20.21"
+    "@instantdb/core": "^0.21.5"
   },
   "peerDependencies": {
     "vue": "^3.0.0-0"
