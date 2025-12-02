@@ -5,8 +5,11 @@
 import type { InstantSchemaDef } from "@instantdb/core";
 import type { InstantConfig } from "./init";
 import InstantVueAbstractDatabase from "./InstantVueAbstractDatabase";
+import { EventSource } from "eventsource";
 
 export default class InstantVueWebDatabase<
   Schema extends InstantSchemaDef<any, any, any>,
   Config extends InstantConfig<Schema, boolean> = InstantConfig<Schema, false>
-> extends InstantVueAbstractDatabase<Schema, Config> {}
+> extends InstantVueAbstractDatabase<Schema, Config> {
+  static EventSourceImpl = EventSource;
+}

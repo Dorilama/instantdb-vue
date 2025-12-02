@@ -2,8 +2,17 @@
 // adapted from [@instantdb/react](https://github.com/instantdb/instant/blob/main/client/packages/react/README.md)
 // see instantdb-license.md for license
 
-import { id, tx, lookup, i } from "@instantdb/core";
+import {
+  id,
+  tx,
+  lookup,
+  i,
+  InstantAPIError,
+  SyncTableCallbackEventType,
+  StorageInterface,
+} from "@instantdb/core";
 import type {
+  Config,
   QueryResponse,
   InstantQuery,
   InstantQueryResult,
@@ -13,10 +22,12 @@ import type {
   InstantSchemaDatabase,
   InstantUnknownSchemaDef,
   IInstantDatabase,
+  IDatabase,
   User,
   AuthState,
   Query,
   InstaQLParams,
+  InstaQLQueryParams,
   ConnectionStatus,
   ValidQuery,
   // schema types
@@ -49,6 +60,8 @@ import type {
   InstantRules,
   UpdateParams,
   LinkParams,
+  CreateParams,
+  RuleParams,
   ExchangeCodeForTokenParams,
   SendMagicCodeParams,
   SendMagicCodeResponse,
@@ -59,6 +72,28 @@ import type {
   FileOpts,
   UploadFileResponse,
   DeleteFileResponse,
+  StorageInterfaceStoreName,
+  // presence types
+  PresencePeer,
+  PresenceSlice,
+  // attr types
+  InstantDBAttr,
+  InstantDBAttrOnDelete,
+  InstantDBCheckedDataType,
+  InstantDBIdent,
+  InstantDBInferredType,
+  // SSE types
+  EventSourceType,
+  // sync table types
+  SyncTableCallback,
+  SyncTableCallbackEvent,
+  SyncTableInitialSyncBatch,
+  SyncTableInitialSyncComplete,
+  SyncTableSyncTransaction,
+  SyncTableLoadFromStorage,
+  SyncTableSetupError,
+  // error types
+  InstantIssue,
 } from "@instantdb/core";
 
 import InstantVueWebDatabase from "./InstantVueWebDatabase";
@@ -84,8 +119,15 @@ export {
   i,
   // internal
   InstantVueAbstractDatabase,
+  // error
+  InstantAPIError,
+  // sync table
+  SyncTableCallbackEventType,
+  // storage interface
+  StorageInterface,
 };
 export type {
+  Config,
   InstantConfig,
   InstantUnknownSchemaDef,
   Query,
@@ -100,7 +142,9 @@ export type {
   InstantEntity,
   InstantSchemaDatabase,
   IInstantDatabase,
+  IDatabase,
   InstaQLParams,
+  InstaQLQueryParams,
   ValidQuery,
   InstaQLFields,
   // schema types
@@ -132,6 +176,8 @@ export type {
   InstantRules,
   UpdateParams,
   LinkParams,
+  CreateParams,
+  RuleParams,
   ExchangeCodeForTokenParams,
   SendMagicCodeParams,
   SendMagicCodeResponse,
@@ -142,6 +188,28 @@ export type {
   FileOpts,
   UploadFileResponse,
   DeleteFileResponse,
+  StorageInterfaceStoreName,
+  // presence types
+  PresencePeer,
+  PresenceSlice,
+  // attr types
+  InstantDBAttr,
+  InstantDBAttrOnDelete,
+  InstantDBCheckedDataType,
+  InstantDBIdent,
+  InstantDBInferredType,
+  // SSE types
+  EventSourceType,
+  // sync table types
+  SyncTableCallback,
+  SyncTableCallbackEvent,
+  SyncTableInitialSyncBatch,
+  SyncTableInitialSyncComplete,
+  SyncTableSyncTransaction,
+  SyncTableLoadFromStorage,
+  SyncTableSetupError,
+  // error types
+  InstantIssue,
   //
   CursorSchema,
 };

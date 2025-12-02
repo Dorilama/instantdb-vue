@@ -91,7 +91,7 @@ export function useTopicEffect<
     const callbacks = Array.isArray(onEvent) ? onEvent : [onEvent];
     cleanup.push(
       ...topicArray.map((topicType) => {
-        return room._core._reactor.subscribeTopic(
+        return room.core._reactor.subscribeTopic(
           id,
           topicType,
           (
@@ -139,7 +139,7 @@ export function usePublishTopic<
 ): (data: RoomSchema[RoomType]["topics"][TopicType]) => void {
   const stopRoomWatch = watchEffect((onCleanup) => {
     const id = room.id.value;
-    const cleanup = room._core._reactor.joinRoom(id);
+    const cleanup = room.core._reactor.joinRoom(id);
     onCleanup(cleanup);
   });
 
@@ -150,7 +150,7 @@ export function usePublishTopic<
     const type = room.type.value;
     const _topic = toValue(topic);
     publishTopic = (data: RoomSchema[RoomType]["topics"][TopicType]) => {
-      room._core._reactor.publishTopic({
+      room.core._reactor.publishTopic({
         roomType: type,
         roomId: id,
         topic: _topic,
@@ -202,7 +202,7 @@ export function usePresence<
     RoomSchema[RoomType]["presence"],
     Keys
   > => {
-    const presence = room._core._reactor.getPresence(
+    const presence = room.core._reactor.getPresence(
       room.type.value,
       room.id.value,
       toValue(opts)
@@ -240,7 +240,7 @@ export function usePresence<
     // @instantdb/core v0.14.30 removes types for subscribePresence
     // trying to restore types until fixed in core
     // by adding type to parameter in callback
-    const unsubscribe = room._core._reactor.subscribePresence(
+    const unsubscribe = room.core._reactor.subscribePresence(
       type,
       id,
       _opts,
@@ -265,7 +265,7 @@ export function usePresence<
   return {
     ...state,
     publishPresence: (data) => {
-      room._core._reactor.publishPresence(room.type.value, room.id.value, data);
+      room.core._reactor.publishPresence(room.type.value, room.id.value, data);
     },
     stop,
   };
@@ -295,7 +295,7 @@ export function useSyncPresence<
   const stopJoinRoom = watchEffect((onCleanup) => {
     const id = room.id.value;
     const _data = toValue(data);
-    const cleanup = room._core._reactor.joinRoom(id, _data);
+    const cleanup = room.core._reactor.joinRoom(id, _data);
     onCleanup(cleanup);
   });
 
@@ -304,7 +304,7 @@ export function useSyncPresence<
     const type = room.type.value;
     const _data = toValue(data);
     toValue(deps);
-    room._core._reactor.publishPresence(type, id, _data);
+    room.core._reactor.publishPresence(type, id, _data);
   });
 
   function stop() {
@@ -363,7 +363,7 @@ export function useTypingIndicator<
   );
 
   const active = computed(() => {
-    const presenceSnapshot = room._core._reactor.getPresence(
+    const presenceSnapshot = room.core._reactor.getPresence(
       room.type.value,
       room.id.value
     );
@@ -382,7 +382,7 @@ export function useTypingIndicator<
     const _inputName = toValue(inputName);
     const id = room.id.value;
     const type = room.type.value;
-    room._core._reactor.publishPresence(type, id, {
+    room.core._reactor.publishPresence(type, id, {
       [_inputName]: isActive,
     } as unknown as Partial<RoomSchema[RoomType]>);
 
@@ -391,7 +391,7 @@ export function useTypingIndicator<
     if (_opts?.timeout === null || _opts?.timeout === 0) return;
 
     timeout.set(_opts?.timeout ?? defaultActivityStopTimeout, () => {
-      room._core._reactor.publishPresence(type, id, {
+      room.core._reactor.publishPresence(type, id, {
         [_inputName]: null,
       } as Partial<RoomSchema[RoomType]>);
     });
@@ -448,16 +448,19 @@ export class InstantVueRoom<
   RoomSchema extends RoomSchemaShape,
   RoomType extends keyof RoomSchema
 > {
+  core: InstantCoreDatabase<Schema, boolean>;
+  /** @deprecated use `core` instead */
   _core: InstantCoreDatabase<Schema, boolean>;
   type: ComputedRef<RoomType>;
   id: ComputedRef<string>;
 
   constructor(
-    _core: InstantCoreDatabase<Schema, boolean>,
+    core: InstantCoreDatabase<Schema, boolean>,
     type: ComputedRef<RoomType>,
     id: ComputedRef<string>
   ) {
-    this._core = _core;
+    this.core = core;
+    this._core = core;
     this.type = type;
     this.id = id;
   }

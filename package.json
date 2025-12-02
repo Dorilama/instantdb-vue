@@ -1,6 +1,6 @@
 {
   "name": "@dorilama/instantdb-vue",
-  "version": "0.8.2",
+  "version": "0.9.0",
   "description": "Unofficial Instant DB for Vue",
   "author": "dorilama",
   "license": "ISC",
@@ -47,16 +47,18 @@
     "update": "npm i @instantdb/core@latest"
   },
   "dependencies": {
-    "@instantdb/core": "^0.21.5"
+    "@instantdb/core": "^0.22.75",
+    "eventsource": "^4.1.0"
   },
   "peerDependencies": {
     "vue": "^3.0.0-0"
   },
   "devDependencies": {
-    "@vue/tsconfig": "^0.5.1",
-    "mkdist": "^2.2.0",
-    "typescript": "^5.5.4",
-    "unbuild": "^3.5.0"
+    "@vue/tsconfig": "^0.8.1",
+    "mkdist": "^2.4.1",
+    "typescript": "^5.9.3",
+    "unbuild": "^3.6.1",
+    "vue-tsc": "^3.1.5"
   },
   "type": "module"
 }
