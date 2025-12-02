@@ -36,13 +36,13 @@ export type InstantConfig<
  * Visit https://instantdb.com/dash to get your `appId` :)
  *
  * @example
- * import { init } from "@dorilama/instantdb-vue"
+ * import { init } from "@okueng/instantdb-vue"
  *
  * const db = init({ appId: "my-app-id" })
  *
  * // You can also provide a a schema for type safety and editor autocomplete!
  *
- * import { init } from "@dorilama/instantdb-vue"
+ * import { init } from "@okueng/instantdb-vue"
  * import schema from ""../instant.schema.ts";
  *
  * const db = init({ appId: "my-app-id", schema })
@@ -57,7 +57,7 @@ export function init<
   return new InstantVueWebDatabase<Schema, InstantConfig<Schema, UseDates>>(
     config,
     {
-      "@dorilama/instantdb-vue": version,
+      "@okueng/instantdb-vue": version,
     }
   );
 }
@@ -69,11 +69,11 @@ export function init<
  * @example
  *
  * // Before
- * import { init_experimental } from "@dorilama/instantdb-vue"
+ * import { init_experimental } from "@okueng/instantdb-vue"
  * const db = init_experimental({  ...  });
  *
  * // After
- * import { init } from "@dorilama/instantdb-vue"
+ * import { init } from "@okueng/instantdb-vue"
  * const db = init({ ...  });
  */
 export const init_experimental = init;
