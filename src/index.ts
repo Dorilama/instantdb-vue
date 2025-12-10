@@ -26,6 +26,8 @@ import type {
   InstaQLParams,
   ConnectionStatus,
   ValidQuery,
+  // presence types
+  PresencePeer,
   // schema types
   AttrsDefs,
   CardinalityKind,
@@ -112,6 +114,8 @@ export type {
   InstaQLParams,
   ValidQuery,
   InstaQLFields,
+  // presence types
+  PresencePeer,
   // schema types
   AttrsDefs,
   CardinalityKind,
