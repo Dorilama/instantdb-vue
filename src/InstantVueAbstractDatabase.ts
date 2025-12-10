@@ -62,6 +62,7 @@ export default abstract class InstantVueAbstractDatabase<
 
   static Storage?: any;
   static NetworkListener?: any;
+  static EventSourceImpl?: any;
 
   static extra: Extra;
 
@@ -80,7 +81,9 @@ export default abstract class InstantVueAbstractDatabase<
       this.constructor.Storage,
       // @ts-expect-error because TS can't resolve subclass statics
       this.constructor.NetworkListener,
-      versions
+      versions,
+      // @ts-expect-error because TS can't resolve subclass static
+      this.constructor.EventSourceImpl
     );
     this.auth = this.core.auth;
     this.storage = this.core.storage;
