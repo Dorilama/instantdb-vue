@@ -9,7 +9,7 @@ Unofficial port of [@instantdb/react](https://github.com/instantdb/instant/blob/
 // * Multiplayer
 // * Works offline
 <script setup>
-import { init, tx, id } from "@dorilama/instantdb-vue";
+import { init, id } from "@dorilama/instantdb-vue";
 import { Cursors } from "@dorilama/instantdb-vue/components";
 
 const db = init({ appId: "my-app-id" });
@@ -21,7 +21,7 @@ const room = db.room("chat", "main");
 
 // 2. Write
 const addMessage = (message) => {
-  db.transact(tx.messages[id()].update(message));
+  db.transact(db.tx.messages[id()].update(message));
 };
 </script>
 <template>
