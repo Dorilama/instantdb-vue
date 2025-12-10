@@ -11,12 +11,12 @@
 <script setup lang="ts">
 import { id } from "@dorilama/instantdb-vue";
 const db = useDb();
-
+db.tx.todos[id()]?.update;
 const { error, data } = useClientOnlyQuery({ todos: {} });
 function add() {
   db.transact(
-    db.tx.todos[id()].update({
-      text: crypto.getRandomValues(new Uint32Array(1))[0].toString(36),
+    db.tx.todos[id()]!.update({
+      text: crypto.getRandomValues(new Uint32Array(1))[0]!.toString(36),
       done: false,
       createdAt: Date.now(),
     })

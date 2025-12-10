@@ -1,28 +1,58 @@
-// Docs: https://www.instantdb.com/docs/schema
+// Docs: https://www.instantdb.com/docs/modeling-data
 
 import { i } from "@instantdb/core";
 
 const _schema = i.schema({
   entities: {
+    $files: i.entity({
+      path: i.string().unique().indexed(),
+      url: i.string(),
+    }),
     $users: i.entity({
-      email: i.string().unique().indexed(),
+      email: i.string().unique().indexed().optional(),
+    }),
+    docs: i.entity({
+      text: i.string(),
+    }),
+    notes: i.entity({
+      createdAt: i.any().optional(),
+      text: i.string().optional(),
     }),
     todos: i.entity({
-      text: i.string(),
-      done: i.boolean(),
       createdAt: i.number(),
+      done: i.boolean(),
+      lastModified: i.date(),
+      text: i.string(),
+      textNew: i.string().optional(),
     }),
+    user: i.entity({}),
   },
-  links: {},
+  links: {
+    notesTodos: {
+      forward: {
+        on: "notes",
+        has: "many",
+        label: "todos",
+      },
+      reverse: {
+        on: "todos",
+        has: "one",
+        label: "notes",
+      },
+    },
+  },
   rooms: {
     chat: {
       presence: i.entity({
-        userId: i.string(),
         color: i.string(),
         path: i.string(),
+        userId: i.string(),
       }),
       topics: {
-        emoji: i.entity({ text: i.string(), color: i.string().optional() }),
+        emoji: i.entity({
+          color: i.string().optional(),
+          text: i.string(),
+        }),
       },
     },
   },

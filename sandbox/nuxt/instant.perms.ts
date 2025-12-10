@@ -19,6 +19,11 @@ const rules = {
    *   bind: ["isOwner", "data.creator == auth.uid"],
    * },
    */
+  docs: {
+    allow: {
+      view: "data.id == ruleParams.knownDocId",
+    },
+  },
 } satisfies InstantRules;
 
 export default rules;
