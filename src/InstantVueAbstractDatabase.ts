@@ -55,7 +55,7 @@ export default abstract class InstantVueAbstractDatabase<
 
   public auth: Auth;
   public storage: Storage;
-  public _core: InstantCoreDatabase<
+  public core: InstantCoreDatabase<
     Schema,
     NonNullable<Config["useDateObjects"]>
   >;
@@ -74,7 +74,7 @@ export default abstract class InstantVueAbstractDatabase<
       );
     }
 
-    this._core = core_init<Schema, NonNullable<Config["useDateObjects"]>>(
+    this.core = core_init<Schema, NonNullable<Config["useDateObjects"]>>(
       _config,
       // @ts-expect-error because TS can't resolve subclass statics
       this.constructor.Storage,
@@ -82,8 +82,8 @@ export default abstract class InstantVueAbstractDatabase<
       this.constructor.NetworkListener,
       versions
     );
-    this.auth = this._core.auth;
-    this.storage = this._core.storage;
+    this.auth = this.core.auth;
+    this.storage = this.core.storage;
     // @ts-expect-error because TS can't resolve subclass statics
     this.constructor.extra = {
       clientOnlyUseQuery:
@@ -102,7 +102,7 @@ export default abstract class InstantVueAbstractDatabase<
    *  const deviceId = await db.getLocalId('device');
    */
   getLocalId = (name: string) => {
-    return this._core.getLocalId(name);
+    return this.core.getLocalId(name);
   };
 
   /**
@@ -164,7 +164,7 @@ export default abstract class InstantVueAbstractDatabase<
     const _id = computed(() => {
       return toValue(id) || "_defaultRoomId";
     });
-    return new InstantVueRoom<Schema, Rooms, RoomType>(this._core, _type, _id);
+    return new InstantVueRoom<Schema, Rooms, RoomType>(this.core, _type, _id);
   }
 
   /**
@@ -206,7 +206,7 @@ export default abstract class InstantVueAbstractDatabase<
   transact = (
     chunks: TransactionChunk<any, any> | TransactionChunk<any, any>[]
   ) => {
-    return this._core.transact(chunks);
+    return this.core.transact(chunks);
   };
 
   /**
@@ -242,7 +242,7 @@ export default abstract class InstantVueAbstractDatabase<
     NonNullable<Config["useDateObjects"]>
   > => {
     return useQueryInternal<Q, Schema, NonNullable<Config["useDateObjects"]>>(
-      this._core,
+      this.core,
       query,
       opts,
       // @ts-expect-error because TS can't resolve subclass statics
@@ -301,7 +301,7 @@ export default abstract class InstantVueAbstractDatabase<
    *  </template>
    */
   useAuth = (): UseAuthReturn & { stop: () => void } => {
-    const initialState = this._core._reactor._currentUserCached;
+    const initialState = this.core._reactor._currentUserCached;
 
     const state: UseAuthReturn & { stop: () => void } = {
       isLoading: ref(initialState.isLoading),
@@ -309,7 +309,7 @@ export default abstract class InstantVueAbstractDatabase<
       error: shallowRef(initialState.error),
       stop: () => {},
     };
-    const unsubscribe = this._core._reactor.subscribeAuth((resp: any) => {
+    const unsubscribe = this.core._reactor.subscribeAuth((resp: any) => {
       state.isLoading.value = false;
       state.user.value = resp.user;
       state.error.value = resp.error;
@@ -337,7 +337,7 @@ export default abstract class InstantVueAbstractDatabase<
    *   console.log('logged in as', user.email)
    */
   getAuth = (): Promise<User | null> => {
-    return this._core.getAuth();
+    return this.core.getAuth();
   };
 
   /**
@@ -364,9 +364,9 @@ export default abstract class InstantVueAbstractDatabase<
    */
   useConnectionStatus = (): Ref<ConnectionStatus> => {
     const status = ref<ConnectionStatus>(
-      this._core._reactor.status as ConnectionStatus
+      this.core._reactor.status as ConnectionStatus
     );
-    const unsubscribe = this._core.subscribeConnectionStatus((newStatus) => {
+    const unsubscribe = this.core.subscribeConnectionStatus((newStatus) => {
       status.value = newStatus;
     });
 
@@ -395,7 +395,7 @@ export default abstract class InstantVueAbstractDatabase<
     data: InstaQLResponse<Schema, Q, NonNullable<Config["useDateObjects"]>>;
     pageInfo: PageInfoResponse<Q>;
   }> => {
-    return this._core.queryOnce(query, opts);
+    return this.core.queryOnce(query, opts);
   };
 
   /**
