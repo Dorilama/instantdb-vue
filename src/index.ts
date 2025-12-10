@@ -2,7 +2,14 @@
 // adapted from [@instantdb/react](https://github.com/instantdb/instant/blob/main/client/packages/react/README.md)
 // see instantdb-license.md for license
 
-import { id, tx, lookup, i } from "@instantdb/core";
+import {
+  id,
+  tx,
+  lookup,
+  i,
+  // error
+  InstantAPIError,
+} from "@instantdb/core";
 import type {
   QueryResponse,
   InstantQuery,
@@ -82,6 +89,8 @@ export {
   InstantVueWebDatabase,
   InstantVueDatabase,
   i,
+  // error
+  InstantAPIError,
   // internal
   InstantVueAbstractDatabase,
 };
