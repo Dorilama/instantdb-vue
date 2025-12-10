@@ -9,7 +9,8 @@ import { EventSource } from "eventsource";
 
 export default class InstantVueWebDatabase<
   Schema extends InstantSchemaDef<any, any, any>,
-  Config extends InstantConfig<Schema, boolean> = InstantConfig<Schema, false>
-> extends InstantVueAbstractDatabase<Schema, Config> {
+  UseDates extends boolean = false,
+  Config extends InstantConfig<Schema, UseDates> = InstantConfig<Schema, UseDates>
+> extends InstantVueAbstractDatabase<Schema, UseDates, Config> {
   static EventSourceImpl = EventSource;
 }

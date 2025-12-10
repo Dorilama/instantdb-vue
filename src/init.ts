@@ -40,7 +40,7 @@ export type InstantConfig<
  *
  * const db = init({ appId: "my-app-id" })
  *
- * // You can also provide a a schema for type safety and editor autocomplete!
+ * // You can also provide a schema for type safety and editor autocomplete!
  *
  * import { init } from "@okueng/instantdb-vue"
  * import schema from ""../instant.schema.ts";
@@ -53,13 +53,24 @@ export type InstantConfig<
 export function init<
   Schema extends InstantSchemaDef<any, any, any> = InstantUnknownSchema,
   UseDates extends boolean = false
->(config: InstantConfig<Schema, UseDates>) {
-  return new InstantVueWebDatabase<Schema, InstantConfig<Schema, UseDates>>(
-    config,
-    {
-      "@okueng/instantdb-vue": version,
-    }
-  );
+>(
+  // Allows config with missing `useDateObjects`, but keeps `UseDates`
+  // as a non-nullable in the InstantConfig type.
+  config: Omit<InstantConfig<Schema, UseDates>, "useDateObjects"> & {
+    useDateObjects?: UseDates;
+  }
+): InstantVueWebDatabase<Schema, UseDates, InstantConfig<Schema, UseDates>> {
+  const configStrict = {
+    ...config,
+    useDateObjects: (config.useDateObjects ?? false) as UseDates,
+  };
+  return new InstantVueWebDatabase<
+    Schema,
+    UseDates,
+    InstantConfig<Schema, UseDates>
+  >(configStrict, {
+    "@okueng/instantdb-vue": version,
+  });
 }
 
 /**

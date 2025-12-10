@@ -47,7 +47,8 @@ type UseAuthReturn = { [K in keyof AuthState]: ShallowRef<AuthState[K]> };
 
 export default abstract class InstantVueAbstractDatabase<
   Schema extends InstantSchemaDef<any, any, any>,
-  Config extends InstantConfig<Schema, boolean> = InstantConfig<Schema, false>,
+  UseDates extends boolean = false,
+  Config extends InstantConfig<Schema, boolean> = InstantConfig<Schema, UseDates>,
   Rooms extends RoomSchemaShape = RoomsOf<Schema>
 > implements IInstantDatabase<Schema>
 {
@@ -55,16 +56,10 @@ export default abstract class InstantVueAbstractDatabase<
 
   public auth: Auth;
   public storage: Storage;
-  public core: InstantCoreDatabase<
-    Schema,
-    NonNullable<Config["useDateObjects"]>
-  >;
+  public core: InstantCoreDatabase<Schema, UseDates>;
 
   /** @deprecated use `core` instead */
-  public _core: InstantCoreDatabase<
-    Schema,
-    NonNullable<Config["useDateObjects"]>
-  >;
+  public _core: InstantCoreDatabase<Schema, UseDates>;
 
   static Storage?: any;
   static NetworkListener?: any;
@@ -72,7 +67,12 @@ export default abstract class InstantVueAbstractDatabase<
 
   static extra: Extra;
 
-  constructor(config: Config, versions?: { [key: string]: string }) {
+  constructor(
+    config: Omit<InstantConfig<Schema, UseDates>, "useDateObjects"> & {
+      useDateObjects?: UseDates;
+    },
+    versions?: { [key: string]: string }
+  ) {
     const { __extra_vue, ..._config } = config;
 
     if (_config.clientOnlyUseQuery) {
@@ -81,7 +81,7 @@ export default abstract class InstantVueAbstractDatabase<
       );
     }
 
-    this.core = core_init<Schema, NonNullable<Config["useDateObjects"]>>(
+    this.core = core_init<Schema, UseDates>(
       _config,
       // @ts-expect-error because TS can't resolve subclass statics
       this.constructor.Storage,
@@ -246,12 +246,8 @@ export default abstract class InstantVueAbstractDatabase<
   useQuery = <Q extends ValidQuery<Q, Schema>>(
     query: MaybeRefOrGetter<null | Q>,
     opts?: MaybeRefOrGetter<InstaQLOptions | null>
-  ): UseQueryInternalReturn<
-    Schema,
-    Q,
-    NonNullable<Config["useDateObjects"]>
-  > => {
-    return useQueryInternal<Q, Schema, NonNullable<Config["useDateObjects"]>>(
+  ): UseQueryInternalReturn<Schema, Q, UseDates> => {
+    return useQueryInternal<Q, Schema, UseDates>(
       this.core,
       query,
       opts,
@@ -402,7 +398,7 @@ export default abstract class InstantVueAbstractDatabase<
     query: Q,
     opts?: InstaQLOptions
   ): Promise<{
-    data: InstaQLResponse<Schema, Q, NonNullable<Config["useDateObjects"]>>;
+    data: InstaQLResponse<Schema, Q, UseDates>;
     pageInfo: PageInfoResponse<Q>;
   }> => {
     return this.core.queryOnce(query, opts);
@@ -455,12 +451,13 @@ export default abstract class InstantVueAbstractDatabase<
 
 function componentWithDb<
   Schema extends InstantSchemaDef<any, any, any>,
+  UseDates extends boolean,
   Config extends InstantConfig<Schema, boolean>,
   Rooms extends RoomSchemaShape
 >(
-  db: InstantVueAbstractDatabase<Schema, Config, Rooms>,
+  db: InstantVueAbstractDatabase<Schema, UseDates, Config, Rooms>,
   defineComponentCallback: (
-    db: InstantVueAbstractDatabase<Schema, Config, Rooms>
+    db: InstantVueAbstractDatabase<Schema, UseDates, Config, Rooms>
   ) => ReturnType<typeof defineComponent>
 ) {
   return defineComponentCallback(db);

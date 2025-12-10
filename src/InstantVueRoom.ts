@@ -237,9 +237,6 @@ export function usePresence<
       ].value = value;
     });
 
-    // @instantdb/core v0.14.30 removes types for subscribePresence
-    // trying to restore types until fixed in core
-    // by adding type to parameter in callback
     const unsubscribe = room.core._reactor.subscribePresence(
       type,
       id,
