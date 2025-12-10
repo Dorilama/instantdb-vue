@@ -9,6 +9,8 @@ import {
   i,
   // error
   InstantAPIError,
+  // sync table enums
+  SyncTableCallbackEventType,
 } from "@instantdb/core";
 import type {
   QueryResponse,
@@ -69,6 +71,14 @@ import type {
   FileOpts,
   UploadFileResponse,
   DeleteFileResponse,
+  // sync table types
+  SyncTableCallback,
+  SyncTableCallbackEvent,
+  SyncTableInitialSyncBatch,
+  SyncTableInitialSyncComplete,
+  SyncTableSyncTransaction,
+  SyncTableLoadFromStorage,
+  SyncTableSetupError,
 } from "@instantdb/core";
 
 import InstantVueWebDatabase from "./InstantVueWebDatabase";
@@ -96,6 +106,8 @@ export {
   InstantAPIError,
   // internal
   InstantVueAbstractDatabase,
+  // sync table enums
+  SyncTableCallbackEventType,
 };
 export type {
   InstantConfig,
@@ -157,6 +169,14 @@ export type {
   FileOpts,
   UploadFileResponse,
   DeleteFileResponse,
+  // sync table types
+  SyncTableCallback,
+  SyncTableCallbackEvent,
+  SyncTableInitialSyncBatch,
+  SyncTableInitialSyncComplete,
+  SyncTableSyncTransaction,
+  SyncTableLoadFromStorage,
+  SyncTableSetupError,
   //
   CursorSchema,
 };
