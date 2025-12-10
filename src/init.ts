@@ -50,12 +50,29 @@ export type InstantConfig<
  * // To learn more: https://instantdb.com/docs/modeling-data
  *
  */
+// Overload: useDateObjects omitted or false -> UseDates = false
+export function init<
+  Schema extends InstantSchemaDef<any, any, any> = InstantUnknownSchema
+>(
+  config: Omit<InstantConfig<Schema, false>, "useDateObjects"> & {
+    useDateObjects?: false;
+  }
+): InstantVueWebDatabase<Schema, false, InstantConfig<Schema, false>>;
+
+// Overload: useDateObjects = true -> UseDates = true
+export function init<
+  Schema extends InstantSchemaDef<any, any, any> = InstantUnknownSchema
+>(
+  config: Omit<InstantConfig<Schema, true>, "useDateObjects"> & {
+    useDateObjects: true;
+  }
+): InstantVueWebDatabase<Schema, true, InstantConfig<Schema, true>>;
+
+// Implementation
 export function init<
   Schema extends InstantSchemaDef<any, any, any> = InstantUnknownSchema,
   UseDates extends boolean = false
 >(
-  // Allows config with missing `useDateObjects`, but keeps `UseDates`
-  // as a non-nullable in the InstantConfig type.
   config: Omit<InstantConfig<Schema, UseDates>, "useDateObjects"> & {
     useDateObjects?: UseDates;
   }
