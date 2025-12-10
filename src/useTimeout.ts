@@ -8,9 +8,7 @@ export function useTimeout() {
   let timeout: ReturnType<typeof setTimeout> | null = null;
 
   function set(delay: number, fn: () => void) {
-    if (timeout) {
-      clearTimeout(timeout);
-    }
+    clear();
 
     timeout = setTimeout(fn, delay);
   }

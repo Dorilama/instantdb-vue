@@ -53,13 +53,24 @@ export type InstantConfig<
 export function init<
   Schema extends InstantSchemaDef<any, any, any> = InstantUnknownSchema,
   UseDates extends boolean = false
->(config: InstantConfig<Schema, UseDates>) {
-  return new InstantVueWebDatabase<Schema, InstantConfig<Schema, UseDates>>(
-    config,
-    {
-      "@dorilama/instantdb-vue": version,
-    }
-  );
+>(
+  // Allows config with missing `useDateObjects`, but keeps `UseDates`
+  // as a non-nullable in the InstantConfig type.
+  config: Omit<InstantConfig<Schema, UseDates>, "useDateObjects"> & {
+    useDateObjects?: UseDates;
+  }
+): InstantVueWebDatabase<Schema, UseDates, InstantConfig<Schema, UseDates>> {
+  const configStrict = {
+    ...config,
+    useDateObjects: (config.useDateObjects ?? false) as UseDates,
+  };
+  return new InstantVueWebDatabase<
+    Schema,
+    UseDates,
+    InstantConfig<Schema, UseDates>
+  >(configStrict, {
+    "@dorilama/instantdb-vue": version,
+  });
 }
 
 /**

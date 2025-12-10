@@ -57,7 +57,7 @@ const spaceId = computed(
 
 const usePresenceOptions = computed(() => {
   return {
-    keys: [spaceId.value],
+    keys: [spaceId.value] as (keyof RoomSchema[RoomType]["presence"])[],
   };
 });
 
@@ -213,7 +213,7 @@ onBeforeUnmount(() => {
           <slot
             name="cursor"
             :color="getCursor(presence).color"
-            :presence="fullPresence.peers.value[id]"
+            :presence="fullPresence?.peers.value[id]"
           >
             <Cursor v-bind:color="getCursor(presence).color" />
           </slot>

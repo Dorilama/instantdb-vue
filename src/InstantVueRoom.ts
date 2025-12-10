@@ -214,8 +214,8 @@ export function usePresence<
     return {
       peers: presence.peers,
       isLoading: !!presence.isLoading,
-      user: presence.user,
-      error: presence.error,
+      user: presence.isLoading ? undefined : presence.user,
+      error: presence.isLoading ? undefined : presence.error,
     };
   };
 
@@ -354,20 +354,16 @@ export function useTypingIndicator<
 
   const _inputName = toValue(inputName);
 
-  const onservedPresence = rooms.usePresence(
-    room,
-    //@ts-ignore TODO! same error in InstantReact
-    () => ({
-      keys: [toValue(inputName)],
-    })
-  );
+  const observedPresence = rooms.usePresence(room, () => ({
+    keys: [toValue(inputName)] as (keyof RoomSchema[RoomType]["presence"])[],
+  }));
 
   const active = computed(() => {
     const presenceSnapshot = room.core._reactor.getPresence(
       room.type.value,
       room.id.value
     );
-    onservedPresence.peers.value;
+    observedPresence.peers.value;
 
     return toValue(opts)?.writeOnly
       ? []
