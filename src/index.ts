@@ -12,6 +12,7 @@ import {
   // sync table enums
   SyncTableCallbackEventType,
   StoreInterface,
+  createInstantRouteHandler,
 } from "@instantdb/core";
 import type {
   QueryResponse,
@@ -112,6 +113,8 @@ export {
   SyncTableCallbackEventType,
   // custom store
   StoreInterface,
+  // Server helper
+  createInstantRouteHandler,
 };
 export type {
   InstantConfig,
