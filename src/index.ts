@@ -11,6 +11,7 @@ import {
   InstantAPIError,
   // sync table enums
   SyncTableCallbackEventType,
+  StoreInterface,
 } from "@instantdb/core";
 import type {
   QueryResponse,
@@ -79,6 +80,7 @@ import type {
   SyncTableSyncTransaction,
   SyncTableLoadFromStorage,
   SyncTableSetupError,
+  StoreInterfaceStoreName,
 } from "@instantdb/core";
 
 import InstantVueWebDatabase from "./InstantVueWebDatabase";
@@ -108,6 +110,8 @@ export {
   InstantVueAbstractDatabase,
   // sync table enums
   SyncTableCallbackEventType,
+  // custom store
+  StoreInterface,
 };
 export type {
   InstantConfig,
@@ -169,6 +173,8 @@ export type {
   FileOpts,
   UploadFileResponse,
   DeleteFileResponse,
+  // custom store
+  StoreInterfaceStoreName,
   // sync table types
   SyncTableCallback,
   SyncTableCallbackEvent,

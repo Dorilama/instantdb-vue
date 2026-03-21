@@ -52,9 +52,8 @@ export default abstract class InstantVueAbstractDatabase<
     Schema,
     UseDates
   >,
-  Rooms extends RoomSchemaShape = RoomsOf<Schema>
-> implements IInstantDatabase<Schema>
-{
+  Rooms extends RoomSchemaShape = RoomsOf<Schema>,
+> implements IInstantDatabase<Schema> {
   public tx = txInit<Schema>();
 
   public auth: Auth;
@@ -64,7 +63,7 @@ export default abstract class InstantVueAbstractDatabase<
   /** @deprecated use `core` instead */
   public _core: InstantCoreDatabase<Schema, UseDates>;
 
-  static Storage?: any;
+  static Store?: any;
   static NetworkListener?: any;
   static EventSourceImpl?: any;
 
@@ -74,25 +73,25 @@ export default abstract class InstantVueAbstractDatabase<
     config: Omit<InstantConfig<Schema, UseDates>, "useDateObjects"> & {
       useDateObjects?: UseDates;
     },
-    versions?: { [key: string]: string }
+    versions?: { [key: string]: string },
   ) {
     const { __extra_vue, ..._config } = config;
 
     if (_config.clientOnlyUseQuery) {
       console.warn(
-        `clientOnlyUseQuery is deprecated. use __extra_vue.clientOnlyUseQuery`
+        `clientOnlyUseQuery is deprecated. use __extra_vue.clientOnlyUseQuery`,
       );
     }
 
     this.core = core_init<Schema, UseDates>(
       _config,
       // @ts-expect-error because TS can't resolve subclass statics
-      this.constructor.Storage,
+      config.Store || this.constructor.Store,
       // @ts-expect-error because TS can't resolve subclass statics
       this.constructor.NetworkListener,
       versions,
       // @ts-expect-error because TS can't resolve subclass static
-      this.constructor.EventSourceImpl
+      this.constructor.EventSourceImpl,
     );
     this._core = this.core;
     this.auth = this.core.auth;
@@ -169,7 +168,7 @@ export default abstract class InstantVueAbstractDatabase<
    */
   room<RoomType extends keyof Rooms>(
     type?: MaybeRefOrGetter<RoomType | undefined>,
-    id?: MaybeRefOrGetter<string | undefined>
+    id?: MaybeRefOrGetter<string | undefined>,
   ) {
     const _type = computed(() => {
       return toValue(type) || ("_defaultRoomType" as RoomType);
@@ -217,7 +216,7 @@ export default abstract class InstantVueAbstractDatabase<
    *  ])
    */
   transact = (
-    chunks: TransactionChunk<any, any> | TransactionChunk<any, any>[]
+    chunks: TransactionChunk<any, any> | TransactionChunk<any, any>[],
   ) => {
     return this.core.transact(chunks);
   };
@@ -248,14 +247,14 @@ export default abstract class InstantVueAbstractDatabase<
    */
   useQuery = <Q extends ValidQuery<Q, Schema>>(
     query: MaybeRefOrGetter<null | Q>,
-    opts?: MaybeRefOrGetter<InstaQLOptions | null>
+    opts?: MaybeRefOrGetter<InstaQLOptions | null>,
   ): UseQueryInternalReturn<Schema, Q, Config["useDateObjects"]> => {
     return useQueryInternal<Q, Schema, UseDates>(
       this.core,
       query,
       opts,
       // @ts-expect-error because TS can't resolve subclass statics
-      this.constructor.extra
+      this.constructor.extra,
     ).state;
   };
 
@@ -284,7 +283,7 @@ export default abstract class InstantVueAbstractDatabase<
 
     if (!user.value) {
       throw new InstantError(
-        "useUser must be used within an auth-protected route"
+        "useUser must be used within an auth-protected route",
       );
     }
 
@@ -373,7 +372,7 @@ export default abstract class InstantVueAbstractDatabase<
    */
   useConnectionStatus = (): Ref<ConnectionStatus> => {
     const status = ref<ConnectionStatus>(
-      this.core._reactor.status as ConnectionStatus
+      this.core._reactor.status as ConnectionStatus,
     );
     const unsubscribe = this.core.subscribeConnectionStatus((newStatus) => {
       status.value = newStatus;
@@ -399,7 +398,7 @@ export default abstract class InstantVueAbstractDatabase<
    */
   queryOnce = <Q extends ValidQuery<Q, Schema>>(
     query: Q,
-    opts?: InstaQLOptions
+    opts?: InstaQLOptions,
   ): Promise<{
     data: InstaQLResponse<Schema, Q, UseDates>;
     pageInfo: PageInfoResponse<Q>;
@@ -426,7 +425,7 @@ export default abstract class InstantVueAbstractDatabase<
           return slots.default?.();
         };
       },
-    })
+    }),
   );
 
   /**
@@ -448,7 +447,7 @@ export default abstract class InstantVueAbstractDatabase<
           return slots.default?.();
         };
       },
-    })
+    }),
   );
 }
 
@@ -459,12 +458,12 @@ function componentWithDb<
     Schema,
     UseDates
   >,
-  Rooms extends RoomSchemaShape = RoomsOf<Schema>
+  Rooms extends RoomSchemaShape = RoomsOf<Schema>,
 >(
   db: InstantVueAbstractDatabase<Schema, UseDates, Config, Rooms>,
   defineComponentCallback: (
-    db: InstantVueAbstractDatabase<Schema, UseDates, Config, Rooms>
-  ) => ReturnType<typeof defineComponent>
+    db: InstantVueAbstractDatabase<Schema, UseDates, Config, Rooms>,
+  ) => ReturnType<typeof defineComponent>,
 ) {
   return defineComponentCallback(db);
 }
