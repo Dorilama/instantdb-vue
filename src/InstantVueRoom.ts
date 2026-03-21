@@ -19,7 +19,7 @@ import { tryOnScopeDispose, type Arrayable } from "./utils";
 export type PresenceHandle<
   PresenceShape,
   Keys extends keyof PresenceShape,
-  State = PresenceResponse<PresenceShape, Keys>
+  State = PresenceResponse<PresenceShape, Keys>,
 > = { [K in keyof State]: ShallowRef<State[K]> } & {
   publishPresence: (data?: Partial<PresenceShape>) => void;
   stop: () => void;
@@ -64,8 +64,8 @@ export const defaultActivityStopTimeout = 1_000;
  */
 export function useTopicEffect<
   RoomSchema extends RoomSchemaShape,
-  RoomType extends keyof RoomSchema,
-  TopicType extends keyof RoomSchema[RoomType]["topics"]
+  RoomType extends string & keyof RoomSchema,
+  TopicType extends keyof RoomSchema[RoomType]["topics"],
 >(
   room: InstantVueRoom<any, RoomSchema, RoomType>,
   topic: MaybeRefOrGetter<Arrayable<TopicType>>,
@@ -73,9 +73,9 @@ export function useTopicEffect<
     (
       event: RoomSchema[RoomType]["topics"][TopicType],
       peer: RoomSchema[RoomType]["presence"],
-      topic: TopicType
+      topic: TopicType,
     ) => any
-  >
+  >,
 ): () => void {
   const cleanup: (() => void)[] = [];
 
@@ -87,23 +87,25 @@ export function useTopicEffect<
   const stop = watchEffect((onCleanup) => {
     const _topic = toValue(topic);
     const id = room.id.value;
+    const type = room.type.value;
     const topicArray = Array.isArray(_topic) ? _topic : [_topic];
     const callbacks = Array.isArray(onEvent) ? onEvent : [onEvent];
     cleanup.push(
       ...topicArray.map((topicType) => {
         return room.core._reactor.subscribeTopic(
+          type,
           id,
           topicType,
           (
             event: RoomSchema[RoomType]["topics"][TopicType],
-            peer: RoomSchema[RoomType]["presence"]
+            peer: RoomSchema[RoomType]["presence"],
           ) => {
             callbacks.forEach((cb) => {
               cb(event, peer, topicType);
             });
-          }
+          },
         );
-      })
+      }),
     );
     onCleanup(unsubscribe);
   });
@@ -131,15 +133,16 @@ export function useTopicEffect<
  */
 export function usePublishTopic<
   RoomSchema extends RoomSchemaShape,
-  RoomType extends keyof RoomSchema,
-  TopicType extends keyof RoomSchema[RoomType]["topics"]
+  RoomType extends string & keyof RoomSchema,
+  TopicType extends keyof RoomSchema[RoomType]["topics"],
 >(
   room: InstantVueRoom<any, RoomSchema, RoomType>,
-  topic: MaybeRefOrGetter<TopicType>
+  topic: MaybeRefOrGetter<TopicType>,
 ): (data: RoomSchema[RoomType]["topics"][TopicType]) => void {
   const stopRoomWatch = watchEffect((onCleanup) => {
     const id = room.id.value;
-    const cleanup = room.core._reactor.joinRoom(id);
+    const type = room.type.value;
+    const cleanup = room.core._reactor.joinRoom(type, id);
     onCleanup(cleanup);
   });
 
@@ -190,13 +193,13 @@ export function usePublishTopic<
  */
 export function usePresence<
   RoomSchema extends RoomSchemaShape,
-  RoomType extends keyof RoomSchema,
-  Keys extends keyof RoomSchema[RoomType]["presence"]
+  RoomType extends string & keyof RoomSchema,
+  Keys extends keyof RoomSchema[RoomType]["presence"],
 >(
   room: InstantVueRoom<any, RoomSchema, RoomType>,
   opts: MaybeRefOrGetter<
     PresenceOpts<RoomSchema[RoomType]["presence"], Keys>
-  > = {}
+  > = {},
 ): PresenceHandle<RoomSchema[RoomType]["presence"], Keys> {
   const getInitialState = (): PresenceResponse<
     RoomSchema[RoomType]["presence"],
@@ -205,7 +208,7 @@ export function usePresence<
     const presence = room.core._reactor.getPresence(
       room.type.value,
       room.id.value,
-      toValue(opts)
+      toValue(opts),
     ) ?? {
       peers: {},
       isLoading: true,
@@ -253,7 +256,7 @@ export function usePresence<
             >
           ].value = value;
         });
-      }
+      },
     );
     onCleanup(unsubscribe);
   });
@@ -286,16 +289,17 @@ export function usePresence<
  */
 export function useSyncPresence<
   RoomSchema extends RoomSchemaShape,
-  RoomType extends keyof RoomSchema
+  RoomType extends string & keyof RoomSchema,
 >(
   room: InstantVueRoom<any, RoomSchema, RoomType>,
   data: MaybeRefOrGetter<Partial<RoomSchema[RoomType]["presence"] | undefined>>,
-  deps?: MaybeRefOrGetter<any[]>
+  deps?: MaybeRefOrGetter<any[]>,
 ): () => void {
   const stopJoinRoom = watchEffect((onCleanup) => {
     const id = room.id.value;
+    const type = room.type.value;
     const _data = toValue(data);
-    const cleanup = room.core._reactor.joinRoom(id, _data);
+    const cleanup = room.core._reactor.joinRoom(type, id, _data);
     onCleanup(cleanup);
   });
 
@@ -344,11 +348,11 @@ export function useSyncPresence<
  */
 export function useTypingIndicator<
   RoomSchema extends RoomSchemaShape,
-  RoomType extends keyof RoomSchema
+  RoomType extends string & keyof RoomSchema,
 >(
   room: InstantVueRoom<any, RoomSchema, RoomType>,
   inputName: MaybeRefOrGetter<string>,
-  opts: MaybeRefOrGetter<TypingIndicatorOpts> = {}
+  opts: MaybeRefOrGetter<TypingIndicatorOpts> = {},
 ): TypingIndicatorHandle<RoomSchema[RoomType]["presence"]> {
   const timeout = useTimeout();
 
@@ -361,7 +365,7 @@ export function useTypingIndicator<
   const active = computed(() => {
     const presenceSnapshot = room.core._reactor.getPresence(
       room.type.value,
-      room.id.value
+      room.id.value,
     );
     observedPresence.peers.value;
 
@@ -369,7 +373,7 @@ export function useTypingIndicator<
       ? []
       : Object.values(presenceSnapshot?.peers ?? {}).filter(
           //@ts-ignore TODO! same error in InstantReact
-          (p) => p[_inputName] === true
+          (p) => p[_inputName] === true,
         );
   });
 
@@ -442,7 +446,7 @@ export const rooms = {
 export class InstantVueRoom<
   Schema extends InstantSchemaDef<any, any, any>,
   RoomSchema extends RoomSchemaShape,
-  RoomType extends keyof RoomSchema
+  RoomType extends string & keyof RoomSchema,
 > {
   core: InstantCoreDatabase<Schema, boolean>;
   type: ComputedRef<RoomType>;
@@ -451,7 +455,7 @@ export class InstantVueRoom<
   constructor(
     core: InstantCoreDatabase<Schema, boolean>,
     type: ComputedRef<RoomType>,
-    id: ComputedRef<string>
+    id: ComputedRef<string>,
   ) {
     this.core = core;
     this.type = type;
@@ -478,9 +482,9 @@ export class InstantVueRoom<
       (
         event: RoomSchema[RoomType]["topics"][TopicType],
         peer: RoomSchema[RoomType]["presence"],
-        topic: TopicType
+        topic: TopicType,
       ) => any
-    >
+    >,
   ): (() => void) => {
     return rooms.useTopicEffect(this, topic, onEvent);
   };
@@ -500,7 +504,7 @@ export class InstantVueRoom<
    * const publish = db.rooms.usePublishTopic(room, 'emoji');
    */
   usePublishTopic = <Topic extends keyof RoomSchema[RoomType]["topics"]>(
-    topic: MaybeRefOrGetter<Topic>
+    topic: MaybeRefOrGetter<Topic>,
   ): ((data: RoomSchema[RoomType]["topics"][Topic]) => void) => {
     return rooms.usePublishTopic(this, topic);
   };
@@ -522,7 +526,7 @@ export class InstantVueRoom<
   usePresence = <Keys extends keyof RoomSchema[RoomType]["presence"]>(
     opts: MaybeRefOrGetter<
       PresenceOpts<RoomSchema[RoomType]["presence"], Keys>
-    > = {}
+    > = {},
   ): PresenceHandle<RoomSchema[RoomType]["presence"], Keys> => {
     return rooms.usePresence(this, opts);
   };
@@ -545,7 +549,7 @@ export class InstantVueRoom<
     data: MaybeRefOrGetter<
       Partial<RoomSchema[RoomType]["presence"] | undefined>
     >,
-    deps?: MaybeRefOrGetter<any[]>
+    deps?: MaybeRefOrGetter<any[]>,
   ): (() => void) => {
     return rooms.useSyncPresence(this, data, deps);
   };
@@ -566,7 +570,7 @@ export class InstantVueRoom<
    */
   useTypingIndicator = (
     inputName: MaybeRefOrGetter<string>,
-    opts: MaybeRefOrGetter<TypingIndicatorOpts> = {}
+    opts: MaybeRefOrGetter<TypingIndicatorOpts> = {},
   ): TypingIndicatorHandle<RoomSchema[RoomType]["presence"]> => {
     return rooms.useTypingIndicator(this, inputName, opts);
   };

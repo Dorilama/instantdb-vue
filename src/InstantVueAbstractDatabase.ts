@@ -166,7 +166,7 @@ export default abstract class InstantVueAbstractDatabase<
    *  const room = db.room('chat', roomId);
    *  const { peers } = db.rooms.usePresence(room);
    */
-  room<RoomType extends keyof Rooms>(
+  room<RoomType extends string & keyof Rooms>(
     type?: MaybeRefOrGetter<RoomType | undefined>,
     id?: MaybeRefOrGetter<string | undefined>,
   ) {

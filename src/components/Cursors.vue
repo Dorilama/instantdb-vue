@@ -5,7 +5,10 @@
 <script
   setup
   lang="ts"
-  generic="RoomSchema extends RoomSchemaShape, RoomType extends keyof RoomSchema"
+  generic="
+    RoomSchema extends RoomSchemaShape,
+    RoomType extends string & keyof RoomSchema
+  "
 >
 import type * as CSS from "csstype";
 import { computed, onBeforeUnmount, ref, watch, watchEffect } from "vue";
@@ -24,7 +27,7 @@ const props = withDefaults(
     propagate?: boolean;
     zIndex?: number;
   }>(),
-  { as: "div" }
+  { as: "div" },
 );
 
 const emit = defineEmits<{ error: [value: string] }>();
@@ -52,7 +55,7 @@ const spaceId = computed(
     (props.spaceId ||
       `cursors-space-default--${String(room.type)}-${
         room.id.value
-      }`) as keyof RoomSchema[RoomType]["presence"]
+      }`) as keyof RoomSchema[RoomType]["presence"],
 );
 
 const usePresenceOptions = computed(() => {
@@ -93,7 +96,7 @@ function getCursor(presence: (typeof cursorsPresence.peers.value)[string]) {
 
 function publishCursor(
   rect: DOMRect,
-  touch: { clientX: number; clientY: number }
+  touch: { clientX: number; clientY: number },
 ) {
   const x = touch.clientX;
   const y = touch.clientY;
