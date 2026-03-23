@@ -14,7 +14,11 @@ import type { ShallowRef, MaybeRefOrGetter } from "vue";
 import { tryOnScopeDispose } from "./utils";
 import type { Extra } from "./init";
 
-export type UseQueryInternalReturn<Schema, Q, UseDates extends boolean> = {
+export type UseQueryInternalReturn<
+  Schema extends InstantSchemaDef<any, any, any>,
+  Q extends ValidQuery<Q, Schema>,
+  UseDates extends boolean,
+> = {
   [K in keyof InstaQLLifecycleState<Schema, Q, UseDates>]: ShallowRef<
     InstaQLLifecycleState<Schema, Q, UseDates>[K]
   >;
@@ -33,12 +37,12 @@ function stateForResult(result: any) {
 export function useQueryInternal<
   Q extends ValidQuery<Q, Schema>,
   Schema extends InstantSchemaDef<any, any, any>,
-  UseDates extends boolean
+  UseDates extends boolean,
 >(
   _core: InstantCoreDatabase<Schema, UseDates>,
   _query: MaybeRefOrGetter<null | Q>,
   _opts?: MaybeRefOrGetter<InstaQLOptions | null>,
-  extra?: Extra
+  extra?: Extra,
 ): {
   state: UseQueryInternalReturn<Schema, Q, UseDates>;
   query: any;
@@ -56,7 +60,7 @@ export function useQueryInternal<
   });
 
   const initialState = stateForResult(
-    _core._reactor.getPreviousResult(query.value)
+    _core._reactor.getPreviousResult(query.value),
   );
 
   const state: UseQueryInternalReturn<Schema, Q, UseDates> = {
@@ -72,7 +76,7 @@ export function useQueryInternal<
       queryHash,
       (_, __, onCleanup) => {
         const currentState = stateForResult(
-          _core._reactor.getPreviousResult(query.value)
+          _core._reactor.getPreviousResult(query.value),
         );
         state.isLoading.value = currentState.isLoading;
         state.data.value = currentState.data;
@@ -92,11 +96,11 @@ export function useQueryInternal<
             state.data.value = result.data;
             state.pageInfo.value = result.pageInfo;
             state.error.value = result.error;
-          }
+          },
         );
         onCleanup(unsubscribe);
       },
-      { immediate: true }
+      { immediate: true },
     );
 
     state.stop = stop;
