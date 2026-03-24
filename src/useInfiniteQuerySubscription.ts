@@ -9,6 +9,7 @@ import type {
 } from "@instantdb/core";
 import { shallowRef, toValue, watch, ref } from "vue";
 import type { ShallowRef, Ref, MaybeRefOrGetter } from "vue";
+import { tryOnScopeDispose } from "./utils";
 
 type InfiniteQueryResultBase<
   Schema extends InstantSchemaDef<any, any, any>,
@@ -128,6 +129,10 @@ export function useInfiniteQuerySubscription<
   const loadNextPage = () => {
     subRef?.loadNextPage();
   };
+
+  tryOnScopeDispose(() => {
+    stop();
+  });
 
   return {
     ...state,
