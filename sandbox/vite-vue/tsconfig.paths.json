@@ -4,5 +4,6 @@
       "@dorilama/instantdb-vue": ["../../src"],
       "@/*": ["./src/*"]
     }
-  }
+  },
+  "exclude": ["node_modules"]
 }
