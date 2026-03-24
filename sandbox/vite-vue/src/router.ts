@@ -59,6 +59,12 @@ const routes = [
     component: () => import("@/views/Docs.vue"),
     meta: { label: "Docs", isNav: true },
   },
+  {
+    path: "/infinite",
+    name: "infiniteQuery",
+    component: () => import("@/views/InfiniteQuery.vue"),
+    meta: { label: "Infinite", isNav: true },
+  },
 ];
 
 export const router = createRouter({

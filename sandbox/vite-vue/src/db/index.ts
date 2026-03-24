@@ -1,11 +1,12 @@
 import {
   init,
-  i,
   type InstaQLParams,
   InstaQLResult,
 } from "@dorilama/instantdb-vue";
 
-import schema from "../../instant.schema";
+import _schema from "../../instant.schema";
+
+export const schema = _schema;
 
 // Visit https://instantdb.com/dash to get your APP_ID :)
 const APP_ID = import.meta.env["VITE_INSTANT_APP_ID"];

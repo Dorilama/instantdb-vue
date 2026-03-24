@@ -24,8 +24,11 @@ import type {
   IInstantDatabase,
   ValidQuery,
 } from "@instantdb/core";
-import { useQueryInternal } from "./useQuery";
-import type { UseQueryInternalReturn } from "./useQuery";
+import { useQueryInternal, type UseQueryInternalReturn } from "./useQuery";
+import {
+  useInfiniteQuerySubscription,
+  type InfiniteQueryResult,
+} from "./useInfiniteQuerySubscription";
 import {
   computed,
   onMounted,
@@ -35,8 +38,6 @@ import {
   watchEffect,
   h,
   defineComponent,
-  type SetupContext,
-  type SlotsType,
 } from "vue";
 import type { MaybeRefOrGetter, Ref, ShallowRef } from "vue";
 import { tryOnScopeDispose } from "./utils";
@@ -404,6 +405,41 @@ export default abstract class InstantVueAbstractDatabase<
     pageInfo: PageInfoResponse<Q>;
   }> => {
     return this.core.queryOnce(query, opts);
+  };
+
+  /**
+   * Subscribe to a query and incrementally load more items
+   *
+   * Only one top level namespace in the query is allowed.
+   *
+   * Changing the query or options while the subscription is active will
+   * reset the subscription and start over with new data.
+   * @example
+   * const {
+   *   data,
+   *   loadNextPage,
+   *   canLoadNextPage,
+   * } = db.useInfiniteQuery({
+   *   posts: {
+   *     $: {
+   *       limit: 20,   // Load 20 posts at a time
+   *       order: {
+   *         createdAt: 'desc',
+   *       },
+   *     },
+   *   },
+   * });
+   */
+  useInfiniteQuery = <Q extends ValidQuery<Q, Schema>>(
+    query: MaybeRefOrGetter<Q>,
+    opts?: MaybeRefOrGetter<InstaQLOptions | undefined>,
+  ): InfiniteQueryResult<Schema, Q, UseDates> => {
+    const result = useInfiniteQuerySubscription<Schema, Q, UseDates>({
+      core: this.core,
+      query: query,
+      opts,
+    });
+    return result;
   };
 
   /**

@@ -69,7 +69,7 @@ export function useInfiniteQuerySubscription<
 }: {
   core: InstantCoreDatabase<Schema, UseDates>;
   query: MaybeRefOrGetter<Q | null>;
-  opts?: MaybeRefOrGetter<InstaQLOptions>;
+  opts?: MaybeRefOrGetter<InstaQLOptions | undefined>;
 }): InfiniteQueryResult<Schema, Q, UseDates> {
   const snapshot = getInfiniteQueryInitialSnapshot(
     core,
@@ -124,6 +124,7 @@ export function useInfiniteQuerySubscription<
         }
       });
     },
+    { immediate: true },
   );
 
   const loadNextPage = () => {

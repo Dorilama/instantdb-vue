@@ -6,10 +6,12 @@ const _schema = i.schema({
   entities: {
     $files: i.entity({
       path: i.string().unique().indexed(),
-      url: i.string(),
+      url: i.string().optional(),
     }),
     $users: i.entity({
       email: i.string().unique().indexed().optional(),
+      imageURL: i.string().optional(),
+      type: i.string().optional(),
     }),
     docs: i.entity({
       text: i.string(),
@@ -28,6 +30,19 @@ const _schema = i.schema({
     user: i.entity({}),
   },
   links: {
+    $usersLinkedPrimaryUser: {
+      forward: {
+        on: "$users",
+        has: "one",
+        label: "linkedPrimaryUser",
+        onDelete: "cascade",
+      },
+      reverse: {
+        on: "$users",
+        has: "many",
+        label: "linkedGuestUsers",
+      },
+    },
     notesTodos: {
       forward: {
         on: "notes",
@@ -58,7 +73,7 @@ const _schema = i.schema({
   },
 });
 
-// This helps Typescript display nicer intellisense
+// This helps TypeScript display nicer intellisense
 type _AppSchema = typeof _schema;
 interface AppSchema extends _AppSchema {}
 const schema: AppSchema = _schema;
