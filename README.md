@@ -1,3 +1,6 @@
+> [!NOTE]
+> There is now an official [Vue SDK for InstantDB](https://www.instantdb.com/docs/start-vue)
+
 # instantdb-vue
 
 Unofficial port of [@instantdb/react](https://github.com/instantdb/instant/blob/main/client/packages/react/README.md) for vue
